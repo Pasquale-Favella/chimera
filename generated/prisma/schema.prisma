@@ -1,0 +1,200 @@
+// Prisma schema for Better Auth
+// learn more: https://better-auth.com/docs/concepts/database
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+// NOTE: When using mysql or sqlserver, uncomment the //@db.Text annotations in model Account below
+// Further reading:
+// https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String              @id
+  name              String //@db.Text
+  email             String
+  emailVerified     Boolean             @default(false)
+  image             String? //@db.Text
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now()) @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  projectsOwned     Project[]
+  memberships       ProjectMembership[] @relation("MembershipUser")
+  designs           Design[]            @relation("DesignAuthor")
+  components        Component[]
+  membershipInvites ProjectMembership[] @relation("MembershipInvitations")
+
+  geminiApiKey      String? //@db.Text
+  geminiPreferences Json? // { [feature: string]: { model: string, provider: string } }
+
+  @@unique([email])
+  @@map("user")
+}
+
+enum ProjectRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String
+
+  memberships ProjectMembership[]
+  designs     Design[]
+  components  Component[]
+  connections DesignConnection[]
+
+  @@index([createdById])
+  @@map("project")
+}
+
+model ProjectMembership {
+  id          String      @id @default(cuid())
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  user        User        @relation("MembershipUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  role        ProjectRole @default(VIEWER)
+  invitedBy   User?       @relation("MembershipInvitations", fields: [invitedById], references: [id])
+  invitedById String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([projectId, userId])
+  @@map("project_membership")
+}
+
+enum DesignViewMode {
+  DESKTOP
+  TABLET
+  MOBILE
+}
+
+enum ConnectionPosition {
+  TOP
+  RIGHT
+  BOTTOM
+  LEFT
+}
+
+model Design {
+  id          String         @id @default(cuid())
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  createdBy   User           @relation("DesignAuthor", fields: [createdById], references: [id])
+  createdById String
+  name        String
+  description String?
+  html        String         @default("")
+  position    Json? // {x: number, y: number}
+  size        Json? // {width: number, height: number}
+  viewMode    DesignViewMode @default(DESKTOP)
+  history     Json? // string[] - array of HTML strings
+  tokens      Json? // {colors: string[], fonts: string[]}
+
+  data      Json? // Legacy field, kept for compatibility
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  connectionsFrom DesignConnection[] @relation("FromDesign")
+  connectionsTo   DesignConnection[] @relation("ToDesign")
+
+  @@index([projectId])
+  @@map("design")
+}
+
+model Component {
+  id          String   @id @default(cuid())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String
+  name        String
+  html        String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+  @@map("component")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String? //@db.Text
+  userAgent String? //@db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String //@db.Text
+  providerId            String //@db.Text
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String? //@db.Text
+  refreshToken          String? //@db.Text
+  idToken               String? //@db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String? //@db.Text
+  password              String? //@db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model DesignConnection {
+  id           String             @id @default(cuid())
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  fromDesign   Design             @relation("FromDesign", fields: [fromDesignId], references: [id], onDelete: Cascade)
+  fromDesignId String
+  toDesign     Design             @relation("ToDesign", fields: [toDesignId], references: [id], onDelete: Cascade)
+  toDesignId   String
+  fromPosition ConnectionPosition
+  toPosition   ConnectionPosition
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([fromDesignId, toDesignId, fromPosition, toPosition])
+  @@index([projectId])
+  @@index([fromDesignId])
+  @@index([toDesignId])
+  @@map("design_connection")
+}
+
+model Verification {
+  id         String   @id
+  identifier String //@db.Text
+  value      String //@db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
