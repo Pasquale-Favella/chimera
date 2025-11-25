@@ -36,7 +36,7 @@ An AI-powered full-stack platform that enables rapid design implementation and i
 1.  **Clone the repository**
 
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/Pasquale-Favella/chimera.git
     cd chimera
     ```
 
