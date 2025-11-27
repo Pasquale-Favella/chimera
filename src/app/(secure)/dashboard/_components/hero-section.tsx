@@ -63,9 +63,6 @@ export function HeroSection({
 							</div>
 							<div className="flex flex-wrap gap-3">
 								<InviteCollaboratorDialog />
-								<Button size="sm" variant="outline">
-									Browse designs
-								</Button>
 							</div>
 						</div>
 						<div className="w-full max-w-sm lg:w-80">

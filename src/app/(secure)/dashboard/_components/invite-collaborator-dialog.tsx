@@ -104,7 +104,7 @@ export function InviteCollaboratorDialog() {
             }}
         >
             <DialogTrigger asChild>
-                <Button size="sm">Invite collaborator</Button>
+                <Button size="lg">Invite collaborator</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
