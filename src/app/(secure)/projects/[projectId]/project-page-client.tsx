@@ -26,6 +26,7 @@ import { ProjectRole } from "../../../../../generated/prisma";
 import { authClient } from "@/server/better-auth/client";
 import { api } from "@/trpc/react";
 import { DeleteProjectCard } from "./_components/delete-project-card";
+import { ProjectHeader } from "./_components/project-header";
 
 type ProjectPageClientProps = {
 	projectId: string;
@@ -53,21 +54,8 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
 		<div className="flex flex-1 flex-col gap-4 p-4">
 			<div className="flex flex-col gap-6 rounded-xl border bg-card p-6 shadow-sm lg:flex-row lg:items-start lg:justify-between">
 				<div className="space-y-4">
-					<div className="space-y-2">
-						<div className="flex items-center gap-2">
-							<Badge variant="secondary" className="w-fit">
-								{currentRole === ProjectRole.OWNER
-									? "Owner"
-									: `Access: ${currentRole.toLowerCase()}`}
-							</Badge>
-							<span className="text-xs text-muted-foreground">
-								Last updated{" "}
-								{formatDistanceToNow(new Date(stats.updatedAt), {
-									addSuffix: true,
-								})}
-							</span>
-						</div>
-						<h1 className="text-4xl font-bold tracking-tight">{project.name}</h1>
+					<div className="space-y-4">
+						<ProjectHeader project={project} currentRole={currentRole} />
 					</div>
 				</div>
 				<div className="flex flex-col gap-3 sm:flex-row">
