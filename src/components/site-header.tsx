@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -52,7 +53,9 @@ export function SiteHeader() {
                   {crumb.isLast ? (
                     <BreadcrumbPage>{crumb.title}</BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink href={crumb.href}>{crumb.title}</BreadcrumbLink>
+                    <BreadcrumbLink asChild>
+                      <Link href={crumb.href}>{crumb.title}</Link>
+                    </BreadcrumbLink>
                   )}
                 </BreadcrumbItem>
                 {!crumb.isLast && (
