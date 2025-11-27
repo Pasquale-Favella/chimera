@@ -95,6 +95,22 @@ export const projectsRouter = createTRPCRouter({
 			};
 		}),
 
+	listOwned: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.session.user.id;
+		return ctx.db.project.findMany({
+			where: {
+				createdById: userId,
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+			orderBy: {
+				name: "asc",
+			},
+		});
+	}),
+
 	getStats: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session.user.id;
 

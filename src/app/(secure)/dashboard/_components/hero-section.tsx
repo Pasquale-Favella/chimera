@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ProjectQuickCreate } from "@/app/(secure)/dashboard/_components/project-quick-create";
+import { InviteCollaboratorDialog } from "./invite-collaborator-dialog";
 
 type HeroSectionProps = {
 	userName?: string | null;
@@ -61,7 +62,7 @@ export function HeroSection({
 								))}
 							</div>
 							<div className="flex flex-wrap gap-3">
-								<Button size="sm">Invite collaborator</Button>
+								<InviteCollaboratorDialog />
 								<Button size="sm" variant="outline">
 									Browse designs
 								</Button>
