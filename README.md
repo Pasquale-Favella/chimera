@@ -91,3 +91,17 @@ chimera/
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+
+### What this means:
+
+The AGPL-3.0 is a strong copyleft license, similar to the GPL, but with an additional clause for network server software.
+
+- **Copyleft**: If you modify this software and distribute it, you must release your modifications under the same AGPL-3.0 license.
+- **Network Use is Distribution**: If you run a modified version of this software on a server and let users interact with it over a network (e.g., as a web application), you **must** make the source code of your modified version available to those users.
+- **Open Source**: You are free to use, modify, and distribute this software, provided you adhere to the terms of the license.
+
+For more details, see the [LICENSE](LICENSE) file.
