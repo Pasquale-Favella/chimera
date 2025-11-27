@@ -95,6 +95,62 @@ export const projectsRouter = createTRPCRouter({
 			};
 		}),
 
+	getStats: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.session.user.id;
+
+		const [projects, uniqueCollaborators] = await Promise.all([
+			ctx.db.project.findMany({
+				where: {
+					OR: [
+						{ createdById: userId },
+						{
+							memberships: {
+								some: { userId },
+							},
+						},
+					],
+				},
+				select: {
+					createdById: true,
+					_count: {
+						select: {
+							designs: true,
+						},
+					},
+				},
+			}),
+			ctx.db.projectMembership.findMany({
+				where: {
+					project: {
+						OR: [
+							{ createdById: userId },
+							{
+								memberships: {
+									some: { userId },
+								},
+							},
+						],
+					},
+					userId: { not: userId },
+				},
+				distinct: ["userId"],
+				select: {
+					userId: true,
+				},
+			}),
+		]);
+
+		const owned = projects.filter((p) => p.createdById === userId).length;
+		const designs = projects.reduce((sum, p) => sum + (p._count?.designs ?? 0), 0);
+
+		return {
+			projects: projects.length,
+			owned,
+			designs,
+			collaborators: uniqueCollaborators.length,
+		};
+	}),
+
 	getById: protectedProcedure.input(projectIdSchema).query(async ({ ctx, input }) => {
 		await assertProjectAccess(ctx, input.projectId, VIEWER_ACCESS);
 

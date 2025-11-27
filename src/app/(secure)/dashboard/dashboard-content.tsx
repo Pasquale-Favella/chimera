@@ -22,17 +22,7 @@ export function DashboardContent({ recentLimit }: DashboardContentProps) {
 	const [projectsData] = api.projects.list.useSuspenseQuery({ page, limit });
 	const projects = projectsData.items;
 	const [recentDesigns] = api.designs.listRecent.useSuspenseQuery({ limit: recentLimit });
-
-	const totals = useMemo(() => {
-		const ownedByUser = projects.filter((project) => project.currentRole === "OWNER").length;
-		const designs = projects.reduce((sum, project) => sum + (project._count?.designs ?? 0), 0);
-		const collaborators = projects.reduce((sum, project) => sum + (project._count?.memberships ?? 0), 0);
-		return {
-			owned: ownedByUser,
-			designs,
-			collaborators,
-		};
-	}, [projects]);
+	const [stats] = api.projects.getStats.useSuspenseQuery();
 
 	const featuredProject = projects[0];
 
@@ -40,17 +30,17 @@ export function DashboardContent({ recentLimit }: DashboardContentProps) {
 		<div className="flex flex-col gap-6 pb-10 pt-6">
 			<HeroSection
 				userName={data?.user?.name ?? undefined}
-				projectCount={projects.length}
-				owned={totals.owned}
-				shared={Math.max(projects.length - totals.owned, 0)}
+				projectCount={stats.projects}
+				owned={stats.owned}
+				shared={Math.max(stats.projects - stats.owned, 0)}
 				latestProjectName={featuredProject?.name}
 			/>
 
 			<ProjectStats
-				projects={projects.length}
-				owned={totals.owned}
-				designs={totals.designs}
-				collaborators={totals.collaborators}
+				projects={stats.projects}
+				owned={stats.owned}
+				designs={stats.designs}
+				collaborators={stats.collaborators}
 			/>
 
 			<div className="grid gap-6 px-4 lg:grid-cols-[2fr,1fr] lg:px-6">

@@ -10,6 +10,7 @@ export default async function Page() {
 	await Promise.all([
 		api.projects.list.prefetch({ page: 1, limit: 10 }),
 		api.designs.listRecent.prefetch({ limit: recentDesignLimit }),
+		api.projects.getStats.prefetch(),
 	]);
 
 	return (
