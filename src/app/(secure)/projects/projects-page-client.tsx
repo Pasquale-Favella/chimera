@@ -1,35 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import {
-    ChevronLeft,
-    ChevronRight,
     LayoutGrid,
     List,
     Plus,
     Search,
-    SlidersHorizontal,
 } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
     Table,
     TableBody,
@@ -44,18 +26,36 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { ProjectCard } from "@/app/(secure)/dashboard/_components/project-card";
 import { useDebounce } from "@/hooks/use-debounce";
-import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import { useProjectsPage } from "./hooks/use-projects-page";
+import { DeleteProjectDialog } from "@/app/(secure)/dashboard/_components/delete-project-dialog";
+import { toast } from "sonner";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export function ProjectsPageClient() {
     const router = useRouter();
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-    const [search, setSearch] = useState("");
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(12);
+    const {
+        viewMode,
+        setViewMode,
+        search,
+        setSearch,
+        page,
+        setPage,
+        limit,
+    } = useProjectsPage();
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -97,11 +97,10 @@ export function ProjectsPageClient() {
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder="Search projects..."
-                        className="border-0 bg-transparent pl-9 focus-visible:ring-0"
+                        className="border-0 bg-transparent pl-9 focus-visible:ring-0 shadow-none"
                         value={search}
                         onChange={(e) => {
                             setSearch(e.target.value);
-                            setPage(1); // Reset page on search
                         }}
                     />
                 </div>
@@ -167,110 +166,219 @@ export function ProjectsPageClient() {
                     ))}
                 </div>
             ) : (
-                <div className="rounded-md border animate-in fade-in-50 slide-in-from-bottom-4 duration-700">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow className="hover:bg-muted/50">
-                                <TableHead className="h-10">Project</TableHead>
-                                <TableHead className="h-10">Role</TableHead>
-                                <TableHead className="h-10">Designs</TableHead>
-                                <TableHead className="h-10">Collaborators</TableHead>
-                                <TableHead className="h-10 text-right">Last updated</TableHead>
-                                <TableHead className="h-10 text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {projects.map((project) => (
-                                <TableRow
-                                    key={project.id}
-                                    className="cursor-pointer hover:bg-muted/50"
-                                    onClick={() => navigateToProject(project.id)}
-                                >
-                                    <TableCell className="py-3 font-medium">
-                                        <div className="flex flex-col">
-                                            <span>{project.name}</span>
-                                            {project.description && (
-                                                <span className="text-muted-foreground text-sm">
-                                                    {project.description}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="py-3">
-                                        <Badge variant="outline" className="font-normal">
-                                            {project.currentRole.toLowerCase()}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="py-3 text-muted-foreground">
-                                        {project._count?.designs ?? 0}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-muted-foreground">
-                                        {project._count?.memberships ?? 0}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-right text-sm text-muted-foreground">
-                                        {formatDistanceToNow(new Date(project.updatedAt), {
-                                            addSuffix: true,
-                                        })}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button size="icon" variant="ghost" className="h-8 w-8">
-                                                    <span className="sr-only">Project actions</span>
-                                                    ⋮
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-48">
-                                                <DropdownMenuItem onClick={() => navigateToProject(project.id)}>
-                                                    View project
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => navigateToProject(project.id, "#team")}>
-                                                    Manage members
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => navigator.clipboard.writeText(project.name)}
-                                                >
-                                                    Copy name
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
+                <Card className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700 py-0">
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader className="bg-muted/50">
+                                <TableRow className="hover:bg-muted/50">
+                                    <TableHead className="h-12 pl-6">Project</TableHead>
+                                    <TableHead className="h-12">Role</TableHead>
+                                    <TableHead className="h-12">Designs</TableHead>
+                                    <TableHead className="h-12">Collaborators</TableHead>
+                                    <TableHead className="h-12 text-right">Last updated</TableHead>
+                                    <TableHead className="h-12 text-right pr-6">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                            </TableHeader>
+                            <TableBody>
+                                {projects.map((project) => (
+                                    <TableRow
+                                        key={project.id}
+                                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                                        onClick={() => navigateToProject(project.id)}
+                                    >
+                                        <TableCell className="py-4 pl-6 font-medium">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-base font-semibold text-foreground">
+                                                    {project.name}
+                                                </span>
+                                                {project.description && (
+                                                    <span className="text-muted-foreground text-sm line-clamp-1 max-w-[300px]">
+                                                        {project.description}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <Badge
+                                                variant={
+                                                    project.currentRole === "OWNER"
+                                                        ? "default"
+                                                        : "secondary"
+                                                }
+                                                className="font-medium capitalize"
+                                            >
+                                                {project.currentRole.toLowerCase()}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="py-4 text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium text-foreground">
+                                                    {project._count?.designs ?? 0}
+                                                </span>
+                                                <span className="text-xs">files</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-4 text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium text-foreground">
+                                                    {project._count?.memberships ?? 0}
+                                                </span>
+                                                <span className="text-xs">members</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-4 text-right text-sm text-muted-foreground">
+                                            {formatDistanceToNow(new Date(project.updatedAt), {
+                                                addSuffix: true,
+                                            })}
+                                        </TableCell>
+                                        <TableCell
+                                            className="py-4 text-right pr-6"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <ProjectRowActions
+                                                projectId={project.id}
+                                                projectName={project.name}
+                                                isOwner={project.currentRole === "OWNER"}
+                                                onSelectProject={() => navigateToProject(project.id)}
+                                                onManageMembers={() => navigateToProject(project.id, "#team")}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
             )}
 
             {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t pt-4">
-                    <div className="text-xs text-muted-foreground">
-                        Page {page} of {totalPages}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => setPage(page - 1)}
-                            disabled={page <= 1}
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            <span className="sr-only">Previous page</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => setPage(page + 1)}
-                            disabled={page >= totalPages}
-                        >
-                            <ChevronRight className="h-4 w-4" />
-                            <span className="sr-only">Next page</span>
-                        </Button>
-                    </div>
+                <div className="mt-4">
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (page > 1) setPage(page - 1);
+                                    }}
+                                    aria-disabled={page <= 1}
+                                    className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                />
+                            </PaginationItem>
+
+                            {/* Logic to show page numbers */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                                // Simple logic for now: show all if <= 7, otherwise show start, end, and around current
+                                const showPage =
+                                    totalPages <= 7 ||
+                                    pageNum === 1 ||
+                                    pageNum === totalPages ||
+                                    (pageNum >= page - 1 && pageNum <= page + 1);
+
+                                if (!showPage) {
+                                    if (pageNum === 2 || pageNum === totalPages - 1) {
+                                        return (
+                                            <PaginationItem key={pageNum}>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                        );
+                                    }
+                                    return null;
+                                }
+
+                                return (
+                                    <PaginationItem key={pageNum}>
+                                        <PaginationLink
+                                            href="#"
+                                            isActive={page === pageNum}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setPage(pageNum);
+                                            }}
+                                        >
+                                            {pageNum}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                );
+                            })}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (page < totalPages) setPage(page + 1);
+                                    }}
+                                    aria-disabled={page >= totalPages}
+                                    className={page >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </div>
             )}
+        </div>
+    );
+}
+
+function ProjectRowActions({
+    projectId,
+    projectName,
+    isOwner,
+    onSelectProject,
+    onManageMembers,
+}: {
+    projectId: string;
+    projectName: string;
+    isOwner: boolean;
+    onSelectProject: () => void;
+    onManageMembers: () => void;
+}) {
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    return (
+        <div className="flex items-center justify-end gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    >
+                        <span className="sr-only">Project actions</span>
+                        ⋮
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={onSelectProject}>
+                        View project
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onManageMembers}>
+                        Manage members
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => navigator.clipboard.writeText(projectName)}
+                    >
+                        Copy name
+                    </DropdownMenuItem>
+                    {isOwner && (
+                        <DeleteProjectDialog
+                            projectId={projectId}
+                            projectName={projectName}
+                            open={isDeleteDialogOpen}
+                            onOpenChange={setIsDeleteDialogOpen}
+                        >
+                            <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={(e) => e.preventDefault()}
+                            >
+                                Delete project
+                            </DropdownMenuItem>
+                        </DeleteProjectDialog>
+                    )}
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }

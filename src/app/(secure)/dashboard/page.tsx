@@ -8,7 +8,7 @@ export default async function Page() {
 	const recentDesignLimit = 8;
 
 	await Promise.all([
-		api.projects.list.prefetch({ page: 1, limit: 10 }),
+		api.projects.list.prefetch({ page: 1, limit: 4 }),
 		api.designs.listRecent.prefetch({ limit: recentDesignLimit }),
 		api.projects.getStats.prefetch(),
 	]);

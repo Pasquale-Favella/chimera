@@ -14,12 +14,11 @@ type DashboardContentProps = {
 };
 
 export function DashboardContent({ recentLimit }: DashboardContentProps) {
-	const [page, setPage] = useState(1);
-	const [limit] = useState(10);
+	const [limit] = useState(4);
 
 	const { data } = authClient.useSession();
 
-	const [projectsData] = api.projects.list.useSuspenseQuery({ page, limit });
+	const [projectsData] = api.projects.list.useSuspenseQuery({ page: 1, limit });
 	const projects = projectsData.items;
 	const [recentDesigns] = api.designs.listRecent.useSuspenseQuery({ limit: recentLimit });
 	const [stats] = api.projects.getStats.useSuspenseQuery();
@@ -46,9 +45,6 @@ export function DashboardContent({ recentLimit }: DashboardContentProps) {
 			<div className="grid gap-6 px-4 lg:grid-cols-[2fr,1fr] lg:px-6">
 				<ProjectsOverview
 					projects={projects}
-					page={page}
-					totalPages={projectsData.totalPages}
-					onPageChange={setPage}
 				/>
 				<DesignHighlights
 					headline={projects.length > 0 ? "Recent designs across your workspace" : undefined}

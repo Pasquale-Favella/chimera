@@ -19,7 +19,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 import type { RouterOutputs } from "@/trpc/react";
+import { DeleteProjectDialog } from "./delete-project-dialog";
 
 type Project = RouterOutputs["projects"]["list"]["items"][number];
 
@@ -34,6 +36,8 @@ export function ProjectCard({
     onSelectProject,
     onManageMembers,
 }: ProjectCardProps) {
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
     const makeHandler = (cb?: (pid: string) => void) => () => {
         cb?.(project.id);
     };
@@ -73,6 +77,21 @@ export function ProjectCard({
                             >
                                 Copy name
                             </DropdownMenuItem>
+                            {project.currentRole === "OWNER" && (
+                                <DeleteProjectDialog
+                                    projectId={project.id}
+                                    projectName={project.name}
+                                    open={isDeleteDialogOpen}
+                                    onOpenChange={setIsDeleteDialogOpen}
+                                >
+                                    <DropdownMenuItem
+                                        className="text-destructive focus:text-destructive"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        Delete project
+                                    </DropdownMenuItem>
+                                </DeleteProjectDialog>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -87,7 +106,12 @@ export function ProjectCard({
                         <Users className="h-4 w-4" />
                         <span>{project._count?.memberships ?? 0}</span>
                     </div>
-                    <Badge variant="secondary" className="ml-auto text-xs font-normal">
+                    <Badge
+                        variant={
+                            project.currentRole === "OWNER" ? "default" : "secondary"
+                        }
+                        className="ml-auto text-xs font-normal"
+                    >
                         {project.currentRole.toLowerCase()}
                     </Badge>
                 </div>

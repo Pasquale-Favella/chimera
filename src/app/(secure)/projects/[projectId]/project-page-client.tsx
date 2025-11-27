@@ -25,6 +25,7 @@ import { MembershipManager } from "@/app/(secure)/projects/[projectId]/_componen
 import { ProjectRole } from "../../../../../generated/prisma";
 import { authClient } from "@/server/better-auth/client";
 import { api } from "@/trpc/react";
+import { DeleteProjectCard } from "./_components/delete-project-card";
 
 type ProjectPageClientProps = {
 	projectId: string;
@@ -67,9 +68,6 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
 							</span>
 						</div>
 						<h1 className="text-4xl font-bold tracking-tight">{project.name}</h1>
-						<p className="max-w-2xl text-lg text-muted-foreground">
-							{project.description || "No description provided yet."}
-						</p>
 					</div>
 				</div>
 				<div className="flex flex-col gap-3 sm:flex-row">
@@ -202,6 +200,10 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
 					/>
 				</div>
 			</div>
+
+			{currentRole === ProjectRole.OWNER && (
+				<DeleteProjectCard projectId={projectId} projectName={project.name} />
+			)}
 		</div>
 	);
 }
