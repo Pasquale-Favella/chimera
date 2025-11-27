@@ -24,6 +24,7 @@ interface PresentationSidebarProps {
     onTabChange: (tab: SidebarTab) => void;
     onChatPromptChange: (prompt: string) => void;
     onChatSubmit: (promptOverride?: string) => void;
+    onClearError: () => void;
     onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onRemoveImage: (index: number) => void;
     onClearSelection: () => void;
@@ -69,6 +70,7 @@ export function PresentationSidebar({
     onTabChange,
     onChatPromptChange,
     onChatSubmit,
+    onClearError,
     onFileChange,
     onRemoveImage,
     onClearSelection,
@@ -126,6 +128,7 @@ export function PresentationSidebar({
                         activeView={activeView}
                         onChatPromptChange={onChatPromptChange}
                         onChatSubmit={onChatSubmit}
+                        onClearError={onClearError}
                         onFileChange={onFileChange}
                         onRemoveImage={onRemoveImage}
                         onClearSelection={onClearSelection}

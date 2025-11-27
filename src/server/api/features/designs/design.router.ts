@@ -46,7 +46,7 @@ const attachedImageSchema = z.object({
 
 const promptSchema = z.object({
 	projectId: z.string().cuid(),
-	prompt: z.string().min(5),
+	prompt: z.string().default(""),
 	count: z.number().min(1).max(4).optional(),
 	namePrefix: z.string().optional(),
 	images: z.array(attachedImageSchema).max(4).optional(),
@@ -518,7 +518,7 @@ export const designsRouter = createTRPCRouter({
 		.input(
 			z.object({
 				projectId: z.string().cuid(),
-				prompt: z.string().min(5),
+				prompt: z.string().default(""),
 				designIds: z.array(z.string().cuid()).min(1),
 				images: z.array(attachedImageSchema).max(4).optional(),
 				selector: z.string().optional(),

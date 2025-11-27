@@ -111,6 +111,11 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
+      if (state.attachedImages.length + files.length > 4) {
+        setChatState({ chatError: "You can only attach up to 4 images." });
+        event.target.value = "";
+        return;
+      }
       const filePromises = Array.from(files).map(
         (file) =>
           new Promise<any>((resolve, reject) => { // Using any for now to match original logic structure or import AttachedImage type
@@ -299,6 +304,7 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
             onTabChange={setSidebarTab}
             onChatPromptChange={(prompt) => setChatState({ chatPrompt: prompt })}
             onChatSubmit={handleChatSubmit}
+            onClearError={() => setChatState({ chatError: null })}
             onFileChange={handleFileChange}
             onRemoveImage={handleRemoveImage}
             onClearSelection={() => setSelectedElement(null, null)}

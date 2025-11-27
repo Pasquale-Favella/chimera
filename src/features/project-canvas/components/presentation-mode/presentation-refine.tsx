@@ -18,6 +18,7 @@ interface PresentationRefineProps {
     activeView: 'preview' | 'code';
     onChatPromptChange: (prompt: string) => void;
     onChatSubmit: (promptOverride?: string) => void;
+    onClearError: () => void;
     onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onRemoveImage: (index: number) => void;
     onClearSelection: () => void;
@@ -36,6 +37,7 @@ export function PresentationRefine({
     activeView,
     onChatPromptChange,
     onChatSubmit,
+    onClearError,
     onFileChange,
     onRemoveImage,
     onClearSelection,
@@ -54,11 +56,7 @@ export function PresentationRefine({
     return (
         <div className="flex flex-col h-full">
             <div className="flex-grow overflow-y-auto p-4">
-                {chatError && (
-                    <Alert variant="destructive" className="mb-4">
-                        <AlertDescription>{chatError}</AlertDescription>
-                    </Alert>
-                )}
+
 
                 {selectedElementStyles ? (
                     <PropertiesPanel
@@ -131,6 +129,21 @@ export function PresentationRefine({
                             </div>
                         ))}
                     </div>
+                )}
+
+                {chatError && (
+                    <Alert variant="destructive" className="mb-2 py-2 flex items-center justify-between">
+                        <AlertDescription>{chatError}</AlertDescription>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-4 w-4 -mr-1 hover:bg-destructive/20 text-destructive-foreground"
+                            onClick={onClearError}
+                        >
+                            <X className="h-3 w-3" />
+                            <span className="sr-only">Clear error</span>
+                        </Button>
+                    </Alert>
                 )}
 
                 <div className="relative flex w-full items-end gap-2 rounded-3xl border border-border bg-card/95 p-2 backdrop-blur-xl shadow-xl transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50">

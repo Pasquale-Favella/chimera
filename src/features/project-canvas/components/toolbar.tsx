@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,12 @@ export function Toolbar({
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const files = event.target.files;
 		if (files && files.length > 0) {
+			if (attachedImages.length + files.length > 4) {
+				toast.error("You can only attach up to 4 images.");
+				event.target.value = "";
+				return;
+			}
+
 			const filePromises = Array.from(files).map(
 				(file) =>
 					new Promise<AttachedImage>((resolve, reject) => {
