@@ -60,4 +60,25 @@ export const userRouter = createTRPCRouter({
                 },
             });
         }),
+
+    search: protectedProcedure
+        .input(z.object({ query: z.string().min(2) }))
+        .query(async ({ ctx, input }) => {
+            const users = await ctx.db.user.findMany({
+                where: {
+                    OR: [
+                        { name: { contains: input.query } },
+                        { email: { contains: input.query } },
+                    ],
+                },
+                take: 5,
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true,
+                },
+            });
+            return users;
+        }),
 });
