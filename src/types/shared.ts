@@ -1,44 +1,28 @@
+import type {
+    AttachedImageDto,
+    DesignPositionDto,
+    DesignSizeDto,
+    DesignTokensDto,
+} from "@/server/api/features/designs/design.dto";
+
 export type GenerationMode = "single" | "variations" | "flow";
 
 export type PointPosition = "top" | "right" | "bottom" | "left";
 
 export type DesignViewMode = "preview" | "code";
 
-export interface DesignPosition {
-    x: number;
-    y: number;
-}
+export type DesignPosition = DesignPositionDto;
 
-export interface DesignSize {
-    width: number;
-    height: number;
-}
+export type DesignSize = DesignSizeDto;
 
 export interface ConnectionPoint {
     designId: string;
     position: PointPosition;
 }
 
-export interface DesignTokens {
-    colors: {
-        background: string[];
-        text: string[];
-        primary: string[];
-        border: string[];
-    };
-    typography: {
-        headingFont: string;
-        bodyFont: string;
-    };
-    borderRadius: string[];
-    boxShadow: string[];
-}
+export type DesignTokens = DesignTokensDto;
 
-export interface AttachedImage {
-    base64: string;
-    mimeType: string;
-    dataUrl: string; // For easy previewing in an <img> tag
-}
+export type AttachedImage = AttachedImageDto;
 
 export interface GeneratedDesign {
     html: string;

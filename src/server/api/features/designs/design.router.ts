@@ -22,50 +22,15 @@ import {
 import { calculateNextPosition } from "./layout.utils";
 import { AiFeature } from "@/types/settings";
 
-const designIdSchema = z.object({
-	designId: z.string().cuid(),
-});
-
-const positionSchema = z.object({
-	x: z.number(),
-	y: z.number(),
-});
-
-const sizeSchema = z.object({
-	width: z.number(),
-	height: z.number(),
-});
-
-const viewModeSchema = z.enum(["DESKTOP", "TABLET", "MOBILE"]);
-
-const attachedImageSchema = z.object({
-	mimeType: z.string(),
-	base64: z.string(),
-	dataUrl: z.string().url(),
-});
-
-const promptSchema = z.object({
-	projectId: z.string().cuid(),
-	prompt: z.string().default(""),
-	count: z.number().min(1).max(4).optional(),
-	namePrefix: z.string().optional(),
-	images: z.array(attachedImageSchema).max(4).optional(),
-});
-
-const designTokensSchema = z.object({
-	colors: z.object({
-		background: z.array(z.string()),
-		text: z.array(z.string()),
-		primary: z.array(z.string()),
-		border: z.array(z.string()),
-	}),
-	typography: z.object({
-		headingFont: z.string(),
-		bodyFont: z.string(),
-	}),
-	borderRadius: z.array(z.string()),
-	boxShadow: z.array(z.string()),
-});
+import {
+	attachedImageSchema,
+	designIdSchema,
+	designTokensSchema,
+	positionSchema,
+	promptSchema,
+	sizeSchema,
+	viewModeSchema,
+} from "./design.dto";
 
 const designSelect = {
 	id: true,
