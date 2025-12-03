@@ -130,6 +130,17 @@ exports.Prisma.UserScalarFieldEnum = {
   geminiPreferences: 'geminiPreferences'
 };
 
+exports.Prisma.ApiKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  key: 'key',
+  lastUsedAt: 'lastUsedAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+};
+
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -270,6 +281,7 @@ exports.ConnectionPosition = exports.$Enums.ConnectionPosition = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  ApiKey: 'ApiKey',
   Project: 'Project',
   ProjectMembership: 'ProjectMembership',
   Design: 'Design',

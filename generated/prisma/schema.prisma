@@ -34,8 +34,26 @@ model User {
   geminiApiKey      String? //@db.Text
   geminiPreferences Json? // { [feature: string]: { model: string, provider: string } }
 
+  apiKeys ApiKey[]
+
   @@unique([email])
   @@map("user")
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String?
+  key        String    @unique
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([userId])
+  @@map("api_key")
 }
 
 enum ProjectRole {

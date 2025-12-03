@@ -81,4 +81,40 @@ export const userRouter = createTRPCRouter({
             });
             return users;
         }),
+
+    getApiKeys: protectedProcedure.query(async ({ ctx }) => {
+        return ctx.db.apiKey.findMany({
+            where: { userId: ctx.session.user.id },
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                name: true,
+                key: true,
+                lastUsedAt: true,
+                createdAt: true,
+            },
+        });
+    }),
+
+    createApiKey: protectedProcedure
+        .input(z.object({ name: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.apiKey.create({
+                data: {
+                    name: input.name,
+                    userId: ctx.session.user.id,
+                },
+            });
+        }),
+
+    deleteApiKey: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.apiKey.delete({
+                where: {
+                    id: input.id,
+                    userId: ctx.session.user.id,
+                },
+            });
+        }),
 });
