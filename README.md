@@ -2,6 +2,8 @@
 
 An AI-powered full-stack platform that enables rapid design implementation and intelligent user flow creation. Built with the T3 Stack for Next.js App Router, Chimera bridges the gap between design concepts and production-ready applications through AI assistance.
 
+![Chimera Canvas Demo](public/assets/chimera-canvas.gif)
+
 ## 🚀 Features
 
 - **AI-Assisted Design Implementation**: Transform design mockups and wireframes into functional components with AI guidance.
