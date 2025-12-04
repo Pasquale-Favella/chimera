@@ -339,6 +339,7 @@ export function SettingsForm() {
 function ApiKeyRow({ apiKey, onDelete, isDeleting }: { apiKey: { id: string; name: string | null; key: string; createdAt: Date; lastUsedAt: Date | null }; onDelete: () => void; isDeleting: boolean }) {
     const [isVisible, setIsVisible] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 
     const handleCopy = () => {
         navigator.clipboard.writeText(apiKey.key);
@@ -350,7 +351,7 @@ function ApiKeyRow({ apiKey, onDelete, isDeleting }: { apiKey: { id: string; nam
     const mcpConfig = {
         mcpServers: {
             chimera: {
-                httpUrl: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/llm/mcp`,
+                httpUrl: `${origin}/api/llm/mcp`,
                 headers: {
                     Authorization: `Bearer ${apiKey.key}`
                 },
@@ -362,6 +363,49 @@ function ApiKeyRow({ apiKey, onDelete, isDeleting }: { apiKey: { id: string; nam
     const handleCopyConfig = () => {
         navigator.clipboard.writeText(JSON.stringify(mcpConfig, null, 4));
         toast.success("MCP config copied to clipboard");
+    };
+
+    const cursorConfig = {
+        mcpServers: {
+            chimera: {
+                url: `${origin}/api/llm/mcp`,
+                headers: {
+                    Authorization: `Bearer ${apiKey.key}`
+                },
+                timeout: 5000
+            }
+        }
+    };
+
+    const handleCopyCursorConfig = () => {
+        navigator.clipboard.writeText(JSON.stringify(cursorConfig, null, 4));
+        toast.success("Cursor config copied to clipboard");
+    };
+
+    const claudeConfig = `claude mcp add --transport http chimera ${origin}/api/llm/mcp --header "Authorization: Bearer ${apiKey.key}"`;
+
+    const handleCopyClaudeConfig = () => {
+        navigator.clipboard.writeText(claudeConfig);
+        toast.success("Claude config copied to clipboard");
+    };
+
+    const vscodeConfig = {
+        mcp: {
+            servers: {
+                chimera: {
+                    type: "http",
+                    url: `${origin}/api/llm/mcp`,
+                    headers: {
+                        Authorization: `Bearer ${apiKey.key}`
+                    }
+                }
+            }
+        }
+    };
+
+    const handleCopyVscodeConfig = () => {
+        navigator.clipboard.writeText(JSON.stringify(vscodeConfig, null, 4));
+        toast.success("VS Code config copied to clipboard");
     };
 
     return (
@@ -399,21 +443,82 @@ function ApiKeyRow({ apiKey, onDelete, isDeleting }: { apiKey: { id: string; nam
                                     Use this configuration to connect to the Chimera MCP server.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="relative mt-4 rounded-md bg-muted">
-                                <div className="max-h-[350px] md:max-h-[600px] overflow-auto p-4">
-                                    <pre className="text-sm font-mono whitespace-pre-wrap break-all">
-                                        {JSON.stringify(mcpConfig, null, 4)}
-                                    </pre>
-                                </div>
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="absolute right-2 top-2"
-                                    onClick={handleCopyConfig}
-                                >
-                                    <Copy className="h-4 w-4" />
-                                </Button>
-                            </div>
+                            <Tabs defaultValue="gemini-cli" className="w-full mt-4">
+                                <TabsList>
+                                    <TabsTrigger value="gemini-cli">Gemini CLI</TabsTrigger>
+                                    <TabsTrigger value="cursor">Cursor</TabsTrigger>
+                                    <TabsTrigger value="vscode">VS Code</TabsTrigger>
+                                    <TabsTrigger value="claude">Claude Code</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="gemini-cli">
+                                    <div className="relative mt-2 rounded-md bg-muted">
+                                        <div className="max-h-[350px] md:max-h-[600px] overflow-auto p-4">
+                                            <pre className="text-sm font-mono whitespace-pre-wrap break-all">
+                                                {JSON.stringify(mcpConfig, null, 4)}
+                                            </pre>
+                                        </div>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="absolute right-2 top-2"
+                                            onClick={handleCopyConfig}
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="cursor">
+                                    <div className="relative mt-2 rounded-md bg-muted">
+                                        <div className="max-h-[350px] md:max-h-[600px] overflow-auto p-4">
+                                            <pre className="text-sm font-mono whitespace-pre-wrap break-all">
+                                                {JSON.stringify(cursorConfig, null, 4)}
+                                            </pre>
+                                        </div>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="absolute right-2 top-2"
+                                            onClick={handleCopyCursorConfig}
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="vscode">
+                                    <div className="relative mt-2 rounded-md bg-muted">
+                                        <div className="max-h-[350px] md:max-h-[600px] overflow-auto p-4">
+                                            <pre className="text-sm font-mono whitespace-pre-wrap break-all">
+                                                {JSON.stringify(vscodeConfig, null, 4)}
+                                            </pre>
+                                        </div>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="absolute right-2 top-2"
+                                            onClick={handleCopyVscodeConfig}
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="claude">
+                                    <div className="relative mt-2 rounded-md bg-muted">
+                                        <div className="max-h-[350px] md:max-h-[600px] overflow-auto p-4">
+                                            <pre className="text-sm font-mono whitespace-pre-wrap break-all">
+                                                {claudeConfig}
+                                            </pre>
+                                        </div>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="absolute right-2 top-2"
+                                            onClick={handleCopyClaudeConfig}
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
                         </DialogContent>
                     </Dialog>
                     <Button
@@ -427,6 +532,6 @@ function ApiKeyRow({ apiKey, onDelete, isDeleting }: { apiKey: { id: string; nam
                     </Button>
                 </div>
             </TableCell>
-        </TableRow>
+        </TableRow >
     );
 }
