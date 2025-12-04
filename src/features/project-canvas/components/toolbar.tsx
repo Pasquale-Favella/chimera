@@ -197,7 +197,7 @@ export function Toolbar({
 					onKeyDown={handleKeyDown}
 					onPaste={handlePaste}
 					placeholder={placeholderText}
-					className="min-h-[40px] w-full resize-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+					className="min-h-[40px] max-h-[200px] w-full resize-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
 					disabled={isLoading}
 					rows={1}
 				/>
