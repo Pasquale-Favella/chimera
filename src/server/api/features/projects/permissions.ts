@@ -1,16 +1,6 @@
 import { ProjectRole } from "../../../../../generated/prisma";
 import { TRPCError } from "@trpc/server";
-
-import { db } from "@/server/db";
-
-type AuthenticatedContext = {
-	db: typeof db;
-	session: {
-		user: {
-			id: string;
-		};
-	};
-};
+import type { ProtectedContext } from "../../trpc";
 
 export const VIEWER_ACCESS: readonly ProjectRole[] = [
 	ProjectRole.VIEWER,
@@ -26,7 +16,7 @@ export const EDITOR_ACCESS: readonly ProjectRole[] = [
 export const OWNER_ACCESS: readonly ProjectRole[] = [ProjectRole.OWNER] as const;
 
 export async function assertProjectAccess(
-	ctx: AuthenticatedContext,
+	ctx: ProtectedContext,
 	projectId: string,
 	allowedRoles: readonly ProjectRole[] = VIEWER_ACCESS,
 ) {
@@ -59,7 +49,7 @@ export async function assertProjectAccess(
 }
 
 export async function ensureProjectRetainsOwner(
-	ctx: AuthenticatedContext,
+	ctx: ProtectedContext,
 	projectId: string,
 	excludeMembershipId?: string,
 ) {
@@ -69,10 +59,10 @@ export async function ensureProjectRetainsOwner(
 			role: ProjectRole.OWNER,
 			...(excludeMembershipId
 				? {
-						NOT: {
-							id: excludeMembershipId,
-						},
-				  }
+					NOT: {
+						id: excludeMembershipId,
+					},
+				}
 				: undefined),
 		},
 	});

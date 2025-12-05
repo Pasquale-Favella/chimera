@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { Prisma, DesignViewMode, ConnectionPosition } from "../../../../../generated/prisma";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, type ProtectedContext } from "@/server/api/trpc";
 import {
 	EDITOR_ACCESS,
 	OWNER_ACCESS,
@@ -79,7 +79,7 @@ function normalizeHistory(history: unknown): string[] {
 	return [];
 }
 
-async function getDesignOrThrow(ctx: any, designId: string) {
+async function getDesignOrThrow(ctx: ProtectedContext, designId: string) {
 	const design = await ctx.db.design.findUnique({
 		where: { id: designId },
 		select: { projectId: true },
@@ -92,7 +92,7 @@ async function getDesignOrThrow(ctx: any, designId: string) {
 	return design;
 }
 
-async function getGeminiConfig(ctx: any, feature: string) {
+async function getGeminiConfig(ctx: ProtectedContext, feature: string) {
 	const user = await ctx.db.user.findUnique({
 		where: { id: ctx.session.user.id },
 		select: { geminiApiKey: true, geminiPreferences: true },

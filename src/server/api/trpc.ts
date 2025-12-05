@@ -7,7 +7,7 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC, TRPCError, type inferProcedureBuilderResolverOptions } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -132,3 +132,5 @@ export const protectedProcedure = t.procedure
 			},
 		});
 	});
+
+export type ProtectedContext = inferProcedureBuilderResolverOptions<typeof protectedProcedure>['ctx'];
