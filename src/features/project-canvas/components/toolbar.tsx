@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 import type { AttachedImage, GenerationMode } from "@/types/design";
 import { handleImagePaste } from "@/features/project-canvas/utils/clipboard-utils";
 
-import { ChevronDown, Loader2, Paperclip, Sparkles, X } from "lucide-react";
+import { ChevronDown, Loader2, Paperclip, Sparkles, X, Pencil, PencilRuler, Plus } from "lucide-react";
+import { SketchDialog } from "./sketch-dialog";
 
 interface ToolbarProps {
 	prompt: string;
@@ -47,6 +48,8 @@ export function Toolbar({
 	setAttachedImages,
 }: ToolbarProps) {
 	const [isModeSelectorOpen, setIsModeSelectorOpen] = useState(false);
+	const [isSketchDialogOpen, setIsSketchDialogOpen] = useState(false);
+	const [initialSketchImage, setInitialSketchImage] = useState<AttachedImage | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const buttonText = hasSelection ? "Modify" : "Generate";
@@ -122,25 +125,40 @@ export function Toolbar({
 		}
 	};
 
+	const handleEditImage = (image: AttachedImage) => {
+		setInitialSketchImage(image);
+		setIsSketchDialogOpen(true);
+	};
+
 	return (
 		<div className="fixed bottom-4 left-1/2 z-50 flex w-full max-w-4xl -translate-x-1/2 flex-col items-center px-4">
 			{attachedImages.length > 0 && (
 				<div className="mb-2 flex w-full flex-wrap gap-2">
 					{attachedImages.map((image, index) => (
-						<div key={`attachment-${index}`} className="relative">
+						<div key={`attachment-${index}`} className="relative group">
 							<img
 								src={image.dataUrl}
 								alt={`Attachment ${index + 1}`}
 								className="h-16 w-16 rounded-lg border-2 border-border object-cover shadow-sm"
 							/>
-							<button
-								onClick={() => handleRemoveImage(index)}
-								className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white shadow-md hover:bg-destructive/90 transition-colors"
-								type="button"
-								aria-label="Remove image"
-							>
-								<X className="h-3 w-3" />
-							</button>
+							<div className="absolute inset-0 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-lg">
+								<button
+									onClick={() => handleEditImage(image)}
+									className="flex h-6 w-6 items-center justify-center rounded-full bg-background text-foreground shadow-md hover:bg-muted transition-colors"
+									type="button"
+									title="Edit sketch"
+								>
+									<Pencil className="h-3 w-3" />
+								</button>
+								<button
+									onClick={() => handleRemoveImage(index)}
+									className="flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white shadow-md hover:bg-destructive/90 transition-colors"
+									type="button"
+									title="Remove image"
+								>
+									<X className="h-3 w-3" />
+								</button>
+							</div>
 						</div>
 					))}
 				</div>
@@ -173,16 +191,33 @@ export function Toolbar({
 						</DropdownMenuContent>
 					</DropdownMenu>
 				)}
-				<Button
-					onClick={() => fileInputRef.current?.click()}
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-full text-muted-foreground hover:text-foreground"
-					title="Attach images"
-					type="button"
-				>
-					<Paperclip className="h-5 w-5" />
-				</Button>
+
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-10 w-10 rounded-full text-muted-foreground hover:text-foreground"
+						>
+							<Plus className="h-5 w-5" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem
+							onClick={() => {
+								setInitialSketchImage(null);
+								setIsSketchDialogOpen(true);
+							}}
+						>
+							<PencilRuler className="mr-2 h-4 w-4" />
+							<span>Sketch</span>
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+							<Paperclip className="mr-2 h-4 w-4" />
+							<span>Attach</span>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 				<input
 					ref={fileInputRef}
 					type="file"
@@ -217,8 +252,15 @@ export function Toolbar({
 					)}
 				</Button>
 			</div>
+
+			<SketchDialog
+				open={isSketchDialogOpen}
+				onOpenChange={setIsSketchDialogOpen}
+				onSave={(imageData) => {
+					setAttachedImages(prev => [...prev, imageData]);
+				}}
+				initialImage={initialSketchImage}
+			/>
 		</div>
 	);
 }
-
-

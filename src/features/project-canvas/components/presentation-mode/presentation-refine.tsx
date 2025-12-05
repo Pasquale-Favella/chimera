@@ -1,11 +1,18 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Send, Paperclip, X, Layers } from "lucide-react";
+import { Loader2, Send, Paperclip, X, Layers, Pencil, PencilRuler, Plus } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PropertiesPanel, type ElementStyles } from "../properties-panel";
 import type { AttachedImage } from '@/types/design';
+import { SketchDialog } from "../sketch-dialog";
 
 interface PresentationRefineProps {
     selectedElementPath: string | null;
@@ -24,6 +31,8 @@ interface PresentationRefineProps {
     onClearSelection: () => void;
     onCreateComponent: () => void;
     onPaste: (event: React.ClipboardEvent) => void;
+    onAddImage: (image: AttachedImage) => void;
+    onCaptureDesign?: () => Promise<AttachedImage | null>;
 }
 
 export function PresentationRefine({
@@ -42,15 +51,24 @@ export function PresentationRefine({
     onRemoveImage,
     onClearSelection,
     onCreateComponent,
-    onPaste
+    onPaste,
+    onAddImage,
+    onCaptureDesign
 }: PresentationRefineProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isSketchDialogOpen, setIsSketchDialogOpen] = useState(false);
+    const [initialSketchImage, setInitialSketchImage] = useState<AttachedImage | null>(null);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey && !isChatLoading) {
             e.preventDefault();
             onChatSubmit();
         }
+    };
+
+    const handleEditImage = (image: AttachedImage) => {
+        setInitialSketchImage(image);
+        setIsSketchDialogOpen(true);
     };
 
     return (
@@ -112,20 +130,30 @@ export function PresentationRefine({
                 {attachedImages.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-2">
                         {attachedImages.map((image, index) => (
-                            <div key={`attachment-${index}`} className="relative">
+                            <div key={`attachment-${index}`} className="relative group">
                                 <img
                                     src={image.dataUrl}
                                     alt={`Attachment ${index + 1}`}
                                     className="h-16 w-16 rounded-lg border-2 border-border object-cover shadow-sm"
                                 />
-                                <button
-                                    onClick={() => onRemoveImage(index)}
-                                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white shadow-md hover:bg-destructive/90 transition-colors"
-                                    type="button"
-                                    aria-label="Remove image"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
+                                <div className="absolute inset-0 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-lg">
+                                    <button
+                                        onClick={() => handleEditImage(image)}
+                                        className="flex h-6 w-6 items-center justify-center rounded-full bg-background text-foreground shadow-md hover:bg-muted transition-colors"
+                                        type="button"
+                                        title="Edit sketch"
+                                    >
+                                        <Pencil className="h-3 w-3" />
+                                    </button>
+                                    <button
+                                        onClick={() => onRemoveImage(index)}
+                                        className="flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white shadow-md hover:bg-destructive/90 transition-colors"
+                                        type="button"
+                                        title="Remove image"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -147,16 +175,38 @@ export function PresentationRefine({
                 )}
 
                 <div className="relative flex w-full items-end gap-2 rounded-3xl border border-border bg-card/95 p-2 backdrop-blur-xl shadow-xl transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50">
-                    <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        variant="ghost"
-                        size="icon"
-                        title="Attach images"
-                        type="button"
-                        className="h-10 w-10 rounded-full text-muted-foreground hover:text-foreground"
-                    >
-                        <Paperclip className="h-5 w-5" />
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-10 w-10 rounded-full text-muted-foreground hover:text-foreground"
+                            >
+                                <Plus className="h-5 w-5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="z-[9999]">
+                            <DropdownMenuItem
+                                onClick={async () => {
+                                    setInitialSketchImage(null);
+                                    if (onCaptureDesign) {
+                                        const capturedImage = await onCaptureDesign();
+                                        if (capturedImage) {
+                                            setInitialSketchImage(capturedImage);
+                                        }
+                                    }
+                                    setIsSketchDialogOpen(true);
+                                }}
+                            >
+                                <PencilRuler className="mr-2 h-4 w-4" />
+                                <span>Sketch</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                                <Paperclip className="mr-2 h-4 w-4" />
+                                <span>Attach</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -188,6 +238,15 @@ export function PresentationRefine({
                         )}
                     </Button>
                 </div>
+
+                <SketchDialog
+                    open={isSketchDialogOpen}
+                    onOpenChange={setIsSketchDialogOpen}
+                    onSave={(imageData) => {
+                        onAddImage(imageData);
+                    }}
+                    initialImage={initialSketchImage}
+                />
             </div>
         </div>
     );

@@ -33,6 +33,8 @@ interface PresentationSidebarProps {
     onRestoreVersion: (index: number) => void;
     onPaste: (event: React.ClipboardEvent) => void;
     onDownload: () => void;
+    onAddImage: (image: AttachedImage) => void;
+    onCaptureDesign?: () => Promise<AttachedImage | null>;
 }
 
 const SidebarTabButton: React.FC<{
@@ -78,7 +80,9 @@ export function PresentationSidebar({
     onScanTokens,
     onRestoreVersion,
     onPaste,
-    onDownload
+    onDownload,
+    onAddImage,
+    onCaptureDesign
 }: PresentationSidebarProps) {
     return (
         <aside className="w-96 bg-background/50 border-l border-border flex flex-col flex-shrink-0">
@@ -134,6 +138,8 @@ export function PresentationSidebar({
                         onClearSelection={onClearSelection}
                         onCreateComponent={onCreateComponent}
                         onPaste={onPaste}
+                        onAddImage={onAddImage}
+                        onCaptureDesign={onCaptureDesign}
                     />
                 )}
 

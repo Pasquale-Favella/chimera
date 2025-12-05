@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from "react";
-import type { Design, DesignTokens } from "@/types/design";
+import type { AttachedImage, Design, DesignTokens } from "@/types/design";
 import { api } from "@/trpc/react";
 import { handleImagePaste } from "@/features/project-canvas/utils/clipboard-utils";
 import { usePresentationStore } from "../hooks/use-presentation-store";
@@ -48,6 +48,8 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
   const aiExtractComponentMutation = api.designs.aiExtractComponent.useMutation();
 
   const prevDesignHtmlRef = React.useRef(design.html);
+  // Ref to hold the capture function from the preview
+  const captureDesignRef = React.useRef<(() => Promise<string>) | null>(null);
 
   // Sync with design updates from props (external updates)
   useEffect(() => {
@@ -224,6 +226,36 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
     }
   };
 
+  const handleAddImage = (image: AttachedImage) => {
+    setChatState({ attachedImages: [...state.attachedImages, image] });
+  };
+
+  const handleCaptureDesign = async () => {
+    if (captureDesignRef.current) {
+      try {
+        const dataUrl = await captureDesignRef.current();
+        // Convert to AttachedImage format
+        // DataURL is like "data:image/png;base64,..."
+        const parts = dataUrl.split(",");
+        const meta = parts.at(0);
+        const base64 = parts.at(1);
+        const mimeType = meta?.split(";")?.at(0)?.split(":")?.at(1) || "image/png";
+
+        if (!base64) return null;
+
+        return {
+          dataUrl,
+          base64,
+          mimeType
+        };
+      } catch (e) {
+        console.error("Failed to capture design", e);
+        return null;
+      }
+    }
+    return null;
+  };
+
   const handleDownload = () => {
     let fullHtml = state.currentHtml;
     if (!fullHtml.toLowerCase().includes('<html')) {
@@ -285,6 +317,7 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
             onApplyChanges={handleApplyCodeChanges}
             onElementSelected={setSelectedElement}
             onClearSelection={() => setSelectedElement(null, null)}
+            onRegisterCapture={(fn) => { captureDesignRef.current = fn; }}
           />
 
           <PresentationSidebar
@@ -304,6 +337,7 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
             onTabChange={setSidebarTab}
             onChatPromptChange={(prompt) => setChatState({ chatPrompt: prompt })}
             onChatSubmit={handleChatSubmit}
+            onCaptureDesign={handleCaptureDesign}
             onClearError={() => setChatState({ chatError: null })}
             onFileChange={handleFileChange}
             onRemoveImage={handleRemoveImage}
@@ -313,6 +347,7 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
             onRestoreVersion={handleRestoreVersion}
             onPaste={handlePaste}
             onDownload={handleDownload}
+            onAddImage={handleAddImage}
           />
         </div>
       </div>
