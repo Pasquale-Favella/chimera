@@ -8,7 +8,6 @@ import {
     selectedConnectionIdFamily,
     styleClipboardFamily,
     copyingStyleIdFamily,
-    applyingStyleIdFamily,
     interactiveSelectorsCacheFamily,
 } from "../stores/canvas-store";
 import { useCallback } from "react";
@@ -242,20 +241,13 @@ export function useCanvasActions(projectId: string) {
         }
     }, [extractTokensMutation, setStyleClipboard, setCopyingStyleId]);
 
-    const applyingStyleId = useSetAtom(applyingStyleIdFamily(projectId));
-
     const pasteStyle = useCallback((designId: string) => {
         if (!styleClipboard) return;
-        applyingStyleId(designId);
         applyTokensMutation.mutate({
             designId,
             tokens: styleClipboard.tokens,
-        }, {
-            onSettled: () => {
-                applyingStyleId(null);
-            }
         });
-    }, [applyTokensMutation, styleClipboard, applyingStyleId]);
+    }, [applyTokensMutation, styleClipboard]);
 
     const updateDesignLocal = useCallback((designId: string, updates: { html?: string; history?: string[]; tokens?: DesignTokens | null; viewMode?: "preview" | "code" }) => {
         setDesigns(prev =>

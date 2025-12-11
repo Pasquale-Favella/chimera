@@ -36,8 +36,6 @@ export type Design = Omit<DbDesign, "viewMode" | "position" | "size" | "history"
 	size: DesignSize; // Parsed from Json
 	history?: string[]; // Parsed from Json
 	tokens?: DesignTokens | null; // Parsed from Json
-
-	isApplyingStyle?: boolean; // Client-side only field
 };
 
 // Normalized client-side Connection type based on DbConnection

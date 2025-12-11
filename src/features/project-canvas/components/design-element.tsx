@@ -1,10 +1,15 @@
 'use client';
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ConnectionPoint, Design, PointPosition } from "@/types/design";
+import type { Design, PointPosition } from "@/types/design";
+import { useProjectId } from "../contexts/project-id-context";
+import { useDesignElement } from "../hooks/use-design-element";
+import { useCanvasActions } from "../hooks/use-canvas-actions";
+import { useCanvasInteraction } from "../hooks/use-canvas-interaction";
+import { useCanvasState } from "../hooks/use-canvas-state";
 
 import {
 	Code,
@@ -13,7 +18,6 @@ import {
 	Maximize2,
 	Paintbrush,
 	Play,
-	PlusCircle,
 	Trash2,
 } from "lucide-react";
 
@@ -31,25 +35,6 @@ import {
 
 interface DesignElementProps {
 	design: Design;
-	isSelected: boolean;
-	connectionTarget: ConnectionPoint | null;
-	zoom: number;
-	isCopyingStyle: boolean;
-	isPastingStyle: boolean;
-	hasOutgoingConnections: boolean;
-	onInteractionStart: (
-		type: "drag" | "resize" | "connect",
-		e: React.MouseEvent,
-		details: { handle?: string; position?: PointPosition },
-	) => void;
-	onMouseEnterPoint: (designId: string, position: PointPosition) => void;
-	onMouseLeavePoint: () => void;
-	onDuplicate: (designId: string) => void;
-	onCopyStyle: (designId: string) => void;
-	onToggleViewMode: (designId: string) => void;
-	onDelete: (designId: string) => void;
-	onEnterPresentationMode: (designId: string) => void;
-	onStartPrototype: (designId: string) => void;
 }
 
 const resizeHandles = ["top-left", "top-right", "bottom-left", "bottom-right"];
@@ -57,7 +42,6 @@ const connectionPoints: PointPosition[] = ["top", "right", "bottom", "left"];
 
 import { Editor, type OnMount } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
-import { useCallback } from "react";
 
 const CodeEditorLoader = () => (
 	<div className="flex h-full w-full items-center justify-center text-muted-foreground">
@@ -99,24 +83,46 @@ const CodeView = ({ html }: { html: string }) => {
 	);
 };
 
-const DesignElement = ({
-	design,
-	isSelected,
-	connectionTarget,
-	zoom,
-	isCopyingStyle,
-	isPastingStyle,
-	hasOutgoingConnections,
-	onInteractionStart,
-	onMouseEnterPoint,
-	onMouseLeavePoint,
-	onDuplicate,
-	onCopyStyle,
-	onToggleViewMode,
-	onDelete,
-	onEnterPresentationMode,
-	onStartPrototype,
-}: DesignElementProps) => {
+const DesignElement = ({ design }: DesignElementProps) => {
+	const projectId = useProjectId();
+	const {
+		isSelected,
+		isCopyingStyle,
+		isPastingStyle,
+		hasOutgoingConnections,
+		connectionTarget,
+		zoom,
+		isApplyingStyle,
+	} = useDesignElement(design.id);
+	const { duplicateDesign, copyStyle, deleteDesigns, updateDesignLocal } = useCanvasActions(projectId);
+	const { handleInteractionStart, setConnectionTarget } = useCanvasInteraction(projectId);
+	const { setPresentationDesignId, setPrototypeStartId, designs } = useCanvasState(projectId);
+
+	// Wrap handlers to pass design.id
+	const onInteractionStart = useCallback(
+		(type: "drag" | "resize" | "connect", e: React.MouseEvent, details: { handle?: string; position?: PointPosition }) => {
+			handleInteractionStart(design.id, type, e, details);
+		},
+		[design.id, handleInteractionStart]
+	);
+
+	const onMouseEnterPoint = useCallback(
+		(position: PointPosition) => setConnectionTarget({ designId: design.id, position }),
+		[design.id, setConnectionTarget]
+	);
+
+	const onMouseLeavePoint = useCallback(() => setConnectionTarget(null), [setConnectionTarget]);
+
+	const onDuplicate = useCallback(() => duplicateDesign(design.id, designs), [design.id, designs, duplicateDesign]);
+	const onCopyStyle = useCallback(() => copyStyle(design.id, designs), [design.id, designs, copyStyle]);
+	const onToggleViewMode = useCallback(() => {
+		const viewMode = design.viewMode === "preview" ? "code" : "preview";
+		updateDesignLocal(design.id, { viewMode });
+	}, [design.id, design.viewMode, updateDesignLocal]);
+	const onDelete = useCallback(() => deleteDesigns([design.id]), [design.id, deleteDesigns]);
+	const onEnterPresentationMode = useCallback(() => setPresentationDesignId(design.id), [design.id, setPresentationDesignId]);
+	const onStartPrototype = useCallback(() => setPrototypeStartId(design.id), [design.id, setPrototypeStartId]);
+
 	const iframeContent = useMemo(
 		() => `
       <html>
@@ -171,7 +177,7 @@ const DesignElement = ({
 						<Button
 							onClick={(e) => {
 								e.stopPropagation();
-								onStartPrototype(design.id);
+								onStartPrototype();
 							}}
 							variant="ghost"
 							size="icon-sm"
@@ -184,7 +190,7 @@ const DesignElement = ({
 					<Button
 						onClick={(e) => {
 							e.stopPropagation();
-							onCopyStyle(design.id);
+							onCopyStyle();
 						}}
 						variant="ghost"
 						size="icon-sm"
@@ -201,7 +207,7 @@ const DesignElement = ({
 					<Button
 						onClick={(e) => {
 							e.stopPropagation();
-							onDuplicate(design.id);
+							onDuplicate();
 						}}
 						variant="ghost"
 						size="icon-sm"
@@ -213,7 +219,7 @@ const DesignElement = ({
 					<Button
 						onClick={(e) => {
 							e.stopPropagation();
-							onToggleViewMode(design.id);
+							onToggleViewMode();
 						}}
 						variant="ghost"
 						size="icon-sm"
@@ -225,7 +231,7 @@ const DesignElement = ({
 					<Button
 						onClick={(e) => {
 							e.stopPropagation();
-							onEnterPresentationMode(design.id);
+							onEnterPresentationMode();
 						}}
 						variant="ghost"
 						size="icon-sm"
@@ -260,7 +266,7 @@ const DesignElement = ({
 								<AlertDialogAction
 									onClick={(e) => {
 										e.stopPropagation();
-										onDelete(design.id);
+										onDelete();
 									}}
 								>
 									Delete
@@ -281,7 +287,7 @@ const DesignElement = ({
 				)}
 				onMouseDown={handleMouseDown}
 			>
-				{design.isApplyingStyle && (
+				{isApplyingStyle && (
 					<div className="absolute inset-0 z-30 flex items-center justify-center rounded-lg bg-background/70 backdrop-blur-sm">
 						<Loader2 className="h-8 w-8 animate-spin text-primary" />
 					</div>
@@ -355,7 +361,7 @@ const DesignElement = ({
 									e.stopPropagation();
 									onInteractionStart("connect", e, { position: pos });
 								}}
-								onMouseEnter={() => onMouseEnterPoint(design.id, pos)}
+								onMouseEnter={() => onMouseEnterPoint(pos)}
 								onMouseLeave={onMouseLeavePoint}
 							>
 								<div

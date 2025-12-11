@@ -6,13 +6,13 @@ import {
     viewTransformFamily,
     designsFamily,
 } from "../stores/canvas-store";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import type { PointPosition } from "@/types/design";
 import { useCanvasSelection } from "./use-canvas-selection";
 import { useCanvasActions } from "@/features/project-canvas/hooks/use-canvas-actions";
+import { useCanvasContainer } from "../contexts/canvas-container-context";
 
 export function useCanvasInteraction(projectId: string) {
-    const containerRef = useRef<HTMLDivElement>(null);
     const [interaction, setInteraction] = useAtom(interactionFamily(projectId));
     const [previewConnection, setPreviewConnection] = useAtom(previewConnectionFamily(projectId));
     const [connectionTarget, setConnectionTarget] = useAtom(connectionTargetFamily(projectId));
@@ -21,6 +21,7 @@ export function useCanvasInteraction(projectId: string) {
 
     const { selectedDesignIds, selectDesign } = useCanvasSelection(projectId);
     const { updateDesign, createConnection, pasteStyle, styleClipboard } = useCanvasActions(projectId);
+    const { containerRef } = useCanvasContainer();
 
     const handleInteractionStart = useCallback(
         (
@@ -307,6 +308,5 @@ export function useCanvasInteraction(projectId: string) {
         handleInteractionMove,
         handleInteractionEnd,
         handleWheel,
-        containerRef,
     };
 }

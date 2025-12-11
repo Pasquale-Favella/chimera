@@ -1,70 +1,35 @@
 'use client';
 
-import type { Connection, ConnectionPoint, Design, PointPosition } from "@/types/design";
+import type { Connection, Design, PointPosition } from "@/types/design";
 import { XCircle } from "lucide-react";
 
 import DesignElement from "./design-element";
+import { useProjectId } from "../contexts/project-id-context";
+import { useCanvasContainer } from "../contexts/canvas-container-context";
+import { useCanvasState } from "../hooks/use-canvas-state";
+import { useCanvasSelection } from "../hooks/use-canvas-selection";
+import { useCanvasInteraction } from "../hooks/use-canvas-interaction";
+import { useCanvasActions } from "../hooks/use-canvas-actions";
+import { useEffect, useRef } from "react";
 
-interface CanvasProps {
-	designs: Design[];
-	selectedDesignIds: string[];
-	connections: Connection[];
-	selectedConnectionId: string | null;
-	hoveredConnectionId: string | null;
-	previewConnection: { start: { x: number; y: number }; end: { x: number; y: number } } | null;
-	previewSourcePosition?: PointPosition;
-	connectionTarget: ConnectionPoint | null;
-	viewTransform: { zoom: number; pan: { x: number; y: number } };
-	isPastingStyle: boolean;
-	copyingStyleId: string | null;
-	onCanvasMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
-	onWheel: (e: React.WheelEvent<HTMLDivElement>) => void;
-	onInteractionStart: (
-		designId: string,
-		type: "drag" | "resize" | "connect",
-		e: React.MouseEvent,
-		details: { handle?: string; position?: PointPosition },
-	) => void;
-	onMouseEnterPoint: (designId: string, position: PointPosition) => void;
-	onMouseLeavePoint: () => void;
-	onConnectionClick: (connectionId: string) => void;
-	onDeleteConnection: (connectionId: string) => void;
-	onHoverConnection: (connectionId: string | null) => void;
-	onDuplicate: (designId: string) => void;
-	onCopyStyle: (designId: string) => void;
-	onToggleViewMode: (designId: string) => void;
-	onDeleteDesign: (designId: string) => void;
-	onEnterPresentationMode: (designId: string) => void;
-	onStartPrototype: (designId: string) => void;
-}
+const Canvas = () => {
+	const projectId = useProjectId();
+	const hasInitialFit = useRef(false);
+	const { fitToScreen, containerRef } = useCanvasContainer();
+	const { renderedDesigns: designs, connections, viewTransform, copyingStyleId } = useCanvasState(projectId);
+	const { selectedConnectionId, hoveredConnectionId, setHoveredConnectionId, selectConnection } = useCanvasSelection(projectId);
+	const { previewConnection, connectionTarget } = useCanvasInteraction(projectId);
+	const { deleteConnection, styleClipboard } = useCanvasActions(projectId);
 
-const Canvas = ({
-	designs,
-	selectedDesignIds,
-	connections,
-	selectedConnectionId,
-	hoveredConnectionId,
-	previewConnection,
-	previewSourcePosition,
-	connectionTarget,
-	viewTransform,
-	isPastingStyle,
-	copyingStyleId,
-	onCanvasMouseDown,
-	onWheel,
-	onInteractionStart,
-	onMouseEnterPoint,
-	onMouseLeavePoint,
-	onConnectionClick,
-	onDeleteConnection,
-	onHoverConnection,
-	onDuplicate,
-	onCopyStyle,
-	onToggleViewMode,
-	onDeleteDesign,
-	onEnterPresentationMode,
-	onStartPrototype,
-}: CanvasProps) => {
+
+	useEffect(() => {
+		if (designs.length > 0 && containerRef.current && !hasInitialFit.current) {
+			fitToScreen();
+			hasInitialFit.current = true;
+		}
+	}, [designs, containerRef, fitToScreen]);
+
+	const isPastingStyle = styleClipboard !== null;
 	const getPointCoordinates = (design: Design, position: PointPosition): { x: number; y: number } => {
 		const { x, y } = design.position;
 		const { width, height } = design.size;
@@ -174,8 +139,6 @@ const Canvas = ({
 	return (
 		<div
 			className={`absolute inset-0 overflow-hidden ${canvasCursor}`}
-			onMouseDown={onCanvasMouseDown}
-			onWheel={onWheel}
 			style={{
 				backgroundImage: "radial-gradient(circle at 1px 1px, #4a5568 1px, transparent 0)",
 				backgroundSize: `${20 * viewTransform.zoom}px ${20 * viewTransform.zoom}px`,
@@ -230,8 +193,8 @@ const Canvas = ({
 							<g
 								key={conn.id}
 								className="pointer-events-auto"
-								onMouseEnter={() => onHoverConnection(conn.id)}
-								onMouseLeave={() => onHoverConnection(null)}
+								onMouseEnter={() => setHoveredConnectionId(conn.id)}
+								onMouseLeave={() => setHoveredConnectionId(null)}
 							>
 								<path
 									d={pathData}
@@ -241,7 +204,7 @@ const Canvas = ({
 									className="cursor-pointer"
 									onClick={(e) => {
 										e.stopPropagation();
-										onConnectionClick(conn.id);
+										selectConnection(conn.id);
 									}}
 								/>
 								<path
@@ -261,7 +224,7 @@ const Canvas = ({
 								getSmoothPath(
 									previewConnection.start,
 									previewConnection.end,
-									previewSourcePosition,
+									undefined,
 									connectionTarget?.position,
 								).path
 							}
@@ -298,13 +261,13 @@ const Canvas = ({
 								top: `${midPoint.y}px`,
 								transform: "translate(-50%, -50%)",
 							}}
-							onMouseEnter={() => onHoverConnection(conn.id)}
-							onMouseLeave={() => onHoverConnection(null)}
+							onMouseEnter={() => setHoveredConnectionId(conn.id)}
+							onMouseLeave={() => setHoveredConnectionId(null)}
 						>
 							<button
 								onClick={(e) => {
 									e.stopPropagation();
-									onDeleteConnection(conn.id);
+									deleteConnection(conn.id);
 								}}
 								className="rounded-full bg-card border border-border text-foreground transition-all hover:scale-110 hover:border-destructive hover:text-destructive"
 								aria-label="Delete connection"
@@ -315,30 +278,12 @@ const Canvas = ({
 					);
 				})}
 
-				{designs.map((design) => {
-					const hasOutgoingConnections = connections.some((c) => c.from.designId === design.id);
-					return (
-						<DesignElement
-							key={design.id}
-							design={design}
-							isSelected={selectedDesignIds.includes(design.id)}
-							connectionTarget={connectionTarget}
-							zoom={viewTransform.zoom}
-							isCopyingStyle={copyingStyleId === design.id}
-							isPastingStyle={isPastingStyle}
-							hasOutgoingConnections={hasOutgoingConnections}
-							onInteractionStart={(type, e, details) => onInteractionStart(design.id, type, e, details)}
-							onMouseEnterPoint={onMouseEnterPoint}
-							onMouseLeavePoint={onMouseLeavePoint}
-							onDuplicate={onDuplicate}
-							onCopyStyle={onCopyStyle}
-							onToggleViewMode={onToggleViewMode}
-							onDelete={onDeleteDesign}
-							onEnterPresentationMode={onEnterPresentationMode}
-							onStartPrototype={onStartPrototype}
-						/>
-					);
-				})}
+				{designs.map((design) => (
+					<DesignElement
+						key={design.id}
+						design={design}
+					/>
+				))}
 			</div>
 		</div>
 	);

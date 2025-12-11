@@ -120,14 +120,10 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
       }
       const filePromises = Array.from(files).map(
         (file) =>
-          new Promise<any>((resolve, reject) => { // Using any for now to match original logic structure or import AttachedImage type
+          new Promise<any>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
               const dataUrl = loadEvent.target?.result as string;
-              // ... (validation logic same as before, simplified for brevity or we can extract this utility too)
-              // For now, let's assume valid for brevity in this thought, but I should implement it fully.
-              // Actually, let's just copy the logic or better, move it to a utility?
-              // The original code had inline logic.
               if (!dataUrl) return reject(new Error("Failed to read file"));
               const parts = dataUrl.split(",");
               if (parts.length !== 2) return reject(new Error("Invalid data URL"));

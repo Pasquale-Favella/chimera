@@ -63,7 +63,6 @@ export const connectionTargetFamily = atomFamily((projectId: string) => atom<Con
 // Clipboard & AI State
 export const styleClipboardFamily = atomFamily((projectId: string) => atom<StyleClipboardState>(null));
 export const copyingStyleIdFamily = atomFamily((projectId: string) => atom<string | null>(null));
-export const applyingStyleIdFamily = atomFamily((projectId: string) => atom<string | null>(null));
 export const promptFamily = atomFamily((projectId: string) => atom(""));
 export const generationModeFamily = atomFamily((projectId: string) => atom<GenerationMode>("single"));
 export const attachedImagesFamily = atomFamily((projectId: string) => atom<AttachedImage[]>([]));
@@ -79,14 +78,8 @@ export const renderedDesignsFamily = atomFamily((projectId: string) => atom((get
     const interaction = get(interactionFamily(projectId));
     const selectedDesignIds = get(selectedDesignIdsFamily(projectId));
     const viewTransform = get(viewTransformFamily(projectId));
-    const applyingStyleId = get(applyingStyleIdFamily(projectId));
 
-    const designsWithState = designs.map(d => ({
-        ...d,
-        isApplyingStyle: d.id === applyingStyleId
-    }));
-
-    if (!interaction) return designsWithState;
+    if (!interaction) return designs;
 
     if (interaction.type === "drag" && interaction.didDrag) {
         const dx = (interaction.currentX - interaction.startX) / viewTransform.zoom;
@@ -96,7 +89,7 @@ export const renderedDesignsFamily = atomFamily((projectId: string) => atom((get
             ? selectedDesignIds
             : [interaction.clickedDesignId];
 
-        return designsWithState.map((design) => {
+        return designs.map((design) => {
             if (idsToUpdate.includes(design.id)) {
                 const initial = interaction.initialPositions.get(design.id);
                 if (!initial) return design;
@@ -113,7 +106,7 @@ export const renderedDesignsFamily = atomFamily((projectId: string) => atom((get
         const dx = (interaction.currentX - interaction.startX) / viewTransform.zoom;
         const dy = (interaction.currentY - interaction.startY) / viewTransform.zoom;
 
-        return designsWithState.map((design) => {
+        return designs.map((design) => {
             if (design.id !== interaction.designId) return design;
 
             let newWidth = interaction.initialWidth;
@@ -152,5 +145,5 @@ export const renderedDesignsFamily = atomFamily((projectId: string) => atom((get
         });
     }
 
-    return designsWithState;
+    return designs;
 }));

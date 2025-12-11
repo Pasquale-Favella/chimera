@@ -14,21 +14,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { AttachedImage, GenerationMode } from "@/types/design";
 import { handleImagePaste } from "@/features/project-canvas/utils/clipboard-utils";
+import { useProjectId } from "../contexts/project-id-context";
+import { useCanvasAI } from "../hooks/use-canvas-ai";
+import { useCanvasSelection } from "../hooks/use-canvas-selection";
 
 import { ChevronDown, Loader2, Paperclip, Sparkles, X, Pencil, PencilRuler, Plus } from "lucide-react";
 import { SketchDialog } from "./sketch-dialog";
-
-interface ToolbarProps {
-	prompt: string;
-	setPrompt: (value: string) => void;
-	onSubmit: () => void;
-	isLoading: boolean;
-	hasSelection: boolean;
-	generationMode: GenerationMode;
-	setGenerationMode: (mode: GenerationMode) => void;
-	attachedImages: AttachedImage[];
-	setAttachedImages: (images: AttachedImage[] | ((prev: AttachedImage[]) => AttachedImage[])) => void;
-}
 
 const generationOptions: { id: GenerationMode; name: string }[] = [
 	{ id: "single", name: "Single" },
@@ -36,17 +27,25 @@ const generationOptions: { id: GenerationMode; name: string }[] = [
 	{ id: "flow", name: "Flow" },
 ];
 
-export function Toolbar({
-	prompt,
-	setPrompt,
-	onSubmit,
-	isLoading,
-	hasSelection,
-	generationMode,
-	setGenerationMode,
-	attachedImages,
-	setAttachedImages,
-}: ToolbarProps) {
+export function Toolbar() {
+	const projectId = useProjectId();
+	const {
+		prompt,
+		setPrompt,
+		generationMode,
+		setGenerationMode,
+		attachedImages,
+		setAttachedImages,
+		handleGenerate,
+		handleModify,
+		isGenerating,
+		isModifying,
+	} = useCanvasAI(projectId);
+	const { selectedDesignIds } = useCanvasSelection(projectId);
+
+	const hasSelection = selectedDesignIds.length > 0;
+	const isLoading = isGenerating || isModifying;
+	const onSubmit = hasSelection ? handleModify : handleGenerate;
 	const [isModeSelectorOpen, setIsModeSelectorOpen] = useState(false);
 	const [isSketchDialogOpen, setIsSketchDialogOpen] = useState(false);
 	const [initialSketchImage, setInitialSketchImage] = useState<AttachedImage | null>(null);
