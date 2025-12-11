@@ -89,11 +89,9 @@ Chimera exposes an MCP (Model Context Protocol) server, enabling AI coding assis
    cp .env.example .env
    ```
 
-   > [!IMPORTANT]
-   > Make sure to fill in the required environment variables in `.env`
+   > **Important:** Make sure to fill in the required environment variables in `.env`
 
-   > [!TIP]
-   > Get your API keys from:
+   > **Tip:** Get your API keys from:
    > - [Google AI Studio](https://aistudio.google.com/app/apikey) for Gemini
    > - [OpenRouter](https://openrouter.ai/keys) for access to multiple models
 
