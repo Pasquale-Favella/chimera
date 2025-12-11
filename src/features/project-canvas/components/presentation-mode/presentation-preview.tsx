@@ -178,14 +178,12 @@ export function PresentationPreview({
   }, [selectedElementPath]);
 
   const handleEditorDidMount: OnMount = (editor) => {
-    setTimeout(() => {
-      editor.getAction('editor.action.formatDocument')?.run().then(() => {
-        const formattedValue = editor.getValue();
-        if (formattedValue !== currentHtml) {
-          onHtmlChange(formattedValue);
-        }
-      });
-    }, 500);
+    editor.getAction('editor.action.formatDocument')?.run().then(() => {
+      const formattedValue = editor.getValue();
+      if (formattedValue !== currentHtml) {
+        onHtmlChange(formattedValue);
+      }
+    });
   };
 
   const iframeContent = useMemo(() => {
@@ -221,17 +219,6 @@ export function PresentationPreview({
   useEffect(() => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'TOGGLE_SELECTION_MODE', isActive: isSelectionModeActive }, '*');
   }, [isSelectionModeActive]);
-
-  // Expose clear selection to parent via ref or effect? 
-  // Actually, the parent controls selection state, but the iframe needs to be notified to clear visual selection.
-  // We can listen to a prop change or expose a method.
-  // Let's use an effect that listens to a "clear signal" from parent? 
-  // Or better, the parent passes `selectedElementPath` and if it's null, we clear.
-  // But we don't have `selectedElementPath` prop here.
-  // Let's just expose the ref or handle it via the `isSelectionModeActive` toggle for now.
-  // If the parent clears selection explicitly (e.g. via X button), it should probably pass a prop or we handle it here.
-  // For now, let's assume the parent handles the state and we just reflect it.
-  // Wait, `clearSelection` in the original code sent a message to iframe.
 
   return (
     <main className="flex-grow flex flex-col bg-muted/20 overflow-hidden">

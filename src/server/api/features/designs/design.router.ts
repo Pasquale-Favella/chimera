@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { Prisma, DesignViewMode, ConnectionPosition } from "../../../../../generated/prisma";
+import { Prisma, DesignViewMode, ConnectionPosition, LlmProvider } from "../../../../../generated/prisma";
 
 import { createTRPCRouter, protectedProcedure, type ProtectedContext } from "@/server/api/trpc";
 import {
@@ -18,7 +18,7 @@ import {
 	generateDesigns,
 	modifyDesigns,
 	parseTokens,
-} from "@/server/services/gemini.service";
+} from "@/server/services/ai.service";
 import { calculateNextPosition } from "./layout.utils";
 import { AiFeature } from "@/types/settings";
 
@@ -92,22 +92,28 @@ async function getDesignOrThrow(ctx: ProtectedContext, designId: string) {
 	return design;
 }
 
-async function getGeminiConfig(ctx: ProtectedContext, feature: string) {
+async function getLlmConfig(ctx: ProtectedContext, feature: string) {
 	const user = await ctx.db.user.findUnique({
 		where: { id: ctx.session.user.id },
-		select: { geminiApiKey: true, geminiPreferences: true },
+		select: { llmApiKeys: true, llmPreferences: true },
 	});
 
 	if (!user) return undefined;
 
-	const prefs = user.geminiPreferences as Record<string, { model: string; provider: string }> | null;
+	const prefs = user.llmPreferences as Record<string, { provider: LlmProvider; model: string }> | null;
 	const featurePrefs = prefs?.[feature];
+	const provider = featurePrefs?.provider ?? LlmProvider.GOOGLE;
+
+	// Find API key for provider
+	const apiKeyRecord = user.llmApiKeys.find(k => k.provider === provider);
 
 	return {
-		apiKey: user.geminiApiKey,
+		provider,
+		apiKey: apiKeyRecord?.apiKey,
 		model: featurePrefs?.model,
 	};
 }
+
 
 function toConnectionPosition(pos: "top" | "right" | "bottom" | "left"): ConnectionPosition {
 	switch (pos) {
@@ -344,7 +350,7 @@ export const designsRouter = createTRPCRouter({
 				promptWithContext += `\n\nAvailable Reusable Components (Use these if relevant):\n${componentContext}`;
 			}
 
-			const config = await getGeminiConfig(ctx, AiFeature.GENERATE_DESIGNS);
+			const config = await getLlmConfig(ctx, AiFeature.GENERATE_DESIGNS);
 
 			const designs = await generateDesigns(
 				promptWithContext,
@@ -413,7 +419,7 @@ export const designsRouter = createTRPCRouter({
 				promptWithContext += `\n\nAvailable Reusable Components (Use these if relevant):\n${componentContext}`;
 			}
 
-			const config = await getGeminiConfig(ctx, AiFeature.GENERATE_DESIGN_FLOW);
+			const config = await getLlmConfig(ctx, AiFeature.GENERATE_DESIGN_FLOW);
 
 			const flow = await generateDesignFlow(
 				promptWithContext,
@@ -507,7 +513,7 @@ export const designsRouter = createTRPCRouter({
 				});
 			}
 
-			const config = await getGeminiConfig(ctx, AiFeature.MODIFY_DESIGNS);
+			const config = await getLlmConfig(ctx, AiFeature.MODIFY_DESIGNS);
 
 			const aiResult = await modifyDesigns(
 				designs.map((design) => ({
@@ -574,7 +580,7 @@ export const designsRouter = createTRPCRouter({
 
 			await assertProjectAccess(ctx, design.projectId, EDITOR_ACCESS);
 
-			const config = await getGeminiConfig(ctx, AiFeature.EXTRACT_DESIGN_TOKENS);
+			const config = await getLlmConfig(ctx, AiFeature.EXTRACT_DESIGN_TOKENS);
 			const tokens = await extractDesignTokens(design.html ?? "", config);
 
 			await ctx.db.design.update({
@@ -631,7 +637,7 @@ export const designsRouter = createTRPCRouter({
 				});
 			}
 
-			const config = await getGeminiConfig(ctx, AiFeature.APPLY_DESIGN_TOKENS);
+			const config = await getLlmConfig(ctx, AiFeature.APPLY_DESIGN_TOKENS);
 			const updatedHtml = await applyDesignTokens(design.html ?? "", tokens, config);
 
 			const nextHistory = normalizeHistory(design.history);
@@ -677,7 +683,7 @@ export const designsRouter = createTRPCRouter({
 
 			await assertProjectAccess(ctx, design.projectId, EDITOR_ACCESS);
 
-			const config = await getGeminiConfig(ctx, AiFeature.EXTRACT_COMPONENT);
+			const config = await getLlmConfig(ctx, AiFeature.EXTRACT_COMPONENT);
 			const extracted = await extractComponent(design.html ?? "", input.selector, config);
 
 			return extracted;
@@ -714,7 +720,7 @@ export const designsRouter = createTRPCRouter({
 
 			await assertProjectAccess(ctx, design.projectId, VIEWER_ACCESS);
 
-			const config = await getGeminiConfig(ctx, AiFeature.FIND_CLICKABLE_SELECTORS);
+			const config = await getLlmConfig(ctx, AiFeature.FIND_CLICKABLE_SELECTORS);
 			const selectors = await findClickableSelectorsForConnections(
 				design.html ?? "",
 				input.targets,

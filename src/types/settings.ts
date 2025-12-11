@@ -7,9 +7,3 @@ export enum AiFeature {
     EXTRACT_COMPONENT = "extractComponent",
     FIND_CLICKABLE_SELECTORS = "findClickableSelectors",
 }
-
-export enum AiModel {
-    GEMINI_2_5_FLASH_LITE = "gemini-2.5-flash-lite",
-    GEMINI_2_5_FLASH = "gemini-2.5-flash",
-    GEMINI_2_5_PRO = "gemini-2.5-pro",
-}

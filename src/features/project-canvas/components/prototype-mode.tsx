@@ -106,7 +106,7 @@ export function PrototypeMode({
   }, [currentDesign]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in-0">
+    <div className="fixed inset-0 z-[99] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in-0">
       {/* Top Bar */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-border/40 bg-background/50 backdrop-blur-md">
         <div className="flex items-center gap-2">
@@ -229,7 +229,7 @@ export function PrototypeMode({
               </div>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-64 max-h-[300px] overflow-y-auto">
+          <DropdownMenuContent align="center" className="w-64 max-h-[300px] overflow-y-auto z-[99]">
             {connectedDesigns.map((design, index) => (
               <DropdownMenuItem
                 key={design.id}

@@ -1,4 +1,4 @@
-import { SettingsForm } from "@/features/settings/components/settings-form";
+import { SettingsForm } from "@/features/settings/settings-form";
 import { withSession } from "@/lib/session-check.utils";
 
 export default async function SettingsPage() {

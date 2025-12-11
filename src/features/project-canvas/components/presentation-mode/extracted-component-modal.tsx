@@ -25,9 +25,7 @@ export const ExtractedComponentModal: React.FC<ExtractedComponentModalProps> = (
     const [activeTab, setActiveTab] = React.useState("preview");
 
     const handleEditorDidMount: OnMount = (editor) => {
-        setTimeout(() => {
-            editor.getAction("editor.action.formatDocument")?.run();
-        }, 200);
+        editor.getAction("editor.action.formatDocument")?.run();
     };
 
     const handleSave = async () => {

@@ -126,8 +126,7 @@ exports.Prisma.UserScalarFieldEnum = {
   image: 'image',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  geminiApiKey: 'geminiApiKey',
-  geminiPreferences: 'geminiPreferences'
+  llmPreferences: 'llmPreferences'
 };
 
 exports.Prisma.ApiKeyScalarFieldEnum = {
@@ -139,6 +138,15 @@ exports.Prisma.ApiKeyScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId'
+};
+
+exports.Prisma.LlmApiKeyScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  apiKey: 'apiKey',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.ProjectScalarFieldEnum = {
@@ -260,6 +268,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.LlmProvider = exports.$Enums.LlmProvider = {
+  GOOGLE: 'GOOGLE',
+  OPENROUTER: 'OPENROUTER'
+};
+
 exports.ProjectRole = exports.$Enums.ProjectRole = {
   OWNER: 'OWNER',
   EDITOR: 'EDITOR',
@@ -282,6 +295,7 @@ exports.ConnectionPosition = exports.$Enums.ConnectionPosition = {
 exports.Prisma.ModelName = {
   User: 'User',
   ApiKey: 'ApiKey',
+  LlmApiKey: 'LlmApiKey',
   Project: 'Project',
   ProjectMembership: 'ProjectMembership',
   Design: 'Design',

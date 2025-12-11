@@ -52,10 +52,8 @@ const CodeEditorLoader = () => (
 const CodeView = ({ html }: { html: string }) => {
 	const { resolvedTheme } = useTheme();
 
-	const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
-		setTimeout(() => {
-			editor.getAction("editor.action.formatDocument")?.run();
-		}, 200);
+	const handleEditorDidMount: OnMount = useCallback((editor) => {
+		editor.getAction("editor.action.formatDocument")?.run();
 	}, []);
 
 	return (

@@ -1,22 +1,25 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { Prisma } from "../../../../../generated/prisma";
+import { Prisma, LlmProvider } from "../../../../../generated/prisma";
+import { LlmManager } from "@/server/lib/llm";
 
-const geminiPreferencesSchema = z.record(
+const llmPreferencesSchema = z.record(
     z.string(),
     z.object({
+        provider: z.nativeEnum(LlmProvider),
         model: z.string(),
-        provider: z.string(),
     }),
 );
+
+const llmProviderSchema = z.nativeEnum(LlmProvider);
 
 export const userRouter = createTRPCRouter({
     getSettings: protectedProcedure.query(async ({ ctx }) => {
         const user = await ctx.db.user.findUnique({
             where: { id: ctx.session.user.id },
             select: {
-                geminiApiKey: true,
-                geminiPreferences: true,
+                llmApiKeys: true,
+                llmPreferences: true,
             },
         });
 
@@ -24,11 +27,17 @@ export const userRouter = createTRPCRouter({
             throw new Error("User not found");
         }
 
+        // Transform llmApiKeys to a provider -> apiKey map
+        const apiKeys: Record<string, string> = {};
+        for (const key of user.llmApiKeys) {
+            apiKeys[key.provider] = key.apiKey;
+        }
+
         return {
-            geminiApiKey: user.geminiApiKey,
-            geminiPreferences: user.geminiPreferences as Record<
+            llmApiKeys: apiKeys,
+            llmPreferences: user.llmPreferences as Record<
                 string,
-                { model: string; provider: string }
+                { provider: LlmProvider; model: string }
             > | null,
         };
     }),
@@ -36,29 +45,108 @@ export const userRouter = createTRPCRouter({
     updateSettings: protectedProcedure
         .input(
             z.object({
-                geminiApiKey: z.string().optional(),
-                geminiPreferences: geminiPreferencesSchema.optional(),
+                llmPreferences: llmPreferencesSchema.optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
             const data: Prisma.UserUpdateInput = {};
 
-            if (input.geminiApiKey !== undefined) {
-                data.geminiApiKey = input.geminiApiKey;
-            }
-
-            if (input.geminiPreferences !== undefined) {
-                data.geminiPreferences = input.geminiPreferences;
+            if (input.llmPreferences !== undefined) {
+                data.llmPreferences = input.llmPreferences as Prisma.InputJsonValue;
             }
 
             return ctx.db.user.update({
                 where: { id: ctx.session.user.id },
                 data,
                 select: {
-                    geminiApiKey: true,
-                    geminiPreferences: true,
+                    llmPreferences: true,
                 },
             });
+        }),
+
+    // LLM API Keys management
+    getLlmApiKeys: protectedProcedure.query(async ({ ctx }) => {
+        return ctx.db.llmApiKey.findMany({
+            where: { userId: ctx.session.user.id },
+            select: {
+                id: true,
+                provider: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+    }),
+
+    setLlmApiKey: protectedProcedure
+        .input(
+            z.object({
+                provider: llmProviderSchema,
+                apiKey: z.string(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.llmApiKey.upsert({
+                where: {
+                    userId_provider: {
+                        userId: ctx.session.user.id,
+                        provider: input.provider,
+                    },
+                },
+                create: {
+                    userId: ctx.session.user.id,
+                    provider: input.provider,
+                    apiKey: input.apiKey,
+                },
+                update: {
+                    apiKey: input.apiKey,
+                },
+            });
+        }),
+
+    deleteLlmApiKey: protectedProcedure
+        .input(
+            z.object({
+                provider: llmProviderSchema,
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.llmApiKey.delete({
+                where: {
+                    userId_provider: {
+                        userId: ctx.session.user.id,
+                        provider: input.provider,
+                    },
+                },
+            });
+        }),
+
+    // Fetch available models for a provider
+    getAvailableModels: protectedProcedure
+        .input(
+            z.object({
+                provider: llmProviderSchema,
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            // Try to get API key from user settings first, then fallback to environment
+            const userApiKey = await ctx.db.llmApiKey.findUnique({
+                where: {
+                    userId_provider: {
+                        userId: ctx.session.user.id,
+                        provider: input.provider,
+                    },
+                },
+            });
+
+            const apiKey = userApiKey?.apiKey || LlmManager.getDefaultApiKey(input.provider);
+
+            if (!apiKey) {
+                // Return static models if no API key is available
+                const provider = LlmManager.getProvider(input.provider);
+                return provider.fetchAvailableModels("");
+            }
+
+            return LlmManager.fetchModels(input.provider, apiKey);
         }),
 
     search: protectedProcedure

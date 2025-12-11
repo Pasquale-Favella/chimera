@@ -24,6 +24,11 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type ApiKey = $Result.DefaultSelection<Prisma.$ApiKeyPayload>
 /**
+ * Model LlmApiKey
+ * 
+ */
+export type LlmApiKey = $Result.DefaultSelection<Prisma.$LlmApiKeyPayload>
+/**
  * Model Project
  * 
  */
@@ -68,7 +73,15 @@ export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
  * Enums
  */
 export namespace $Enums {
-  export const ProjectRole: {
+  export const LlmProvider: {
+  GOOGLE: 'GOOGLE',
+  OPENROUTER: 'OPENROUTER'
+};
+
+export type LlmProvider = (typeof LlmProvider)[keyof typeof LlmProvider]
+
+
+export const ProjectRole: {
   OWNER: 'OWNER',
   EDITOR: 'EDITOR',
   VIEWER: 'VIEWER'
@@ -96,6 +109,10 @@ export const ConnectionPosition: {
 export type ConnectionPosition = (typeof ConnectionPosition)[keyof typeof ConnectionPosition]
 
 }
+
+export type LlmProvider = $Enums.LlmProvider
+
+export const LlmProvider: typeof $Enums.LlmProvider
 
 export type ProjectRole = $Enums.ProjectRole
 
@@ -246,6 +263,16 @@ export class PrismaClient<
     * ```
     */
   get apiKey(): Prisma.ApiKeyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.llmApiKey`: Exposes CRUD operations for the **LlmApiKey** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LlmApiKeys
+    * const llmApiKeys = await prisma.llmApiKey.findMany()
+    * ```
+    */
+  get llmApiKey(): Prisma.LlmApiKeyDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.project`: Exposes CRUD operations for the **Project** model.
@@ -769,6 +796,7 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     ApiKey: 'ApiKey',
+    LlmApiKey: 'LlmApiKey',
     Project: 'Project',
     ProjectMembership: 'ProjectMembership',
     Design: 'Design',
@@ -795,7 +823,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "apiKey" | "project" | "projectMembership" | "design" | "component" | "session" | "account" | "designConnection" | "verification"
+      modelProps: "user" | "apiKey" | "llmApiKey" | "project" | "projectMembership" | "design" | "component" | "session" | "account" | "designConnection" | "verification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -944,6 +972,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ApiKeyCountArgs<ExtArgs>
             result: $Utils.Optional<ApiKeyCountAggregateOutputType> | number
+          }
+        }
+      }
+      LlmApiKey: {
+        payload: Prisma.$LlmApiKeyPayload<ExtArgs>
+        fields: Prisma.LlmApiKeyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LlmApiKeyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LlmApiKeyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>
+          }
+          findFirst: {
+            args: Prisma.LlmApiKeyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LlmApiKeyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>
+          }
+          findMany: {
+            args: Prisma.LlmApiKeyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>[]
+          }
+          create: {
+            args: Prisma.LlmApiKeyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>
+          }
+          createMany: {
+            args: Prisma.LlmApiKeyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LlmApiKeyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>[]
+          }
+          delete: {
+            args: Prisma.LlmApiKeyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>
+          }
+          update: {
+            args: Prisma.LlmApiKeyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>
+          }
+          deleteMany: {
+            args: Prisma.LlmApiKeyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LlmApiKeyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LlmApiKeyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>[]
+          }
+          upsert: {
+            args: Prisma.LlmApiKeyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmApiKeyPayload>
+          }
+          aggregate: {
+            args: Prisma.LlmApiKeyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLlmApiKey>
+          }
+          groupBy: {
+            args: Prisma.LlmApiKeyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LlmApiKeyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LlmApiKeyCountArgs<ExtArgs>
+            result: $Utils.Optional<LlmApiKeyCountAggregateOutputType> | number
           }
         }
       }
@@ -1637,6 +1739,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     apiKey?: ApiKeyOmit
+    llmApiKey?: LlmApiKeyOmit
     project?: ProjectOmit
     projectMembership?: ProjectMembershipOmit
     design?: DesignOmit
@@ -1732,6 +1835,7 @@ export namespace Prisma {
     designs: number
     components: number
     membershipInvites: number
+    llmApiKeys: number
     apiKeys: number
   }
 
@@ -1743,6 +1847,7 @@ export namespace Prisma {
     designs?: boolean | UserCountOutputTypeCountDesignsArgs
     components?: boolean | UserCountOutputTypeCountComponentsArgs
     membershipInvites?: boolean | UserCountOutputTypeCountMembershipInvitesArgs
+    llmApiKeys?: boolean | UserCountOutputTypeCountLlmApiKeysArgs
     apiKeys?: boolean | UserCountOutputTypeCountApiKeysArgs
   }
 
@@ -1804,6 +1909,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountMembershipInvitesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProjectMembershipWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLlmApiKeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LlmApiKeyWhereInput
   }
 
   /**
@@ -1934,7 +2046,6 @@ export namespace Prisma {
     image: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    geminiApiKey: string | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1945,7 +2056,6 @@ export namespace Prisma {
     image: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    geminiApiKey: string | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1956,8 +2066,7 @@ export namespace Prisma {
     image: number
     createdAt: number
     updatedAt: number
-    geminiApiKey: number
-    geminiPreferences: number
+    llmPreferences: number
     _all: number
   }
 
@@ -1970,7 +2079,6 @@ export namespace Prisma {
     image?: true
     createdAt?: true
     updatedAt?: true
-    geminiApiKey?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1981,7 +2089,6 @@ export namespace Prisma {
     image?: true
     createdAt?: true
     updatedAt?: true
-    geminiApiKey?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1992,8 +2099,7 @@ export namespace Prisma {
     image?: true
     createdAt?: true
     updatedAt?: true
-    geminiApiKey?: true
-    geminiPreferences?: true
+    llmPreferences?: true
     _all?: true
   }
 
@@ -2077,8 +2183,7 @@ export namespace Prisma {
     image: string | null
     createdAt: Date
     updatedAt: Date
-    geminiApiKey: string | null
-    geminiPreferences: JsonValue | null
+    llmPreferences: JsonValue | null
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2106,8 +2211,7 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    geminiApiKey?: boolean
-    geminiPreferences?: boolean
+    llmPreferences?: boolean
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     projectsOwned?: boolean | User$projectsOwnedArgs<ExtArgs>
@@ -2115,6 +2219,7 @@ export namespace Prisma {
     designs?: boolean | User$designsArgs<ExtArgs>
     components?: boolean | User$componentsArgs<ExtArgs>
     membershipInvites?: boolean | User$membershipInvitesArgs<ExtArgs>
+    llmApiKeys?: boolean | User$llmApiKeysArgs<ExtArgs>
     apiKeys?: boolean | User$apiKeysArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -2127,8 +2232,7 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    geminiApiKey?: boolean
-    geminiPreferences?: boolean
+    llmPreferences?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2139,8 +2243,7 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    geminiApiKey?: boolean
-    geminiPreferences?: boolean
+    llmPreferences?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2151,11 +2254,10 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    geminiApiKey?: boolean
-    geminiPreferences?: boolean
+    llmPreferences?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "geminiApiKey" | "geminiPreferences", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "llmPreferences", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -2164,6 +2266,7 @@ export namespace Prisma {
     designs?: boolean | User$designsArgs<ExtArgs>
     components?: boolean | User$componentsArgs<ExtArgs>
     membershipInvites?: boolean | User$membershipInvitesArgs<ExtArgs>
+    llmApiKeys?: boolean | User$llmApiKeysArgs<ExtArgs>
     apiKeys?: boolean | User$apiKeysArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -2180,6 +2283,7 @@ export namespace Prisma {
       designs: Prisma.$DesignPayload<ExtArgs>[]
       components: Prisma.$ComponentPayload<ExtArgs>[]
       membershipInvites: Prisma.$ProjectMembershipPayload<ExtArgs>[]
+      llmApiKeys: Prisma.$LlmApiKeyPayload<ExtArgs>[]
       apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -2190,8 +2294,7 @@ export namespace Prisma {
       image: string | null
       createdAt: Date
       updatedAt: Date
-      geminiApiKey: string | null
-      geminiPreferences: Prisma.JsonValue | null
+      llmPreferences: Prisma.JsonValue | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2593,6 +2696,7 @@ export namespace Prisma {
     designs<T extends User$designsArgs<ExtArgs> = {}>(args?: Subset<T, User$designsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     components<T extends User$componentsArgs<ExtArgs> = {}>(args?: Subset<T, User$componentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     membershipInvites<T extends User$membershipInvitesArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    llmApiKeys<T extends User$llmApiKeysArgs<ExtArgs> = {}>(args?: Subset<T, User$llmApiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     apiKeys<T extends User$apiKeysArgs<ExtArgs> = {}>(args?: Subset<T, User$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2630,8 +2734,7 @@ export namespace Prisma {
     readonly image: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
-    readonly geminiApiKey: FieldRef<"User", 'String'>
-    readonly geminiPreferences: FieldRef<"User", 'Json'>
+    readonly llmPreferences: FieldRef<"User", 'Json'>
   }
     
 
@@ -3183,6 +3286,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProjectMembershipScalarFieldEnum | ProjectMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * User.llmApiKeys
+   */
+  export type User$llmApiKeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    where?: LlmApiKeyWhereInput
+    orderBy?: LlmApiKeyOrderByWithRelationInput | LlmApiKeyOrderByWithRelationInput[]
+    cursor?: LlmApiKeyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LlmApiKeyScalarFieldEnum | LlmApiKeyScalarFieldEnum[]
   }
 
   /**
@@ -4320,6 +4447,1075 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ApiKeyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LlmApiKey
+   */
+
+  export type AggregateLlmApiKey = {
+    _count: LlmApiKeyCountAggregateOutputType | null
+    _min: LlmApiKeyMinAggregateOutputType | null
+    _max: LlmApiKeyMaxAggregateOutputType | null
+  }
+
+  export type LlmApiKeyMinAggregateOutputType = {
+    id: string | null
+    provider: $Enums.LlmProvider | null
+    apiKey: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LlmApiKeyMaxAggregateOutputType = {
+    id: string | null
+    provider: $Enums.LlmProvider | null
+    apiKey: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LlmApiKeyCountAggregateOutputType = {
+    id: number
+    provider: number
+    apiKey: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LlmApiKeyMinAggregateInputType = {
+    id?: true
+    provider?: true
+    apiKey?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LlmApiKeyMaxAggregateInputType = {
+    id?: true
+    provider?: true
+    apiKey?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LlmApiKeyCountAggregateInputType = {
+    id?: true
+    provider?: true
+    apiKey?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LlmApiKeyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LlmApiKey to aggregate.
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmApiKeys to fetch.
+     */
+    orderBy?: LlmApiKeyOrderByWithRelationInput | LlmApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LlmApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LlmApiKeys
+    **/
+    _count?: true | LlmApiKeyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LlmApiKeyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LlmApiKeyMaxAggregateInputType
+  }
+
+  export type GetLlmApiKeyAggregateType<T extends LlmApiKeyAggregateArgs> = {
+        [P in keyof T & keyof AggregateLlmApiKey]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLlmApiKey[P]>
+      : GetScalarType<T[P], AggregateLlmApiKey[P]>
+  }
+
+
+
+
+  export type LlmApiKeyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LlmApiKeyWhereInput
+    orderBy?: LlmApiKeyOrderByWithAggregationInput | LlmApiKeyOrderByWithAggregationInput[]
+    by: LlmApiKeyScalarFieldEnum[] | LlmApiKeyScalarFieldEnum
+    having?: LlmApiKeyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LlmApiKeyCountAggregateInputType | true
+    _min?: LlmApiKeyMinAggregateInputType
+    _max?: LlmApiKeyMaxAggregateInputType
+  }
+
+  export type LlmApiKeyGroupByOutputType = {
+    id: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: LlmApiKeyCountAggregateOutputType | null
+    _min: LlmApiKeyMinAggregateOutputType | null
+    _max: LlmApiKeyMaxAggregateOutputType | null
+  }
+
+  type GetLlmApiKeyGroupByPayload<T extends LlmApiKeyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LlmApiKeyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LlmApiKeyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LlmApiKeyGroupByOutputType[P]>
+            : GetScalarType<T[P], LlmApiKeyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LlmApiKeySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    provider?: boolean
+    apiKey?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["llmApiKey"]>
+
+  export type LlmApiKeySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    provider?: boolean
+    apiKey?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["llmApiKey"]>
+
+  export type LlmApiKeySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    provider?: boolean
+    apiKey?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["llmApiKey"]>
+
+  export type LlmApiKeySelectScalar = {
+    id?: boolean
+    provider?: boolean
+    apiKey?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LlmApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "apiKey" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["llmApiKey"]>
+  export type LlmApiKeyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LlmApiKeyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LlmApiKeyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $LlmApiKeyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LlmApiKey"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      provider: $Enums.LlmProvider
+      apiKey: string
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["llmApiKey"]>
+    composites: {}
+  }
+
+  type LlmApiKeyGetPayload<S extends boolean | null | undefined | LlmApiKeyDefaultArgs> = $Result.GetResult<Prisma.$LlmApiKeyPayload, S>
+
+  type LlmApiKeyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LlmApiKeyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LlmApiKeyCountAggregateInputType | true
+    }
+
+  export interface LlmApiKeyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LlmApiKey'], meta: { name: 'LlmApiKey' } }
+    /**
+     * Find zero or one LlmApiKey that matches the filter.
+     * @param {LlmApiKeyFindUniqueArgs} args - Arguments to find a LlmApiKey
+     * @example
+     * // Get one LlmApiKey
+     * const llmApiKey = await prisma.llmApiKey.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LlmApiKeyFindUniqueArgs>(args: SelectSubset<T, LlmApiKeyFindUniqueArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LlmApiKey that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LlmApiKeyFindUniqueOrThrowArgs} args - Arguments to find a LlmApiKey
+     * @example
+     * // Get one LlmApiKey
+     * const llmApiKey = await prisma.llmApiKey.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LlmApiKeyFindUniqueOrThrowArgs>(args: SelectSubset<T, LlmApiKeyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LlmApiKey that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyFindFirstArgs} args - Arguments to find a LlmApiKey
+     * @example
+     * // Get one LlmApiKey
+     * const llmApiKey = await prisma.llmApiKey.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LlmApiKeyFindFirstArgs>(args?: SelectSubset<T, LlmApiKeyFindFirstArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LlmApiKey that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyFindFirstOrThrowArgs} args - Arguments to find a LlmApiKey
+     * @example
+     * // Get one LlmApiKey
+     * const llmApiKey = await prisma.llmApiKey.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LlmApiKeyFindFirstOrThrowArgs>(args?: SelectSubset<T, LlmApiKeyFindFirstOrThrowArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LlmApiKeys that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LlmApiKeys
+     * const llmApiKeys = await prisma.llmApiKey.findMany()
+     * 
+     * // Get first 10 LlmApiKeys
+     * const llmApiKeys = await prisma.llmApiKey.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const llmApiKeyWithIdOnly = await prisma.llmApiKey.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LlmApiKeyFindManyArgs>(args?: SelectSubset<T, LlmApiKeyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LlmApiKey.
+     * @param {LlmApiKeyCreateArgs} args - Arguments to create a LlmApiKey.
+     * @example
+     * // Create one LlmApiKey
+     * const LlmApiKey = await prisma.llmApiKey.create({
+     *   data: {
+     *     // ... data to create a LlmApiKey
+     *   }
+     * })
+     * 
+     */
+    create<T extends LlmApiKeyCreateArgs>(args: SelectSubset<T, LlmApiKeyCreateArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LlmApiKeys.
+     * @param {LlmApiKeyCreateManyArgs} args - Arguments to create many LlmApiKeys.
+     * @example
+     * // Create many LlmApiKeys
+     * const llmApiKey = await prisma.llmApiKey.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LlmApiKeyCreateManyArgs>(args?: SelectSubset<T, LlmApiKeyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LlmApiKeys and returns the data saved in the database.
+     * @param {LlmApiKeyCreateManyAndReturnArgs} args - Arguments to create many LlmApiKeys.
+     * @example
+     * // Create many LlmApiKeys
+     * const llmApiKey = await prisma.llmApiKey.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LlmApiKeys and only return the `id`
+     * const llmApiKeyWithIdOnly = await prisma.llmApiKey.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LlmApiKeyCreateManyAndReturnArgs>(args?: SelectSubset<T, LlmApiKeyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LlmApiKey.
+     * @param {LlmApiKeyDeleteArgs} args - Arguments to delete one LlmApiKey.
+     * @example
+     * // Delete one LlmApiKey
+     * const LlmApiKey = await prisma.llmApiKey.delete({
+     *   where: {
+     *     // ... filter to delete one LlmApiKey
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LlmApiKeyDeleteArgs>(args: SelectSubset<T, LlmApiKeyDeleteArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LlmApiKey.
+     * @param {LlmApiKeyUpdateArgs} args - Arguments to update one LlmApiKey.
+     * @example
+     * // Update one LlmApiKey
+     * const llmApiKey = await prisma.llmApiKey.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LlmApiKeyUpdateArgs>(args: SelectSubset<T, LlmApiKeyUpdateArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LlmApiKeys.
+     * @param {LlmApiKeyDeleteManyArgs} args - Arguments to filter LlmApiKeys to delete.
+     * @example
+     * // Delete a few LlmApiKeys
+     * const { count } = await prisma.llmApiKey.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LlmApiKeyDeleteManyArgs>(args?: SelectSubset<T, LlmApiKeyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LlmApiKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LlmApiKeys
+     * const llmApiKey = await prisma.llmApiKey.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LlmApiKeyUpdateManyArgs>(args: SelectSubset<T, LlmApiKeyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LlmApiKeys and returns the data updated in the database.
+     * @param {LlmApiKeyUpdateManyAndReturnArgs} args - Arguments to update many LlmApiKeys.
+     * @example
+     * // Update many LlmApiKeys
+     * const llmApiKey = await prisma.llmApiKey.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LlmApiKeys and only return the `id`
+     * const llmApiKeyWithIdOnly = await prisma.llmApiKey.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LlmApiKeyUpdateManyAndReturnArgs>(args: SelectSubset<T, LlmApiKeyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LlmApiKey.
+     * @param {LlmApiKeyUpsertArgs} args - Arguments to update or create a LlmApiKey.
+     * @example
+     * // Update or create a LlmApiKey
+     * const llmApiKey = await prisma.llmApiKey.upsert({
+     *   create: {
+     *     // ... data to create a LlmApiKey
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LlmApiKey we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LlmApiKeyUpsertArgs>(args: SelectSubset<T, LlmApiKeyUpsertArgs<ExtArgs>>): Prisma__LlmApiKeyClient<$Result.GetResult<Prisma.$LlmApiKeyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LlmApiKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyCountArgs} args - Arguments to filter LlmApiKeys to count.
+     * @example
+     * // Count the number of LlmApiKeys
+     * const count = await prisma.llmApiKey.count({
+     *   where: {
+     *     // ... the filter for the LlmApiKeys we want to count
+     *   }
+     * })
+    **/
+    count<T extends LlmApiKeyCountArgs>(
+      args?: Subset<T, LlmApiKeyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LlmApiKeyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LlmApiKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LlmApiKeyAggregateArgs>(args: Subset<T, LlmApiKeyAggregateArgs>): Prisma.PrismaPromise<GetLlmApiKeyAggregateType<T>>
+
+    /**
+     * Group by LlmApiKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmApiKeyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LlmApiKeyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LlmApiKeyGroupByArgs['orderBy'] }
+        : { orderBy?: LlmApiKeyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LlmApiKeyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLlmApiKeyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LlmApiKey model
+   */
+  readonly fields: LlmApiKeyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LlmApiKey.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LlmApiKeyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LlmApiKey model
+   */
+  interface LlmApiKeyFieldRefs {
+    readonly id: FieldRef<"LlmApiKey", 'String'>
+    readonly provider: FieldRef<"LlmApiKey", 'LlmProvider'>
+    readonly apiKey: FieldRef<"LlmApiKey", 'String'>
+    readonly userId: FieldRef<"LlmApiKey", 'String'>
+    readonly createdAt: FieldRef<"LlmApiKey", 'DateTime'>
+    readonly updatedAt: FieldRef<"LlmApiKey", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LlmApiKey findUnique
+   */
+  export type LlmApiKeyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which LlmApiKey to fetch.
+     */
+    where: LlmApiKeyWhereUniqueInput
+  }
+
+  /**
+   * LlmApiKey findUniqueOrThrow
+   */
+  export type LlmApiKeyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which LlmApiKey to fetch.
+     */
+    where: LlmApiKeyWhereUniqueInput
+  }
+
+  /**
+   * LlmApiKey findFirst
+   */
+  export type LlmApiKeyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which LlmApiKey to fetch.
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmApiKeys to fetch.
+     */
+    orderBy?: LlmApiKeyOrderByWithRelationInput | LlmApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LlmApiKeys.
+     */
+    cursor?: LlmApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LlmApiKeys.
+     */
+    distinct?: LlmApiKeyScalarFieldEnum | LlmApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * LlmApiKey findFirstOrThrow
+   */
+  export type LlmApiKeyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which LlmApiKey to fetch.
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmApiKeys to fetch.
+     */
+    orderBy?: LlmApiKeyOrderByWithRelationInput | LlmApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LlmApiKeys.
+     */
+    cursor?: LlmApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LlmApiKeys.
+     */
+    distinct?: LlmApiKeyScalarFieldEnum | LlmApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * LlmApiKey findMany
+   */
+  export type LlmApiKeyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which LlmApiKeys to fetch.
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmApiKeys to fetch.
+     */
+    orderBy?: LlmApiKeyOrderByWithRelationInput | LlmApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LlmApiKeys.
+     */
+    cursor?: LlmApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmApiKeys.
+     */
+    skip?: number
+    distinct?: LlmApiKeyScalarFieldEnum | LlmApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * LlmApiKey create
+   */
+  export type LlmApiKeyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LlmApiKey.
+     */
+    data: XOR<LlmApiKeyCreateInput, LlmApiKeyUncheckedCreateInput>
+  }
+
+  /**
+   * LlmApiKey createMany
+   */
+  export type LlmApiKeyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LlmApiKeys.
+     */
+    data: LlmApiKeyCreateManyInput | LlmApiKeyCreateManyInput[]
+  }
+
+  /**
+   * LlmApiKey createManyAndReturn
+   */
+  export type LlmApiKeyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to create many LlmApiKeys.
+     */
+    data: LlmApiKeyCreateManyInput | LlmApiKeyCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LlmApiKey update
+   */
+  export type LlmApiKeyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LlmApiKey.
+     */
+    data: XOR<LlmApiKeyUpdateInput, LlmApiKeyUncheckedUpdateInput>
+    /**
+     * Choose, which LlmApiKey to update.
+     */
+    where: LlmApiKeyWhereUniqueInput
+  }
+
+  /**
+   * LlmApiKey updateMany
+   */
+  export type LlmApiKeyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LlmApiKeys.
+     */
+    data: XOR<LlmApiKeyUpdateManyMutationInput, LlmApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which LlmApiKeys to update
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * Limit how many LlmApiKeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LlmApiKey updateManyAndReturn
+   */
+  export type LlmApiKeyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to update LlmApiKeys.
+     */
+    data: XOR<LlmApiKeyUpdateManyMutationInput, LlmApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which LlmApiKeys to update
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * Limit how many LlmApiKeys to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LlmApiKey upsert
+   */
+  export type LlmApiKeyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LlmApiKey to update in case it exists.
+     */
+    where: LlmApiKeyWhereUniqueInput
+    /**
+     * In case the LlmApiKey found by the `where` argument doesn't exist, create a new LlmApiKey with this data.
+     */
+    create: XOR<LlmApiKeyCreateInput, LlmApiKeyUncheckedCreateInput>
+    /**
+     * In case the LlmApiKey was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LlmApiKeyUpdateInput, LlmApiKeyUncheckedUpdateInput>
+  }
+
+  /**
+   * LlmApiKey delete
+   */
+  export type LlmApiKeyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter which LlmApiKey to delete.
+     */
+    where: LlmApiKeyWhereUniqueInput
+  }
+
+  /**
+   * LlmApiKey deleteMany
+   */
+  export type LlmApiKeyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LlmApiKeys to delete
+     */
+    where?: LlmApiKeyWhereInput
+    /**
+     * Limit how many LlmApiKeys to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LlmApiKey without action
+   */
+  export type LlmApiKeyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmApiKey
+     */
+    select?: LlmApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmApiKey
+     */
+    omit?: LlmApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LlmApiKeyInclude<ExtArgs> | null
   }
 
 
@@ -13370,8 +14566,7 @@ export namespace Prisma {
     image: 'image',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    geminiApiKey: 'geminiApiKey',
-    geminiPreferences: 'geminiPreferences'
+    llmPreferences: 'llmPreferences'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -13389,6 +14584,18 @@ export namespace Prisma {
   };
 
   export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+  export const LlmApiKeyScalarFieldEnum: {
+    id: 'id',
+    provider: 'provider',
+    apiKey: 'apiKey',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LlmApiKeyScalarFieldEnum = (typeof LlmApiKeyScalarFieldEnum)[keyof typeof LlmApiKeyScalarFieldEnum]
 
 
   export const ProjectScalarFieldEnum: {
@@ -13591,6 +14798,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'LlmProvider'
+   */
+  export type EnumLlmProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LlmProvider'>
+    
+
+
+  /**
    * Reference to a field of type 'ProjectRole'
    */
   export type EnumProjectRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectRole'>
@@ -13639,8 +14853,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    geminiApiKey?: StringNullableFilter<"User"> | string | null
-    geminiPreferences?: JsonNullableFilter<"User">
+    llmPreferences?: JsonNullableFilter<"User">
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     projectsOwned?: ProjectListRelationFilter
@@ -13648,6 +14861,7 @@ export namespace Prisma {
     designs?: DesignListRelationFilter
     components?: ComponentListRelationFilter
     membershipInvites?: ProjectMembershipListRelationFilter
+    llmApiKeys?: LlmApiKeyListRelationFilter
     apiKeys?: ApiKeyListRelationFilter
   }
 
@@ -13659,8 +14873,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    geminiApiKey?: SortOrderInput | SortOrder
-    geminiPreferences?: SortOrderInput | SortOrder
+    llmPreferences?: SortOrderInput | SortOrder
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     projectsOwned?: ProjectOrderByRelationAggregateInput
@@ -13668,6 +14881,7 @@ export namespace Prisma {
     designs?: DesignOrderByRelationAggregateInput
     components?: ComponentOrderByRelationAggregateInput
     membershipInvites?: ProjectMembershipOrderByRelationAggregateInput
+    llmApiKeys?: LlmApiKeyOrderByRelationAggregateInput
     apiKeys?: ApiKeyOrderByRelationAggregateInput
   }
 
@@ -13682,8 +14896,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    geminiApiKey?: StringNullableFilter<"User"> | string | null
-    geminiPreferences?: JsonNullableFilter<"User">
+    llmPreferences?: JsonNullableFilter<"User">
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     projectsOwned?: ProjectListRelationFilter
@@ -13691,6 +14904,7 @@ export namespace Prisma {
     designs?: DesignListRelationFilter
     components?: ComponentListRelationFilter
     membershipInvites?: ProjectMembershipListRelationFilter
+    llmApiKeys?: LlmApiKeyListRelationFilter
     apiKeys?: ApiKeyListRelationFilter
   }, "id" | "email">
 
@@ -13702,8 +14916,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    geminiApiKey?: SortOrderInput | SortOrder
-    geminiPreferences?: SortOrderInput | SortOrder
+    llmPreferences?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -13720,8 +14933,7 @@ export namespace Prisma {
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
-    geminiApiKey?: StringNullableWithAggregatesFilter<"User"> | string | null
-    geminiPreferences?: JsonNullableWithAggregatesFilter<"User">
+    llmPreferences?: JsonNullableWithAggregatesFilter<"User">
   }
 
   export type ApiKeyWhereInput = {
@@ -13792,6 +15004,67 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
     userId?: StringWithAggregatesFilter<"ApiKey"> | string
+  }
+
+  export type LlmApiKeyWhereInput = {
+    AND?: LlmApiKeyWhereInput | LlmApiKeyWhereInput[]
+    OR?: LlmApiKeyWhereInput[]
+    NOT?: LlmApiKeyWhereInput | LlmApiKeyWhereInput[]
+    id?: StringFilter<"LlmApiKey"> | string
+    provider?: EnumLlmProviderFilter<"LlmApiKey"> | $Enums.LlmProvider
+    apiKey?: StringFilter<"LlmApiKey"> | string
+    userId?: StringFilter<"LlmApiKey"> | string
+    createdAt?: DateTimeFilter<"LlmApiKey"> | Date | string
+    updatedAt?: DateTimeFilter<"LlmApiKey"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type LlmApiKeyOrderByWithRelationInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    apiKey?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type LlmApiKeyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_provider?: LlmApiKeyUserIdProviderCompoundUniqueInput
+    AND?: LlmApiKeyWhereInput | LlmApiKeyWhereInput[]
+    OR?: LlmApiKeyWhereInput[]
+    NOT?: LlmApiKeyWhereInput | LlmApiKeyWhereInput[]
+    provider?: EnumLlmProviderFilter<"LlmApiKey"> | $Enums.LlmProvider
+    apiKey?: StringFilter<"LlmApiKey"> | string
+    userId?: StringFilter<"LlmApiKey"> | string
+    createdAt?: DateTimeFilter<"LlmApiKey"> | Date | string
+    updatedAt?: DateTimeFilter<"LlmApiKey"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_provider">
+
+  export type LlmApiKeyOrderByWithAggregationInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    apiKey?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LlmApiKeyCountOrderByAggregateInput
+    _max?: LlmApiKeyMaxOrderByAggregateInput
+    _min?: LlmApiKeyMinOrderByAggregateInput
+  }
+
+  export type LlmApiKeyScalarWhereWithAggregatesInput = {
+    AND?: LlmApiKeyScalarWhereWithAggregatesInput | LlmApiKeyScalarWhereWithAggregatesInput[]
+    OR?: LlmApiKeyScalarWhereWithAggregatesInput[]
+    NOT?: LlmApiKeyScalarWhereWithAggregatesInput | LlmApiKeyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LlmApiKey"> | string
+    provider?: EnumLlmProviderWithAggregatesFilter<"LlmApiKey"> | $Enums.LlmProvider
+    apiKey?: StringWithAggregatesFilter<"LlmApiKey"> | string
+    userId?: StringWithAggregatesFilter<"LlmApiKey"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"LlmApiKey"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LlmApiKey"> | Date | string
   }
 
   export type ProjectWhereInput = {
@@ -14429,8 +15702,7 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
@@ -14438,6 +15710,7 @@ export namespace Prisma {
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -14449,8 +15722,7 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
@@ -14458,6 +15730,7 @@ export namespace Prisma {
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -14469,8 +15742,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
@@ -14478,6 +15750,7 @@ export namespace Prisma {
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -14489,8 +15762,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -14498,6 +15770,7 @@ export namespace Prisma {
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -14509,8 +15782,7 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserUpdateManyMutationInput = {
@@ -14521,8 +15793,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -14533,8 +15804,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ApiKeyCreateInput = {
@@ -14611,6 +15881,68 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type LlmApiKeyCreateInput = {
+    id?: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutLlmApiKeysInput
+  }
+
+  export type LlmApiKeyUncheckedCreateInput = {
+    id?: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmApiKeyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutLlmApiKeysNestedInput
+  }
+
+  export type LlmApiKeyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmApiKeyCreateManyInput = {
+    id?: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmApiKeyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmApiKeyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProjectCreateInput = {
@@ -15380,6 +16712,12 @@ export namespace Prisma {
     none?: ComponentWhereInput
   }
 
+  export type LlmApiKeyListRelationFilter = {
+    every?: LlmApiKeyWhereInput
+    some?: LlmApiKeyWhereInput
+    none?: LlmApiKeyWhereInput
+  }
+
   export type ApiKeyListRelationFilter = {
     every?: ApiKeyWhereInput
     some?: ApiKeyWhereInput
@@ -15415,6 +16753,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type LlmApiKeyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ApiKeyOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -15427,8 +16769,7 @@ export namespace Prisma {
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    geminiApiKey?: SortOrder
-    geminiPreferences?: SortOrder
+    llmPreferences?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -15439,7 +16780,6 @@ export namespace Prisma {
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    geminiApiKey?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -15450,7 +16790,6 @@ export namespace Prisma {
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    geminiApiKey?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -15591,6 +16930,55 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumLlmProviderFilter<$PrismaModel = never> = {
+    equals?: $Enums.LlmProvider | EnumLlmProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.LlmProvider[]
+    notIn?: $Enums.LlmProvider[]
+    not?: NestedEnumLlmProviderFilter<$PrismaModel> | $Enums.LlmProvider
+  }
+
+  export type LlmApiKeyUserIdProviderCompoundUniqueInput = {
+    userId: string
+    provider: $Enums.LlmProvider
+  }
+
+  export type LlmApiKeyCountOrderByAggregateInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    apiKey?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LlmApiKeyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    apiKey?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LlmApiKeyMinOrderByAggregateInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    apiKey?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumLlmProviderWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LlmProvider | EnumLlmProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.LlmProvider[]
+    notIn?: $Enums.LlmProvider[]
+    not?: NestedEnumLlmProviderWithAggregatesFilter<$PrismaModel> | $Enums.LlmProvider
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLlmProviderFilter<$PrismaModel>
+    _max?: NestedEnumLlmProviderFilter<$PrismaModel>
   }
 
   export type DesignConnectionListRelationFilter = {
@@ -16037,6 +17425,13 @@ export namespace Prisma {
     connect?: ProjectMembershipWhereUniqueInput | ProjectMembershipWhereUniqueInput[]
   }
 
+  export type LlmApiKeyCreateNestedManyWithoutUserInput = {
+    create?: XOR<LlmApiKeyCreateWithoutUserInput, LlmApiKeyUncheckedCreateWithoutUserInput> | LlmApiKeyCreateWithoutUserInput[] | LlmApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LlmApiKeyCreateOrConnectWithoutUserInput | LlmApiKeyCreateOrConnectWithoutUserInput[]
+    createMany?: LlmApiKeyCreateManyUserInputEnvelope
+    connect?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+  }
+
   export type ApiKeyCreateNestedManyWithoutUserInput = {
     create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
@@ -16091,6 +17486,13 @@ export namespace Prisma {
     connectOrCreate?: ProjectMembershipCreateOrConnectWithoutInvitedByInput | ProjectMembershipCreateOrConnectWithoutInvitedByInput[]
     createMany?: ProjectMembershipCreateManyInvitedByInputEnvelope
     connect?: ProjectMembershipWhereUniqueInput | ProjectMembershipWhereUniqueInput[]
+  }
+
+  export type LlmApiKeyUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LlmApiKeyCreateWithoutUserInput, LlmApiKeyUncheckedCreateWithoutUserInput> | LlmApiKeyCreateWithoutUserInput[] | LlmApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LlmApiKeyCreateOrConnectWithoutUserInput | LlmApiKeyCreateOrConnectWithoutUserInput[]
+    createMany?: LlmApiKeyCreateManyUserInputEnvelope
+    connect?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
   }
 
   export type ApiKeyUncheckedCreateNestedManyWithoutUserInput = {
@@ -16214,6 +17616,20 @@ export namespace Prisma {
     deleteMany?: ProjectMembershipScalarWhereInput | ProjectMembershipScalarWhereInput[]
   }
 
+  export type LlmApiKeyUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LlmApiKeyCreateWithoutUserInput, LlmApiKeyUncheckedCreateWithoutUserInput> | LlmApiKeyCreateWithoutUserInput[] | LlmApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LlmApiKeyCreateOrConnectWithoutUserInput | LlmApiKeyCreateOrConnectWithoutUserInput[]
+    upsert?: LlmApiKeyUpsertWithWhereUniqueWithoutUserInput | LlmApiKeyUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LlmApiKeyCreateManyUserInputEnvelope
+    set?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    disconnect?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    delete?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    connect?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    update?: LlmApiKeyUpdateWithWhereUniqueWithoutUserInput | LlmApiKeyUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LlmApiKeyUpdateManyWithWhereWithoutUserInput | LlmApiKeyUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LlmApiKeyScalarWhereInput | LlmApiKeyScalarWhereInput[]
+  }
+
   export type ApiKeyUpdateManyWithoutUserNestedInput = {
     create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
@@ -16326,6 +17742,20 @@ export namespace Prisma {
     deleteMany?: ProjectMembershipScalarWhereInput | ProjectMembershipScalarWhereInput[]
   }
 
+  export type LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LlmApiKeyCreateWithoutUserInput, LlmApiKeyUncheckedCreateWithoutUserInput> | LlmApiKeyCreateWithoutUserInput[] | LlmApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LlmApiKeyCreateOrConnectWithoutUserInput | LlmApiKeyCreateOrConnectWithoutUserInput[]
+    upsert?: LlmApiKeyUpsertWithWhereUniqueWithoutUserInput | LlmApiKeyUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LlmApiKeyCreateManyUserInputEnvelope
+    set?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    disconnect?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    delete?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    connect?: LlmApiKeyWhereUniqueInput | LlmApiKeyWhereUniqueInput[]
+    update?: LlmApiKeyUpdateWithWhereUniqueWithoutUserInput | LlmApiKeyUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LlmApiKeyUpdateManyWithWhereWithoutUserInput | LlmApiKeyUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LlmApiKeyScalarWhereInput | LlmApiKeyScalarWhereInput[]
+  }
+
   export type ApiKeyUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
@@ -16356,6 +17786,24 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutApiKeysInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutApiKeysInput, UserUpdateWithoutApiKeysInput>, UserUncheckedUpdateWithoutApiKeysInput>
+  }
+
+  export type UserCreateNestedOneWithoutLlmApiKeysInput = {
+    create?: XOR<UserCreateWithoutLlmApiKeysInput, UserUncheckedCreateWithoutLlmApiKeysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLlmApiKeysInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumLlmProviderFieldUpdateOperationsInput = {
+    set?: $Enums.LlmProvider
+  }
+
+  export type UserUpdateOneRequiredWithoutLlmApiKeysNestedInput = {
+    create?: XOR<UserCreateWithoutLlmApiKeysInput, UserUncheckedCreateWithoutLlmApiKeysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLlmApiKeysInput
+    upsert?: UserUpsertWithoutLlmApiKeysInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLlmApiKeysInput, UserUpdateWithoutLlmApiKeysInput>, UserUncheckedUpdateWithoutLlmApiKeysInput>
   }
 
   export type UserCreateNestedOneWithoutProjectsOwnedInput = {
@@ -16979,6 +18427,23 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumLlmProviderFilter<$PrismaModel = never> = {
+    equals?: $Enums.LlmProvider | EnumLlmProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.LlmProvider[]
+    notIn?: $Enums.LlmProvider[]
+    not?: NestedEnumLlmProviderFilter<$PrismaModel> | $Enums.LlmProvider
+  }
+
+  export type NestedEnumLlmProviderWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LlmProvider | EnumLlmProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.LlmProvider[]
+    notIn?: $Enums.LlmProvider[]
+    not?: NestedEnumLlmProviderWithAggregatesFilter<$PrismaModel> | $Enums.LlmProvider
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLlmProviderFilter<$PrismaModel>
+    _max?: NestedEnumLlmProviderFilter<$PrismaModel>
+  }
+
   export type NestedEnumProjectRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.ProjectRole | EnumProjectRoleFieldRefInput<$PrismaModel>
     in?: $Enums.ProjectRole[]
@@ -17286,6 +18751,31 @@ export namespace Prisma {
     data: ProjectMembershipCreateManyInvitedByInput | ProjectMembershipCreateManyInvitedByInput[]
   }
 
+  export type LlmApiKeyCreateWithoutUserInput = {
+    id?: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmApiKeyUncheckedCreateWithoutUserInput = {
+    id?: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmApiKeyCreateOrConnectWithoutUserInput = {
+    where: LlmApiKeyWhereUniqueInput
+    create: XOR<LlmApiKeyCreateWithoutUserInput, LlmApiKeyUncheckedCreateWithoutUserInput>
+  }
+
+  export type LlmApiKeyCreateManyUserInputEnvelope = {
+    data: LlmApiKeyCreateManyUserInput | LlmApiKeyCreateManyUserInput[]
+  }
+
   export type ApiKeyCreateWithoutUserInput = {
     id?: string
     name?: string | null
@@ -17519,6 +19009,34 @@ export namespace Prisma {
     data: XOR<ProjectMembershipUpdateManyMutationInput, ProjectMembershipUncheckedUpdateManyWithoutInvitedByInput>
   }
 
+  export type LlmApiKeyUpsertWithWhereUniqueWithoutUserInput = {
+    where: LlmApiKeyWhereUniqueInput
+    update: XOR<LlmApiKeyUpdateWithoutUserInput, LlmApiKeyUncheckedUpdateWithoutUserInput>
+    create: XOR<LlmApiKeyCreateWithoutUserInput, LlmApiKeyUncheckedCreateWithoutUserInput>
+  }
+
+  export type LlmApiKeyUpdateWithWhereUniqueWithoutUserInput = {
+    where: LlmApiKeyWhereUniqueInput
+    data: XOR<LlmApiKeyUpdateWithoutUserInput, LlmApiKeyUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LlmApiKeyUpdateManyWithWhereWithoutUserInput = {
+    where: LlmApiKeyScalarWhereInput
+    data: XOR<LlmApiKeyUpdateManyMutationInput, LlmApiKeyUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LlmApiKeyScalarWhereInput = {
+    AND?: LlmApiKeyScalarWhereInput | LlmApiKeyScalarWhereInput[]
+    OR?: LlmApiKeyScalarWhereInput[]
+    NOT?: LlmApiKeyScalarWhereInput | LlmApiKeyScalarWhereInput[]
+    id?: StringFilter<"LlmApiKey"> | string
+    provider?: EnumLlmProviderFilter<"LlmApiKey"> | $Enums.LlmProvider
+    apiKey?: StringFilter<"LlmApiKey"> | string
+    userId?: StringFilter<"LlmApiKey"> | string
+    createdAt?: DateTimeFilter<"LlmApiKey"> | Date | string
+    updatedAt?: DateTimeFilter<"LlmApiKey"> | Date | string
+  }
+
   export type ApiKeyUpsertWithWhereUniqueWithoutUserInput = {
     where: ApiKeyWhereUniqueInput
     update: XOR<ApiKeyUpdateWithoutUserInput, ApiKeyUncheckedUpdateWithoutUserInput>
@@ -17557,8 +19075,7 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
@@ -17566,6 +19083,7 @@ export namespace Prisma {
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApiKeysInput = {
@@ -17576,8 +19094,7 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
@@ -17585,6 +19102,7 @@ export namespace Prisma {
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApiKeysInput = {
@@ -17611,8 +19129,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
@@ -17620,6 +19137,7 @@ export namespace Prisma {
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApiKeysInput = {
@@ -17630,8 +19148,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -17639,6 +19156,99 @@ export namespace Prisma {
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLlmApiKeysInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
+    memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
+    designs?: DesignCreateNestedManyWithoutCreatedByInput
+    components?: ComponentCreateNestedManyWithoutCreatedByInput
+    membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLlmApiKeysInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
+    memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
+    designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
+    components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
+    membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLlmApiKeysInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLlmApiKeysInput, UserUncheckedCreateWithoutLlmApiKeysInput>
+  }
+
+  export type UserUpsertWithoutLlmApiKeysInput = {
+    update: XOR<UserUpdateWithoutLlmApiKeysInput, UserUncheckedUpdateWithoutLlmApiKeysInput>
+    create: XOR<UserCreateWithoutLlmApiKeysInput, UserUncheckedCreateWithoutLlmApiKeysInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLlmApiKeysInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLlmApiKeysInput, UserUncheckedUpdateWithoutLlmApiKeysInput>
+  }
+
+  export type UserUpdateWithoutLlmApiKeysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
+    memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
+    designs?: DesignUpdateManyWithoutCreatedByNestedInput
+    components?: ComponentUpdateManyWithoutCreatedByNestedInput
+    membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLlmApiKeysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
+    memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
+    designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
+    components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
+    membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutProjectsOwnedInput = {
@@ -17649,14 +19259,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -17668,14 +19278,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -17833,14 +19443,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -17852,14 +19462,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -17978,14 +19588,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -17997,14 +19607,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -18021,14 +19631,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -18040,14 +19650,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -18110,14 +19720,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -18129,14 +19739,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -18159,14 +19769,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -18178,14 +19788,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -18226,14 +19836,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -18245,14 +19855,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -18373,14 +19983,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -18392,14 +20002,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -18472,14 +20082,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -18491,14 +20101,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -18561,14 +20171,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -18580,14 +20190,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -18599,14 +20209,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     accounts?: AccountCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -18618,14 +20228,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -18653,14 +20263,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     accounts?: AccountUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -18672,14 +20282,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -18691,14 +20301,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipCreateNestedManyWithoutUserInput
     designs?: DesignCreateNestedManyWithoutCreatedByInput
     components?: ComponentCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
   }
 
@@ -18710,14 +20320,14 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    geminiApiKey?: string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     projectsOwned?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutUserInput
     designs?: DesignUncheckedCreateNestedManyWithoutCreatedByInput
     components?: ComponentUncheckedCreateNestedManyWithoutCreatedByInput
     membershipInvites?: ProjectMembershipUncheckedCreateNestedManyWithoutInvitedByInput
+    llmApiKeys?: LlmApiKeyUncheckedCreateNestedManyWithoutUserInput
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -18745,14 +20355,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUpdateManyWithoutUserNestedInput
     designs?: DesignUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
   }
 
@@ -18764,14 +20374,14 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    geminiApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    geminiPreferences?: NullableJsonNullValueInput | InputJsonValue
+    llmPreferences?: NullableJsonNullValueInput | InputJsonValue
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     projectsOwned?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutUserNestedInput
     designs?: DesignUncheckedUpdateManyWithoutCreatedByNestedInput
     components?: ComponentUncheckedUpdateManyWithoutCreatedByNestedInput
     membershipInvites?: ProjectMembershipUncheckedUpdateManyWithoutInvitedByNestedInput
+    llmApiKeys?: LlmApiKeyUncheckedUpdateManyWithoutUserNestedInput
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -19100,6 +20710,14 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type LlmApiKeyCreateManyUserInput = {
+    id?: string
+    provider: $Enums.LlmProvider
+    apiKey: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ApiKeyCreateManyUserInput = {
     id?: string
     name?: string | null
@@ -19349,6 +20967,30 @@ export namespace Prisma {
     projectId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     role?: EnumProjectRoleFieldUpdateOperationsInput | $Enums.ProjectRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmApiKeyUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmApiKeyUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmApiKeyUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumLlmProviderFieldUpdateOperationsInput | $Enums.LlmProvider
+    apiKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

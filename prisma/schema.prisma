@@ -31,8 +31,8 @@ model User {
   components        Component[]
   membershipInvites ProjectMembership[] @relation("MembershipInvitations")
 
-  geminiApiKey      String?   //@db.Text
-  geminiPreferences Json?     // { [feature: string]: { model: string, provider: string } }
+  llmApiKeys        LlmApiKey[]
+  llmPreferences    Json?     // { [feature: AiFeature]: { provider: LlmProvider, model: string } }
 
   apiKeys           ApiKey[]
 
@@ -54,6 +54,25 @@ model ApiKey {
 
   @@index([userId])
   @@map("api_key")
+}
+
+enum LlmProvider {
+  GOOGLE
+  OPENROUTER
+}
+
+model LlmApiKey {
+  id        String      @id @default(cuid())
+  provider  LlmProvider
+  apiKey    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@map("llm_api_key")
 }
 
 enum ProjectRole {
