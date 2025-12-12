@@ -115,7 +115,7 @@ export function ApiKeysTab() {
 
     return (
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <CardTitle>API Keys</CardTitle>
                     <CardDescription>

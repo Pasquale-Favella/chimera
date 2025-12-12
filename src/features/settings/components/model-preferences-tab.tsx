@@ -56,7 +56,7 @@ const DEFAULT_MODELS: Record<LlmProvider, string> = {
 function ModelPreferencesSkeleton() {
     return (
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="space-y-2">
                     <Skeleton className="h-6 w-40" />
                     <Skeleton className="h-4 w-64" />
@@ -65,7 +65,7 @@ function ModelPreferencesSkeleton() {
             </CardHeader>
             <CardContent className="grid gap-6">
                 {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end border-b pb-4 last:border-0 last:pb-0">
+                    <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-b pb-4 last:border-0 last:pb-0">
                         <Skeleton className="h-5 w-32" />
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-16" />
@@ -151,7 +151,7 @@ export function ModelPreferencesTab() {
 
     return (
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <CardTitle>Feature Configuration</CardTitle>
                     <CardDescription>
@@ -175,7 +175,7 @@ export function ModelPreferencesTab() {
                     const isOpen = openModelPopovers[feature.id] || false;
 
                     return (
-                        <div key={feature.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end border-b pb-4 last:border-0 last:pb-0">
+                        <div key={feature.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-b pb-4 last:border-0 last:pb-0">
                             <div className="space-y-1">
                                 <Label className="text-base">{feature.name}</Label>
                             </div>
