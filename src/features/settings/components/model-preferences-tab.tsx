@@ -31,6 +31,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { LlmManager } from "@/server/lib/llm";
 
 const FEATURES = [
     { id: AiFeature.GENERATE_DESIGNS, name: "Generate Designs" },
@@ -48,8 +49,8 @@ const PROVIDERS = [
 ];
 
 const DEFAULT_MODELS: Record<LlmProvider, string> = {
-    [LlmProvider.GOOGLE]: "gemini-2.5-flash",
-    [LlmProvider.OPENROUTER]: "anthropic/claude-3.5-sonnet",
+    [LlmProvider.GOOGLE]: LlmManager.getProvider(LlmProvider.GOOGLE).defaultModel,
+    [LlmProvider.OPENROUTER]: LlmManager.getProvider(LlmProvider.OPENROUTER).defaultModel,
 };
 
 function ModelPreferencesSkeleton() {
@@ -215,7 +216,7 @@ export function ModelPreferencesTab() {
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-[300px] p-0" align="start">
+                                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                                         <Command>
                                             <CommandInput placeholder="Search models..." />
                                             <CommandList>
