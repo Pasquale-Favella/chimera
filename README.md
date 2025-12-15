@@ -58,6 +58,7 @@ Chimera exposes an MCP (Model Context Protocol) server, enabling AI coding assis
 | **AI** | [Vercel AI SDK](https://sdk.vercel.ai/docs) (Google & OpenRouter) |
 | **Editor** | [Monaco Editor](https://microsoft.github.io/monaco-editor/) |
 | **Drag & Drop** | [dnd-kit](https://dndkit.com/) |
+| **Canvas** | [React Flow](https://reactflow.dev/) (@xyflow/react) |
 
 ## ⚡ Getting Started
 

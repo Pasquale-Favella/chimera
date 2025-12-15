@@ -2,14 +2,12 @@ import { useAtom } from "jotai";
 import {
     selectedDesignIdsFamily,
     selectedConnectionIdFamily,
-    hoveredConnectionIdFamily,
 } from "../stores/canvas-store";
 import { useCallback } from "react";
 
 export function useCanvasSelection(projectId: string) {
     const [selectedDesignIds, setSelectedDesignIds] = useAtom(selectedDesignIdsFamily(projectId));
     const [selectedConnectionId, setSelectedConnectionId] = useAtom(selectedConnectionIdFamily(projectId));
-    const [hoveredConnectionId, setHoveredConnectionId] = useAtom(hoveredConnectionIdFamily(projectId));
 
     const selectDesign = useCallback(
         (designId: string, multiSelect = false) => {
@@ -46,8 +44,6 @@ export function useCanvasSelection(projectId: string) {
         setSelectedDesignIds,
         selectedConnectionId,
         setSelectedConnectionId,
-        hoveredConnectionId,
-        setHoveredConnectionId,
         selectDesign,
         selectConnection,
         clearSelection,

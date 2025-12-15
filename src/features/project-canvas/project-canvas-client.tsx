@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-
+import { ReactFlowProvider } from "@xyflow/react";
 
 import { EmptyCanvas } from "./components/empty-canvas";
-import Canvas from "./components/canvas";
+import ReactFlowCanvas from "./components/react-flow-canvas";
 import { Legend } from "./components/legend";
 import { StyleClipboardBanner } from "./components/style-clipboard-banner";
 import { Toolbar } from "./components/toolbar";
@@ -13,16 +13,11 @@ import { PresentationMode } from "./components/presentation-mode";
 import { PrototypeMode } from "./components/prototype-mode";
 import { ComponentLibrary } from "./components/component-library";
 import { ProjectIdProvider } from "./contexts/project-id-context";
-import { CanvasContainerProvider, useCanvasContainer } from "./contexts/canvas-container-context";
 import { api } from "@/trpc/react";
 import { useCanvasState } from "./hooks/use-canvas-state";
-import { useCanvasSelection } from "./hooks/use-canvas-selection";
-import { useCanvasInteraction } from "./hooks/use-canvas-interaction";
 import { useCanvasActions } from "./hooks/use-canvas-actions";
 import { useCanvasAI } from "./hooks/use-canvas-ai";
 import { mapConnection, mapDesign } from "./utils/canvas-utils";
-
-
 
 type ProjectCanvasClientProps = {
 	projectId: string;
@@ -45,10 +40,6 @@ function CanvasContent({ projectId }: { projectId: string }) {
 	} = useCanvasState(projectId);
 
 	const {
-		clearSelection,
-	} = useCanvasSelection(projectId);
-
-	const {
 		updateDesign,
 		clearStyleClipboard,
 		styleClipboard,
@@ -58,15 +49,6 @@ function CanvasContent({ projectId }: { projectId: string }) {
 		isGenerating,
 	} = useCanvasAI(projectId);
 
-	const {
-		handleInteractionStart,
-		handleInteractionMove,
-		handleInteractionEnd,
-		handleWheel,
-	} = useCanvasInteraction(projectId);
-
-	const { containerRef } = useCanvasContainer();
-
 	// Sync data from server
 	useEffect(() => {
 		setDesigns(designsData.map(mapDesign));
@@ -75,20 +57,6 @@ function CanvasContent({ projectId }: { projectId: string }) {
 	useEffect(() => {
 		setConnections(connectionsData.map(mapConnection));
 	}, [connectionsData, setConnections]);
-
-
-	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-		// Prevent default to avoid text selection or other browser behaviors during drag
-		if (e.button === 0 || e.button === 1) {
-			e.preventDefault();
-		}
-
-		clearSelection();
-		// Allow pan on middle button (1) or left button (0)
-		if (e.button === 1 || e.button === 0) {
-			handleInteractionStart("root", "pan", e, {});
-		}
-	};
 
 	return (
 		<>
@@ -111,18 +79,8 @@ function CanvasContent({ projectId }: { projectId: string }) {
 				<Toolbar />
 
 				<div className="relative flex-1 overflow-hidden">
-					<div
-						ref={containerRef}
-						className="absolute inset-0 touch-none"
-						onMouseMove={handleInteractionMove}
-						onMouseUp={handleInteractionEnd}
-						onMouseLeave={handleInteractionEnd}
-						onMouseDown={handleMouseDown}
-						onWheel={handleWheel}
-					>
-						{designs.length === 0 && !isGenerating && <EmptyCanvas />}
-						<Canvas />
-					</div>
+					{designs.length === 0 && !isGenerating && <EmptyCanvas />}
+					<ReactFlowCanvas />
 
 					<Legend />
 
@@ -147,9 +105,9 @@ function CanvasContent({ projectId }: { projectId: string }) {
 export function ProjectCanvasClient({ projectId }: ProjectCanvasClientProps) {
 	return (
 		<ProjectIdProvider projectId={projectId}>
-			<CanvasContainerProvider>
+			<ReactFlowProvider>
 				<CanvasContent projectId={projectId} />
-			</CanvasContainerProvider>
+			</ReactFlowProvider>
 		</ProjectIdProvider>
 	);
 }

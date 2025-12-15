@@ -4,6 +4,12 @@ import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+// ... existing imports ...
+
+// In Toolbar component return:
+
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -41,7 +47,7 @@ export function Toolbar() {
 		isGenerating,
 		isModifying,
 	} = useCanvasAI(projectId);
-	const { selectedDesignIds } = useCanvasSelection(projectId);
+	const { selectedDesignIds, clearSelection } = useCanvasSelection(projectId);
 
 	const hasSelection = selectedDesignIds.length > 0;
 	const isLoading = isGenerating || isModifying;
@@ -235,6 +241,26 @@ export function Toolbar() {
 					disabled={isLoading}
 					rows={1}
 				/>
+
+				{hasSelection && (
+					<Badge
+						variant="secondary"
+						className="flex items-center gap-1.5 px-3 py-1.5 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 transition-all shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300"
+					>
+						<span className="font-medium whitespace-nowrap">{selectedDesignIds.length} selected</span>
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								clearSelection();
+							}}
+							className="ml-0.5 rounded-full p-0.5 hover:bg-primary/20 transition-colors"
+							title="Clear selection"
+						>
+							<X className="h-3 w-3" />
+						</button>
+					</Badge>
+				)}
+
 				<Button
 					onClick={onSubmit}
 					disabled={isLoading || (prompt.trim() === "" && attachedImages.length === 0)}

@@ -4,10 +4,8 @@ import { useProjectId } from "../contexts/project-id-context";
 import {
     selectedDesignIdsFamily,
     copyingStyleIdFamily,
-    connectionTargetFamily,
     connectionsFamily,
     styleClipboardFamily,
-    viewTransformFamily,
 } from "../stores/canvas-store";
 import { getMutationKey } from "@trpc/react-query";
 import { api } from "@/trpc/react";
@@ -17,10 +15,8 @@ export function useDesignElement(designId: string) {
     const projectId = useProjectId();
     const selectedDesignIds = useAtomValue(selectedDesignIdsFamily(projectId));
     const copyingStyleId = useAtomValue(copyingStyleIdFamily(projectId));
-    const connectionTarget = useAtomValue(connectionTargetFamily(projectId));
     const connections = useAtomValue(connectionsFamily(projectId));
     const styleClipboard = useAtomValue(styleClipboardFamily(projectId));
-    const viewTransform = useAtomValue(viewTransformFamily(projectId));
 
     const isSelected = selectedDesignIds.includes(designId);
     const isCopyingStyle = copyingStyleId === designId;
@@ -40,8 +36,6 @@ export function useDesignElement(designId: string) {
         isCopyingStyle,
         isPastingStyle,
         hasOutgoingConnections,
-        connectionTarget,
-        zoom: viewTransform.zoom,
         isApplyingStyle,
     };
 }
