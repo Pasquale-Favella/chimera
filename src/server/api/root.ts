@@ -3,14 +3,9 @@ import { designConnectionsRouter } from "@/server/api/features/designs/connectio
 import { designsRouter } from "@/server/api/features/designs/design.router";
 import { projectMembershipRouter } from "@/server/api/features/projects/membership.router";
 import { projectsRouter } from "@/server/api/features/projects/project.router";
-import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-
-/**
- * This is the primary router for your server.
- *
- * All routers added in /api/routers should be manually added here.
- */
 import { userRouter } from "@/server/api/features/users/user.router";
+import { designSystemRouter } from "@/server/api/features/design-system/design-system.router";
+import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
  * This is the primary router for your server.
@@ -23,6 +18,7 @@ export const appRouter = createTRPCRouter({
 	designs: designsRouter,
 	designConnections: designConnectionsRouter,
 	components: componentsRouter,
+	designSystem: designSystemRouter,
 	user: userRouter,
 });
 

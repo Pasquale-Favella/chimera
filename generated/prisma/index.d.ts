@@ -68,6 +68,11 @@ export type DesignConnection = $Result.DefaultSelection<Prisma.$DesignConnection
  * 
  */
 export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
+/**
+ * Model DesignSystem
+ * 
+ */
+export type DesignSystem = $Result.DefaultSelection<Prisma.$DesignSystemPayload>
 
 /**
  * Enums
@@ -353,6 +358,16 @@ export class PrismaClient<
     * ```
     */
   get verification(): Prisma.VerificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.designSystem`: Exposes CRUD operations for the **DesignSystem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DesignSystems
+    * const designSystems = await prisma.designSystem.findMany()
+    * ```
+    */
+  get designSystem(): Prisma.DesignSystemDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -804,7 +819,8 @@ export namespace Prisma {
     Session: 'Session',
     Account: 'Account',
     DesignConnection: 'DesignConnection',
-    Verification: 'Verification'
+    Verification: 'Verification',
+    DesignSystem: 'DesignSystem'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -823,7 +839,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "apiKey" | "llmApiKey" | "project" | "projectMembership" | "design" | "component" | "session" | "account" | "designConnection" | "verification"
+      modelProps: "user" | "apiKey" | "llmApiKey" | "project" | "projectMembership" | "design" | "component" | "session" | "account" | "designConnection" | "verification" | "designSystem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1641,6 +1657,80 @@ export namespace Prisma {
           }
         }
       }
+      DesignSystem: {
+        payload: Prisma.$DesignSystemPayload<ExtArgs>
+        fields: Prisma.DesignSystemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DesignSystemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DesignSystemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>
+          }
+          findFirst: {
+            args: Prisma.DesignSystemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DesignSystemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>
+          }
+          findMany: {
+            args: Prisma.DesignSystemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>[]
+          }
+          create: {
+            args: Prisma.DesignSystemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>
+          }
+          createMany: {
+            args: Prisma.DesignSystemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DesignSystemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>[]
+          }
+          delete: {
+            args: Prisma.DesignSystemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>
+          }
+          update: {
+            args: Prisma.DesignSystemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>
+          }
+          deleteMany: {
+            args: Prisma.DesignSystemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DesignSystemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DesignSystemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>[]
+          }
+          upsert: {
+            args: Prisma.DesignSystemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DesignSystemPayload>
+          }
+          aggregate: {
+            args: Prisma.DesignSystemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDesignSystem>
+          }
+          groupBy: {
+            args: Prisma.DesignSystemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DesignSystemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DesignSystemCountArgs<ExtArgs>
+            result: $Utils.Optional<DesignSystemCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1748,6 +1838,7 @@ export namespace Prisma {
     account?: AccountOmit
     designConnection?: DesignConnectionOmit
     verification?: VerificationOmit
+    designSystem?: DesignSystemOmit
   }
 
   /* Types for Logging */
@@ -5696,6 +5787,7 @@ export namespace Prisma {
     designs?: boolean | Project$designsArgs<ExtArgs>
     components?: boolean | Project$componentsArgs<ExtArgs>
     connections?: boolean | Project$connectionsArgs<ExtArgs>
+    designSystem?: boolean | Project$designSystemArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
@@ -5735,6 +5827,7 @@ export namespace Prisma {
     designs?: boolean | Project$designsArgs<ExtArgs>
     components?: boolean | Project$componentsArgs<ExtArgs>
     connections?: boolean | Project$connectionsArgs<ExtArgs>
+    designSystem?: boolean | Project$designSystemArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5752,6 +5845,7 @@ export namespace Prisma {
       designs: Prisma.$DesignPayload<ExtArgs>[]
       components: Prisma.$ComponentPayload<ExtArgs>[]
       connections: Prisma.$DesignConnectionPayload<ExtArgs>[]
+      designSystem: Prisma.$DesignSystemPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6159,6 +6253,7 @@ export namespace Prisma {
     designs<T extends Project$designsArgs<ExtArgs> = {}>(args?: Subset<T, Project$designsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     components<T extends Project$componentsArgs<ExtArgs> = {}>(args?: Subset<T, Project$componentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     connections<T extends Project$connectionsArgs<ExtArgs> = {}>(args?: Subset<T, Project$connectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    designSystem<T extends Project$designSystemArgs<ExtArgs> = {}>(args?: Subset<T, Project$designSystemArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6681,6 +6776,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DesignConnectionScalarFieldEnum | DesignConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * Project.designSystem
+   */
+  export type Project$designSystemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    where?: DesignSystemWhereInput
   }
 
   /**
@@ -14548,6 +14662,1137 @@ export namespace Prisma {
 
 
   /**
+   * Model DesignSystem
+   */
+
+  export type AggregateDesignSystem = {
+    _count: DesignSystemCountAggregateOutputType | null
+    _min: DesignSystemMinAggregateOutputType | null
+    _max: DesignSystemMaxAggregateOutputType | null
+  }
+
+  export type DesignSystemMinAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    name: string | null
+    description: string | null
+    type: string | null
+    presetName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DesignSystemMaxAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    name: string | null
+    description: string | null
+    type: string | null
+    presetName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DesignSystemCountAggregateOutputType = {
+    id: number
+    projectId: number
+    name: number
+    description: number
+    colors: number
+    typography: number
+    spacing: number
+    radius: number
+    type: number
+    presetName: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DesignSystemMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    description?: true
+    type?: true
+    presetName?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DesignSystemMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    description?: true
+    type?: true
+    presetName?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DesignSystemCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    description?: true
+    colors?: true
+    typography?: true
+    spacing?: true
+    radius?: true
+    type?: true
+    presetName?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DesignSystemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DesignSystem to aggregate.
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DesignSystems to fetch.
+     */
+    orderBy?: DesignSystemOrderByWithRelationInput | DesignSystemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DesignSystemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DesignSystems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DesignSystems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DesignSystems
+    **/
+    _count?: true | DesignSystemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DesignSystemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DesignSystemMaxAggregateInputType
+  }
+
+  export type GetDesignSystemAggregateType<T extends DesignSystemAggregateArgs> = {
+        [P in keyof T & keyof AggregateDesignSystem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDesignSystem[P]>
+      : GetScalarType<T[P], AggregateDesignSystem[P]>
+  }
+
+
+
+
+  export type DesignSystemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DesignSystemWhereInput
+    orderBy?: DesignSystemOrderByWithAggregationInput | DesignSystemOrderByWithAggregationInput[]
+    by: DesignSystemScalarFieldEnum[] | DesignSystemScalarFieldEnum
+    having?: DesignSystemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DesignSystemCountAggregateInputType | true
+    _min?: DesignSystemMinAggregateInputType
+    _max?: DesignSystemMaxAggregateInputType
+  }
+
+  export type DesignSystemGroupByOutputType = {
+    id: string
+    projectId: string
+    name: string
+    description: string | null
+    colors: JsonValue
+    typography: JsonValue
+    spacing: JsonValue
+    radius: JsonValue
+    type: string
+    presetName: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DesignSystemCountAggregateOutputType | null
+    _min: DesignSystemMinAggregateOutputType | null
+    _max: DesignSystemMaxAggregateOutputType | null
+  }
+
+  type GetDesignSystemGroupByPayload<T extends DesignSystemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DesignSystemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DesignSystemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DesignSystemGroupByOutputType[P]>
+            : GetScalarType<T[P], DesignSystemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DesignSystemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    description?: boolean
+    colors?: boolean
+    typography?: boolean
+    spacing?: boolean
+    radius?: boolean
+    type?: boolean
+    presetName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["designSystem"]>
+
+  export type DesignSystemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    description?: boolean
+    colors?: boolean
+    typography?: boolean
+    spacing?: boolean
+    radius?: boolean
+    type?: boolean
+    presetName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["designSystem"]>
+
+  export type DesignSystemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    description?: boolean
+    colors?: boolean
+    typography?: boolean
+    spacing?: boolean
+    radius?: boolean
+    type?: boolean
+    presetName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["designSystem"]>
+
+  export type DesignSystemSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    description?: boolean
+    colors?: boolean
+    typography?: boolean
+    spacing?: boolean
+    radius?: boolean
+    type?: boolean
+    presetName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DesignSystemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "description" | "colors" | "typography" | "spacing" | "radius" | "type" | "presetName" | "createdAt" | "updatedAt", ExtArgs["result"]["designSystem"]>
+  export type DesignSystemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+  export type DesignSystemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+  export type DesignSystemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+
+  export type $DesignSystemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DesignSystem"
+    objects: {
+      project: Prisma.$ProjectPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      projectId: string
+      name: string
+      description: string | null
+      colors: Prisma.JsonValue
+      typography: Prisma.JsonValue
+      spacing: Prisma.JsonValue
+      radius: Prisma.JsonValue
+      type: string
+      presetName: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["designSystem"]>
+    composites: {}
+  }
+
+  type DesignSystemGetPayload<S extends boolean | null | undefined | DesignSystemDefaultArgs> = $Result.GetResult<Prisma.$DesignSystemPayload, S>
+
+  type DesignSystemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DesignSystemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DesignSystemCountAggregateInputType | true
+    }
+
+  export interface DesignSystemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DesignSystem'], meta: { name: 'DesignSystem' } }
+    /**
+     * Find zero or one DesignSystem that matches the filter.
+     * @param {DesignSystemFindUniqueArgs} args - Arguments to find a DesignSystem
+     * @example
+     * // Get one DesignSystem
+     * const designSystem = await prisma.designSystem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DesignSystemFindUniqueArgs>(args: SelectSubset<T, DesignSystemFindUniqueArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DesignSystem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DesignSystemFindUniqueOrThrowArgs} args - Arguments to find a DesignSystem
+     * @example
+     * // Get one DesignSystem
+     * const designSystem = await prisma.designSystem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DesignSystemFindUniqueOrThrowArgs>(args: SelectSubset<T, DesignSystemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DesignSystem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemFindFirstArgs} args - Arguments to find a DesignSystem
+     * @example
+     * // Get one DesignSystem
+     * const designSystem = await prisma.designSystem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DesignSystemFindFirstArgs>(args?: SelectSubset<T, DesignSystemFindFirstArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DesignSystem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemFindFirstOrThrowArgs} args - Arguments to find a DesignSystem
+     * @example
+     * // Get one DesignSystem
+     * const designSystem = await prisma.designSystem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DesignSystemFindFirstOrThrowArgs>(args?: SelectSubset<T, DesignSystemFindFirstOrThrowArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DesignSystems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DesignSystems
+     * const designSystems = await prisma.designSystem.findMany()
+     * 
+     * // Get first 10 DesignSystems
+     * const designSystems = await prisma.designSystem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const designSystemWithIdOnly = await prisma.designSystem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DesignSystemFindManyArgs>(args?: SelectSubset<T, DesignSystemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DesignSystem.
+     * @param {DesignSystemCreateArgs} args - Arguments to create a DesignSystem.
+     * @example
+     * // Create one DesignSystem
+     * const DesignSystem = await prisma.designSystem.create({
+     *   data: {
+     *     // ... data to create a DesignSystem
+     *   }
+     * })
+     * 
+     */
+    create<T extends DesignSystemCreateArgs>(args: SelectSubset<T, DesignSystemCreateArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DesignSystems.
+     * @param {DesignSystemCreateManyArgs} args - Arguments to create many DesignSystems.
+     * @example
+     * // Create many DesignSystems
+     * const designSystem = await prisma.designSystem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DesignSystemCreateManyArgs>(args?: SelectSubset<T, DesignSystemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DesignSystems and returns the data saved in the database.
+     * @param {DesignSystemCreateManyAndReturnArgs} args - Arguments to create many DesignSystems.
+     * @example
+     * // Create many DesignSystems
+     * const designSystem = await prisma.designSystem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DesignSystems and only return the `id`
+     * const designSystemWithIdOnly = await prisma.designSystem.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DesignSystemCreateManyAndReturnArgs>(args?: SelectSubset<T, DesignSystemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DesignSystem.
+     * @param {DesignSystemDeleteArgs} args - Arguments to delete one DesignSystem.
+     * @example
+     * // Delete one DesignSystem
+     * const DesignSystem = await prisma.designSystem.delete({
+     *   where: {
+     *     // ... filter to delete one DesignSystem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DesignSystemDeleteArgs>(args: SelectSubset<T, DesignSystemDeleteArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DesignSystem.
+     * @param {DesignSystemUpdateArgs} args - Arguments to update one DesignSystem.
+     * @example
+     * // Update one DesignSystem
+     * const designSystem = await prisma.designSystem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DesignSystemUpdateArgs>(args: SelectSubset<T, DesignSystemUpdateArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DesignSystems.
+     * @param {DesignSystemDeleteManyArgs} args - Arguments to filter DesignSystems to delete.
+     * @example
+     * // Delete a few DesignSystems
+     * const { count } = await prisma.designSystem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DesignSystemDeleteManyArgs>(args?: SelectSubset<T, DesignSystemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DesignSystems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DesignSystems
+     * const designSystem = await prisma.designSystem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DesignSystemUpdateManyArgs>(args: SelectSubset<T, DesignSystemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DesignSystems and returns the data updated in the database.
+     * @param {DesignSystemUpdateManyAndReturnArgs} args - Arguments to update many DesignSystems.
+     * @example
+     * // Update many DesignSystems
+     * const designSystem = await prisma.designSystem.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DesignSystems and only return the `id`
+     * const designSystemWithIdOnly = await prisma.designSystem.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DesignSystemUpdateManyAndReturnArgs>(args: SelectSubset<T, DesignSystemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DesignSystem.
+     * @param {DesignSystemUpsertArgs} args - Arguments to update or create a DesignSystem.
+     * @example
+     * // Update or create a DesignSystem
+     * const designSystem = await prisma.designSystem.upsert({
+     *   create: {
+     *     // ... data to create a DesignSystem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DesignSystem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DesignSystemUpsertArgs>(args: SelectSubset<T, DesignSystemUpsertArgs<ExtArgs>>): Prisma__DesignSystemClient<$Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DesignSystems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemCountArgs} args - Arguments to filter DesignSystems to count.
+     * @example
+     * // Count the number of DesignSystems
+     * const count = await prisma.designSystem.count({
+     *   where: {
+     *     // ... the filter for the DesignSystems we want to count
+     *   }
+     * })
+    **/
+    count<T extends DesignSystemCountArgs>(
+      args?: Subset<T, DesignSystemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DesignSystemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DesignSystem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DesignSystemAggregateArgs>(args: Subset<T, DesignSystemAggregateArgs>): Prisma.PrismaPromise<GetDesignSystemAggregateType<T>>
+
+    /**
+     * Group by DesignSystem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DesignSystemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DesignSystemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DesignSystemGroupByArgs['orderBy'] }
+        : { orderBy?: DesignSystemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DesignSystemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDesignSystemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DesignSystem model
+   */
+  readonly fields: DesignSystemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DesignSystem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DesignSystemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DesignSystem model
+   */
+  interface DesignSystemFieldRefs {
+    readonly id: FieldRef<"DesignSystem", 'String'>
+    readonly projectId: FieldRef<"DesignSystem", 'String'>
+    readonly name: FieldRef<"DesignSystem", 'String'>
+    readonly description: FieldRef<"DesignSystem", 'String'>
+    readonly colors: FieldRef<"DesignSystem", 'Json'>
+    readonly typography: FieldRef<"DesignSystem", 'Json'>
+    readonly spacing: FieldRef<"DesignSystem", 'Json'>
+    readonly radius: FieldRef<"DesignSystem", 'Json'>
+    readonly type: FieldRef<"DesignSystem", 'String'>
+    readonly presetName: FieldRef<"DesignSystem", 'String'>
+    readonly createdAt: FieldRef<"DesignSystem", 'DateTime'>
+    readonly updatedAt: FieldRef<"DesignSystem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DesignSystem findUnique
+   */
+  export type DesignSystemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * Filter, which DesignSystem to fetch.
+     */
+    where: DesignSystemWhereUniqueInput
+  }
+
+  /**
+   * DesignSystem findUniqueOrThrow
+   */
+  export type DesignSystemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * Filter, which DesignSystem to fetch.
+     */
+    where: DesignSystemWhereUniqueInput
+  }
+
+  /**
+   * DesignSystem findFirst
+   */
+  export type DesignSystemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * Filter, which DesignSystem to fetch.
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DesignSystems to fetch.
+     */
+    orderBy?: DesignSystemOrderByWithRelationInput | DesignSystemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DesignSystems.
+     */
+    cursor?: DesignSystemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DesignSystems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DesignSystems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DesignSystems.
+     */
+    distinct?: DesignSystemScalarFieldEnum | DesignSystemScalarFieldEnum[]
+  }
+
+  /**
+   * DesignSystem findFirstOrThrow
+   */
+  export type DesignSystemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * Filter, which DesignSystem to fetch.
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DesignSystems to fetch.
+     */
+    orderBy?: DesignSystemOrderByWithRelationInput | DesignSystemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DesignSystems.
+     */
+    cursor?: DesignSystemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DesignSystems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DesignSystems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DesignSystems.
+     */
+    distinct?: DesignSystemScalarFieldEnum | DesignSystemScalarFieldEnum[]
+  }
+
+  /**
+   * DesignSystem findMany
+   */
+  export type DesignSystemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * Filter, which DesignSystems to fetch.
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DesignSystems to fetch.
+     */
+    orderBy?: DesignSystemOrderByWithRelationInput | DesignSystemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DesignSystems.
+     */
+    cursor?: DesignSystemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DesignSystems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DesignSystems.
+     */
+    skip?: number
+    distinct?: DesignSystemScalarFieldEnum | DesignSystemScalarFieldEnum[]
+  }
+
+  /**
+   * DesignSystem create
+   */
+  export type DesignSystemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DesignSystem.
+     */
+    data: XOR<DesignSystemCreateInput, DesignSystemUncheckedCreateInput>
+  }
+
+  /**
+   * DesignSystem createMany
+   */
+  export type DesignSystemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DesignSystems.
+     */
+    data: DesignSystemCreateManyInput | DesignSystemCreateManyInput[]
+  }
+
+  /**
+   * DesignSystem createManyAndReturn
+   */
+  export type DesignSystemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * The data used to create many DesignSystems.
+     */
+    data: DesignSystemCreateManyInput | DesignSystemCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DesignSystem update
+   */
+  export type DesignSystemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DesignSystem.
+     */
+    data: XOR<DesignSystemUpdateInput, DesignSystemUncheckedUpdateInput>
+    /**
+     * Choose, which DesignSystem to update.
+     */
+    where: DesignSystemWhereUniqueInput
+  }
+
+  /**
+   * DesignSystem updateMany
+   */
+  export type DesignSystemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DesignSystems.
+     */
+    data: XOR<DesignSystemUpdateManyMutationInput, DesignSystemUncheckedUpdateManyInput>
+    /**
+     * Filter which DesignSystems to update
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * Limit how many DesignSystems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DesignSystem updateManyAndReturn
+   */
+  export type DesignSystemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * The data used to update DesignSystems.
+     */
+    data: XOR<DesignSystemUpdateManyMutationInput, DesignSystemUncheckedUpdateManyInput>
+    /**
+     * Filter which DesignSystems to update
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * Limit how many DesignSystems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DesignSystem upsert
+   */
+  export type DesignSystemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DesignSystem to update in case it exists.
+     */
+    where: DesignSystemWhereUniqueInput
+    /**
+     * In case the DesignSystem found by the `where` argument doesn't exist, create a new DesignSystem with this data.
+     */
+    create: XOR<DesignSystemCreateInput, DesignSystemUncheckedCreateInput>
+    /**
+     * In case the DesignSystem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DesignSystemUpdateInput, DesignSystemUncheckedUpdateInput>
+  }
+
+  /**
+   * DesignSystem delete
+   */
+  export type DesignSystemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+    /**
+     * Filter which DesignSystem to delete.
+     */
+    where: DesignSystemWhereUniqueInput
+  }
+
+  /**
+   * DesignSystem deleteMany
+   */
+  export type DesignSystemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DesignSystems to delete
+     */
+    where?: DesignSystemWhereInput
+    /**
+     * Limit how many DesignSystems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DesignSystem without action
+   */
+  export type DesignSystemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DesignSystem
+     */
+    select?: DesignSystemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DesignSystem
+     */
+    omit?: DesignSystemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DesignSystemInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -14716,6 +15961,24 @@ export namespace Prisma {
   export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
+  export const DesignSystemScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    name: 'name',
+    description: 'description',
+    colors: 'colors',
+    typography: 'typography',
+    spacing: 'spacing',
+    radius: 'radius',
+    type: 'type',
+    presetName: 'presetName',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DesignSystemScalarFieldEnum = (typeof DesignSystemScalarFieldEnum)[keyof typeof DesignSystemScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -14730,6 +15993,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const JsonNullValueFilter: {
@@ -15082,6 +16352,7 @@ export namespace Prisma {
     designs?: DesignListRelationFilter
     components?: ComponentListRelationFilter
     connections?: DesignConnectionListRelationFilter
+    designSystem?: XOR<DesignSystemNullableScalarRelationFilter, DesignSystemWhereInput> | null
   }
 
   export type ProjectOrderByWithRelationInput = {
@@ -15096,6 +16367,7 @@ export namespace Prisma {
     designs?: DesignOrderByRelationAggregateInput
     components?: ComponentOrderByRelationAggregateInput
     connections?: DesignConnectionOrderByRelationAggregateInput
+    designSystem?: DesignSystemOrderByWithRelationInput
   }
 
   export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -15113,6 +16385,7 @@ export namespace Prisma {
     designs?: DesignListRelationFilter
     components?: ComponentListRelationFilter
     connections?: DesignConnectionListRelationFilter
+    designSystem?: XOR<DesignSystemNullableScalarRelationFilter, DesignSystemWhereInput> | null
   }, "id">
 
   export type ProjectOrderByWithAggregationInput = {
@@ -15694,6 +16967,96 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Verification"> | Date | string
   }
 
+  export type DesignSystemWhereInput = {
+    AND?: DesignSystemWhereInput | DesignSystemWhereInput[]
+    OR?: DesignSystemWhereInput[]
+    NOT?: DesignSystemWhereInput | DesignSystemWhereInput[]
+    id?: StringFilter<"DesignSystem"> | string
+    projectId?: StringFilter<"DesignSystem"> | string
+    name?: StringFilter<"DesignSystem"> | string
+    description?: StringNullableFilter<"DesignSystem"> | string | null
+    colors?: JsonFilter<"DesignSystem">
+    typography?: JsonFilter<"DesignSystem">
+    spacing?: JsonFilter<"DesignSystem">
+    radius?: JsonFilter<"DesignSystem">
+    type?: StringFilter<"DesignSystem"> | string
+    presetName?: StringNullableFilter<"DesignSystem"> | string | null
+    createdAt?: DateTimeFilter<"DesignSystem"> | Date | string
+    updatedAt?: DateTimeFilter<"DesignSystem"> | Date | string
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+  }
+
+  export type DesignSystemOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    colors?: SortOrder
+    typography?: SortOrder
+    spacing?: SortOrder
+    radius?: SortOrder
+    type?: SortOrder
+    presetName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    project?: ProjectOrderByWithRelationInput
+  }
+
+  export type DesignSystemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    projectId?: string
+    AND?: DesignSystemWhereInput | DesignSystemWhereInput[]
+    OR?: DesignSystemWhereInput[]
+    NOT?: DesignSystemWhereInput | DesignSystemWhereInput[]
+    name?: StringFilter<"DesignSystem"> | string
+    description?: StringNullableFilter<"DesignSystem"> | string | null
+    colors?: JsonFilter<"DesignSystem">
+    typography?: JsonFilter<"DesignSystem">
+    spacing?: JsonFilter<"DesignSystem">
+    radius?: JsonFilter<"DesignSystem">
+    type?: StringFilter<"DesignSystem"> | string
+    presetName?: StringNullableFilter<"DesignSystem"> | string | null
+    createdAt?: DateTimeFilter<"DesignSystem"> | Date | string
+    updatedAt?: DateTimeFilter<"DesignSystem"> | Date | string
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+  }, "id" | "projectId">
+
+  export type DesignSystemOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    colors?: SortOrder
+    typography?: SortOrder
+    spacing?: SortOrder
+    radius?: SortOrder
+    type?: SortOrder
+    presetName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DesignSystemCountOrderByAggregateInput
+    _max?: DesignSystemMaxOrderByAggregateInput
+    _min?: DesignSystemMinOrderByAggregateInput
+  }
+
+  export type DesignSystemScalarWhereWithAggregatesInput = {
+    AND?: DesignSystemScalarWhereWithAggregatesInput | DesignSystemScalarWhereWithAggregatesInput[]
+    OR?: DesignSystemScalarWhereWithAggregatesInput[]
+    NOT?: DesignSystemScalarWhereWithAggregatesInput | DesignSystemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DesignSystem"> | string
+    projectId?: StringWithAggregatesFilter<"DesignSystem"> | string
+    name?: StringWithAggregatesFilter<"DesignSystem"> | string
+    description?: StringNullableWithAggregatesFilter<"DesignSystem"> | string | null
+    colors?: JsonWithAggregatesFilter<"DesignSystem">
+    typography?: JsonWithAggregatesFilter<"DesignSystem">
+    spacing?: JsonWithAggregatesFilter<"DesignSystem">
+    radius?: JsonWithAggregatesFilter<"DesignSystem">
+    type?: StringWithAggregatesFilter<"DesignSystem"> | string
+    presetName?: StringNullableWithAggregatesFilter<"DesignSystem"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DesignSystem"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DesignSystem"> | Date | string
+  }
+
   export type UserCreateInput = {
     id: string
     name: string
@@ -15956,6 +17319,7 @@ export namespace Prisma {
     designs?: DesignCreateNestedManyWithoutProjectInput
     components?: ComponentCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateInput = {
@@ -15969,6 +17333,7 @@ export namespace Prisma {
     designs?: DesignUncheckedCreateNestedManyWithoutProjectInput
     components?: ComponentUncheckedCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemUncheckedCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUpdateInput = {
@@ -15982,6 +17347,7 @@ export namespace Prisma {
     designs?: DesignUpdateManyWithoutProjectNestedInput
     components?: ComponentUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateInput = {
@@ -15995,6 +17361,7 @@ export namespace Prisma {
     designs?: DesignUncheckedUpdateManyWithoutProjectNestedInput
     components?: ComponentUncheckedUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectCreateManyInput = {
@@ -16614,6 +17981,110 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DesignSystemCreateInput = {
+    id?: string
+    name?: string
+    description?: string | null
+    colors: JsonNullValueInput | InputJsonValue
+    typography: JsonNullValueInput | InputJsonValue
+    spacing: JsonNullValueInput | InputJsonValue
+    radius: JsonNullValueInput | InputJsonValue
+    type?: string
+    presetName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    project: ProjectCreateNestedOneWithoutDesignSystemInput
+  }
+
+  export type DesignSystemUncheckedCreateInput = {
+    id?: string
+    projectId: string
+    name?: string
+    description?: string | null
+    colors: JsonNullValueInput | InputJsonValue
+    typography: JsonNullValueInput | InputJsonValue
+    spacing: JsonNullValueInput | InputJsonValue
+    radius: JsonNullValueInput | InputJsonValue
+    type?: string
+    presetName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DesignSystemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    colors?: JsonNullValueInput | InputJsonValue
+    typography?: JsonNullValueInput | InputJsonValue
+    spacing?: JsonNullValueInput | InputJsonValue
+    radius?: JsonNullValueInput | InputJsonValue
+    type?: StringFieldUpdateOperationsInput | string
+    presetName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutDesignSystemNestedInput
+  }
+
+  export type DesignSystemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    colors?: JsonNullValueInput | InputJsonValue
+    typography?: JsonNullValueInput | InputJsonValue
+    spacing?: JsonNullValueInput | InputJsonValue
+    radius?: JsonNullValueInput | InputJsonValue
+    type?: StringFieldUpdateOperationsInput | string
+    presetName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DesignSystemCreateManyInput = {
+    id?: string
+    projectId: string
+    name?: string
+    description?: string | null
+    colors: JsonNullValueInput | InputJsonValue
+    typography: JsonNullValueInput | InputJsonValue
+    spacing: JsonNullValueInput | InputJsonValue
+    radius: JsonNullValueInput | InputJsonValue
+    type?: string
+    presetName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DesignSystemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    colors?: JsonNullValueInput | InputJsonValue
+    typography?: JsonNullValueInput | InputJsonValue
+    spacing?: JsonNullValueInput | InputJsonValue
+    radius?: JsonNullValueInput | InputJsonValue
+    type?: StringFieldUpdateOperationsInput | string
+    presetName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DesignSystemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    colors?: JsonNullValueInput | InputJsonValue
+    typography?: JsonNullValueInput | InputJsonValue
+    spacing?: JsonNullValueInput | InputJsonValue
+    radius?: JsonNullValueInput | InputJsonValue
+    type?: StringFieldUpdateOperationsInput | string
+    presetName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -16985,6 +18456,11 @@ export namespace Prisma {
     every?: DesignConnectionWhereInput
     some?: DesignConnectionWhereInput
     none?: DesignConnectionWhereInput
+  }
+
+  export type DesignSystemNullableScalarRelationFilter = {
+    is?: DesignSystemWhereInput | null
+    isNot?: DesignSystemWhereInput | null
   }
 
   export type DesignConnectionOrderByRelationAggregateInput = {
@@ -17374,6 +18850,82 @@ export namespace Prisma {
     expiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type DesignSystemCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    colors?: SortOrder
+    typography?: SortOrder
+    spacing?: SortOrder
+    radius?: SortOrder
+    type?: SortOrder
+    presetName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DesignSystemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    presetName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DesignSystemMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    presetName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {
@@ -17840,6 +19392,12 @@ export namespace Prisma {
     connect?: DesignConnectionWhereUniqueInput | DesignConnectionWhereUniqueInput[]
   }
 
+  export type DesignSystemCreateNestedOneWithoutProjectInput = {
+    create?: XOR<DesignSystemCreateWithoutProjectInput, DesignSystemUncheckedCreateWithoutProjectInput>
+    connectOrCreate?: DesignSystemCreateOrConnectWithoutProjectInput
+    connect?: DesignSystemWhereUniqueInput
+  }
+
   export type ProjectMembershipUncheckedCreateNestedManyWithoutProjectInput = {
     create?: XOR<ProjectMembershipCreateWithoutProjectInput, ProjectMembershipUncheckedCreateWithoutProjectInput> | ProjectMembershipCreateWithoutProjectInput[] | ProjectMembershipUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: ProjectMembershipCreateOrConnectWithoutProjectInput | ProjectMembershipCreateOrConnectWithoutProjectInput[]
@@ -17866,6 +19424,12 @@ export namespace Prisma {
     connectOrCreate?: DesignConnectionCreateOrConnectWithoutProjectInput | DesignConnectionCreateOrConnectWithoutProjectInput[]
     createMany?: DesignConnectionCreateManyProjectInputEnvelope
     connect?: DesignConnectionWhereUniqueInput | DesignConnectionWhereUniqueInput[]
+  }
+
+  export type DesignSystemUncheckedCreateNestedOneWithoutProjectInput = {
+    create?: XOR<DesignSystemCreateWithoutProjectInput, DesignSystemUncheckedCreateWithoutProjectInput>
+    connectOrCreate?: DesignSystemCreateOrConnectWithoutProjectInput
+    connect?: DesignSystemWhereUniqueInput
   }
 
   export type UserUpdateOneRequiredWithoutProjectsOwnedNestedInput = {
@@ -17932,6 +19496,16 @@ export namespace Prisma {
     deleteMany?: DesignConnectionScalarWhereInput | DesignConnectionScalarWhereInput[]
   }
 
+  export type DesignSystemUpdateOneWithoutProjectNestedInput = {
+    create?: XOR<DesignSystemCreateWithoutProjectInput, DesignSystemUncheckedCreateWithoutProjectInput>
+    connectOrCreate?: DesignSystemCreateOrConnectWithoutProjectInput
+    upsert?: DesignSystemUpsertWithoutProjectInput
+    disconnect?: DesignSystemWhereInput | boolean
+    delete?: DesignSystemWhereInput | boolean
+    connect?: DesignSystemWhereUniqueInput
+    update?: XOR<XOR<DesignSystemUpdateToOneWithWhereWithoutProjectInput, DesignSystemUpdateWithoutProjectInput>, DesignSystemUncheckedUpdateWithoutProjectInput>
+  }
+
   export type ProjectMembershipUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<ProjectMembershipCreateWithoutProjectInput, ProjectMembershipUncheckedCreateWithoutProjectInput> | ProjectMembershipCreateWithoutProjectInput[] | ProjectMembershipUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: ProjectMembershipCreateOrConnectWithoutProjectInput | ProjectMembershipCreateOrConnectWithoutProjectInput[]
@@ -17986,6 +19560,16 @@ export namespace Prisma {
     update?: DesignConnectionUpdateWithWhereUniqueWithoutProjectInput | DesignConnectionUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: DesignConnectionUpdateManyWithWhereWithoutProjectInput | DesignConnectionUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: DesignConnectionScalarWhereInput | DesignConnectionScalarWhereInput[]
+  }
+
+  export type DesignSystemUncheckedUpdateOneWithoutProjectNestedInput = {
+    create?: XOR<DesignSystemCreateWithoutProjectInput, DesignSystemUncheckedCreateWithoutProjectInput>
+    connectOrCreate?: DesignSystemCreateOrConnectWithoutProjectInput
+    upsert?: DesignSystemUpsertWithoutProjectInput
+    disconnect?: DesignSystemWhereInput | boolean
+    delete?: DesignSystemWhereInput | boolean
+    connect?: DesignSystemWhereUniqueInput
+    update?: XOR<XOR<DesignSystemUpdateToOneWithWhereWithoutProjectInput, DesignSystemUpdateWithoutProjectInput>, DesignSystemUncheckedUpdateWithoutProjectInput>
   }
 
   export type ProjectCreateNestedOneWithoutMembershipsInput = {
@@ -18262,6 +19846,20 @@ export namespace Prisma {
     update?: XOR<XOR<DesignUpdateToOneWithWhereWithoutConnectionsToInput, DesignUpdateWithoutConnectionsToInput>, DesignUncheckedUpdateWithoutConnectionsToInput>
   }
 
+  export type ProjectCreateNestedOneWithoutDesignSystemInput = {
+    create?: XOR<ProjectCreateWithoutDesignSystemInput, ProjectUncheckedCreateWithoutDesignSystemInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutDesignSystemInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type ProjectUpdateOneRequiredWithoutDesignSystemNestedInput = {
+    create?: XOR<ProjectCreateWithoutDesignSystemInput, ProjectUncheckedCreateWithoutDesignSystemInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutDesignSystemInput
+    upsert?: ProjectUpsertWithoutDesignSystemInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutDesignSystemInput, ProjectUpdateWithoutDesignSystemInput>, ProjectUncheckedUpdateWithoutDesignSystemInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -18521,6 +20119,24 @@ export namespace Prisma {
     _min?: NestedEnumConnectionPositionFilter<$PrismaModel>
     _max?: NestedEnumConnectionPositionFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type SessionCreateWithoutUserInput = {
     id: string
@@ -18600,6 +20216,7 @@ export namespace Prisma {
     designs?: DesignCreateNestedManyWithoutProjectInput
     components?: ComponentCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutCreatedByInput = {
@@ -18612,6 +20229,7 @@ export namespace Prisma {
     designs?: DesignUncheckedCreateNestedManyWithoutProjectInput
     components?: ComponentUncheckedCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemUncheckedCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutCreatedByInput = {
@@ -19424,6 +21042,39 @@ export namespace Prisma {
     data: DesignConnectionCreateManyProjectInput | DesignConnectionCreateManyProjectInput[]
   }
 
+  export type DesignSystemCreateWithoutProjectInput = {
+    id?: string
+    name?: string
+    description?: string | null
+    colors: JsonNullValueInput | InputJsonValue
+    typography: JsonNullValueInput | InputJsonValue
+    spacing: JsonNullValueInput | InputJsonValue
+    radius: JsonNullValueInput | InputJsonValue
+    type?: string
+    presetName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DesignSystemUncheckedCreateWithoutProjectInput = {
+    id?: string
+    name?: string
+    description?: string | null
+    colors: JsonNullValueInput | InputJsonValue
+    typography: JsonNullValueInput | InputJsonValue
+    spacing: JsonNullValueInput | InputJsonValue
+    radius: JsonNullValueInput | InputJsonValue
+    type?: string
+    presetName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DesignSystemCreateOrConnectWithoutProjectInput = {
+    where: DesignSystemWhereUniqueInput
+    create: XOR<DesignSystemCreateWithoutProjectInput, DesignSystemUncheckedCreateWithoutProjectInput>
+  }
+
   export type UserUpsertWithoutProjectsOwnedInput = {
     update: XOR<UserUpdateWithoutProjectsOwnedInput, UserUncheckedUpdateWithoutProjectsOwnedInput>
     create: XOR<UserCreateWithoutProjectsOwnedInput, UserUncheckedCreateWithoutProjectsOwnedInput>
@@ -19551,6 +21202,45 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"DesignConnection"> | Date | string
   }
 
+  export type DesignSystemUpsertWithoutProjectInput = {
+    update: XOR<DesignSystemUpdateWithoutProjectInput, DesignSystemUncheckedUpdateWithoutProjectInput>
+    create: XOR<DesignSystemCreateWithoutProjectInput, DesignSystemUncheckedCreateWithoutProjectInput>
+    where?: DesignSystemWhereInput
+  }
+
+  export type DesignSystemUpdateToOneWithWhereWithoutProjectInput = {
+    where?: DesignSystemWhereInput
+    data: XOR<DesignSystemUpdateWithoutProjectInput, DesignSystemUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type DesignSystemUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    colors?: JsonNullValueInput | InputJsonValue
+    typography?: JsonNullValueInput | InputJsonValue
+    spacing?: JsonNullValueInput | InputJsonValue
+    radius?: JsonNullValueInput | InputJsonValue
+    type?: StringFieldUpdateOperationsInput | string
+    presetName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DesignSystemUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    colors?: JsonNullValueInput | InputJsonValue
+    typography?: JsonNullValueInput | InputJsonValue
+    spacing?: JsonNullValueInput | InputJsonValue
+    radius?: JsonNullValueInput | InputJsonValue
+    type?: StringFieldUpdateOperationsInput | string
+    presetName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProjectCreateWithoutMembershipsInput = {
     id?: string
     name: string
@@ -19561,6 +21251,7 @@ export namespace Prisma {
     designs?: DesignCreateNestedManyWithoutProjectInput
     components?: ComponentCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutMembershipsInput = {
@@ -19573,6 +21264,7 @@ export namespace Prisma {
     designs?: DesignUncheckedCreateNestedManyWithoutProjectInput
     components?: ComponentUncheckedCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemUncheckedCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutMembershipsInput = {
@@ -19687,6 +21379,7 @@ export namespace Prisma {
     designs?: DesignUpdateManyWithoutProjectNestedInput
     components?: ComponentUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutMembershipsInput = {
@@ -19699,6 +21392,7 @@ export namespace Prisma {
     designs?: DesignUncheckedUpdateManyWithoutProjectNestedInput
     components?: ComponentUncheckedUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
   }
 
   export type UserUpsertWithoutMembershipsInput = {
@@ -19809,6 +21503,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipCreateNestedManyWithoutProjectInput
     components?: ComponentCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutDesignsInput = {
@@ -19821,6 +21516,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutProjectInput
     components?: ComponentUncheckedCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemUncheckedCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutDesignsInput = {
@@ -19950,6 +21646,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUpdateManyWithoutProjectNestedInput
     components?: ComponentUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutDesignsInput = {
@@ -19962,6 +21659,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutProjectNestedInput
     components?: ComponentUncheckedUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
   }
 
   export type UserUpsertWithoutDesignsInput = {
@@ -20055,6 +21753,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipCreateNestedManyWithoutProjectInput
     designs?: DesignCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutComponentsInput = {
@@ -20067,6 +21766,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutProjectInput
     designs?: DesignUncheckedCreateNestedManyWithoutProjectInput
     connections?: DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemUncheckedCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutComponentsInput = {
@@ -20138,6 +21838,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUpdateManyWithoutProjectNestedInput
     designs?: DesignUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutComponentsInput = {
@@ -20150,6 +21851,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutProjectNestedInput
     designs?: DesignUncheckedUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
   }
 
   export type UserUpsertWithoutComponentsInput = {
@@ -20395,6 +22097,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipCreateNestedManyWithoutProjectInput
     designs?: DesignCreateNestedManyWithoutProjectInput
     components?: ComponentCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutConnectionsInput = {
@@ -20407,6 +22110,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutProjectInput
     designs?: DesignUncheckedCreateNestedManyWithoutProjectInput
     components?: ComponentUncheckedCreateNestedManyWithoutProjectInput
+    designSystem?: DesignSystemUncheckedCreateNestedOneWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutConnectionsInput = {
@@ -20521,6 +22225,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUpdateManyWithoutProjectNestedInput
     designs?: DesignUpdateManyWithoutProjectNestedInput
     components?: ComponentUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutConnectionsInput = {
@@ -20533,6 +22238,7 @@ export namespace Prisma {
     memberships?: ProjectMembershipUncheckedUpdateManyWithoutProjectNestedInput
     designs?: DesignUncheckedUpdateManyWithoutProjectNestedInput
     components?: ComponentUncheckedUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
   }
 
   export type DesignUpsertWithoutConnectionsFromInput = {
@@ -20631,6 +22337,74 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     connectionsFrom?: DesignConnectionUncheckedUpdateManyWithoutFromDesignNestedInput
+  }
+
+  export type ProjectCreateWithoutDesignSystemInput = {
+    id?: string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdBy: UserCreateNestedOneWithoutProjectsOwnedInput
+    memberships?: ProjectMembershipCreateNestedManyWithoutProjectInput
+    designs?: DesignCreateNestedManyWithoutProjectInput
+    components?: ComponentCreateNestedManyWithoutProjectInput
+    connections?: DesignConnectionCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutDesignSystemInput = {
+    id?: string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdById: string
+    memberships?: ProjectMembershipUncheckedCreateNestedManyWithoutProjectInput
+    designs?: DesignUncheckedCreateNestedManyWithoutProjectInput
+    components?: ComponentUncheckedCreateNestedManyWithoutProjectInput
+    connections?: DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutDesignSystemInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutDesignSystemInput, ProjectUncheckedCreateWithoutDesignSystemInput>
+  }
+
+  export type ProjectUpsertWithoutDesignSystemInput = {
+    update: XOR<ProjectUpdateWithoutDesignSystemInput, ProjectUncheckedUpdateWithoutDesignSystemInput>
+    create: XOR<ProjectCreateWithoutDesignSystemInput, ProjectUncheckedCreateWithoutDesignSystemInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutDesignSystemInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutDesignSystemInput, ProjectUncheckedUpdateWithoutDesignSystemInput>
+  }
+
+  export type ProjectUpdateWithoutDesignSystemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: UserUpdateOneRequiredWithoutProjectsOwnedNestedInput
+    memberships?: ProjectMembershipUpdateManyWithoutProjectNestedInput
+    designs?: DesignUpdateManyWithoutProjectNestedInput
+    components?: ComponentUpdateManyWithoutProjectNestedInput
+    connections?: DesignConnectionUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutDesignSystemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    memberships?: ProjectMembershipUncheckedUpdateManyWithoutProjectNestedInput
+    designs?: DesignUncheckedUpdateManyWithoutProjectNestedInput
+    components?: ComponentUncheckedUpdateManyWithoutProjectNestedInput
+    connections?: DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -20813,6 +22587,7 @@ export namespace Prisma {
     designs?: DesignUpdateManyWithoutProjectNestedInput
     components?: ComponentUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutCreatedByInput = {
@@ -20825,6 +22600,7 @@ export namespace Prisma {
     designs?: DesignUncheckedUpdateManyWithoutProjectNestedInput
     components?: ComponentUncheckedUpdateManyWithoutProjectNestedInput
     connections?: DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+    designSystem?: DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateManyWithoutCreatedByInput = {

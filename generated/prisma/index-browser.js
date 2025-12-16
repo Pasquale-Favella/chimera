@@ -243,6 +243,21 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DesignSystemScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  name: 'name',
+  description: 'description',
+  colors: 'colors',
+  typography: 'typography',
+  spacing: 'spacing',
+  radius: 'radius',
+  type: 'type',
+  presetName: 'presetName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -250,6 +265,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -303,7 +322,8 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   Account: 'Account',
   DesignConnection: 'DesignConnection',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  DesignSystem: 'DesignSystem'
 };
 
 /**
