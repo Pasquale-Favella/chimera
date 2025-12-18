@@ -9,11 +9,11 @@ import { LlmManager } from "@/server/lib/llm";
 import { LlmProvider } from "../../../generated/prisma";
 import type {
     AttachedImage,
+    DesignSystemContext,
     DesignTokens,
     GeneratedDesign,
     GeneratedFlow,
     ModifiedDesign,
-    DesignSystemContext,
 } from "@/types/shared";
 
 export type AiConfig = {
@@ -187,18 +187,15 @@ IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use a
   - Medium: ${designSystem.radius.medium}
   - Large: ${designSystem.radius.large}
 
-Use Tailwind arbitrary values (e.g. bg-[#123456]) if the design system colors do not map directly to standard Tailwind colors.
+Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
 ` : "";
 
-        const systemPrompt = `You are an expert UI/UX designer. ${designSystemContext} Your goal is to generate distinct design variations based on the user's request. For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do not include any external stylesheets or script tags. The designs should be visually complete components.`;
-
-        const userPrompt = ` User's prompt: "${prompt}". Generate ${count} design variation(s).`;
+        const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: generationSchema,
-            messages: buildMessages(userPrompt, images),
+            messages: buildMessages(fullPrompt, images),
         });
 
         return object;
@@ -240,24 +237,21 @@ IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use a
   - Medium: ${designSystem.radius.medium}
   - Large: ${designSystem.radius.large}
 
-Use Tailwind arbitrary values (e.g. bg-[#123456]) if the design system colors do not map directly to standard Tailwind colors.
+Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
 ` : "";
 
-        const systemPrompt = `You are an expert UI/UX designer specializing in user flows. ${designSystemContext}
+        const fullPrompt = `You are an expert UI/UX designer specializing in user flows. Based on the user's prompt (and the provided image(s), if any), generate a series of connected UI designs that represent a complete user flow. The user's prompt is: "${prompt}".
 
 Your task is to:
 1.  Identify the key screens or states in the described flow.
 2.  Generate the HTML for each screen using only Tailwind CSS classes.
 3.  Define the connections between these screens. For a standard left-to-right flow, connect the 'right' side of one component to the 'left' side of the next.
-4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them.`;
-
-        const userPrompt = ` User's prompt: "${prompt}". Generate a complete user flow.`;
+4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. ${designSystemContext}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: flowGenerationSchema,
-            messages: buildMessages(userPrompt, images),
+            messages: buildMessages(fullPrompt, images),
         });
 
         return object as GeneratedFlow;
@@ -283,20 +277,15 @@ export async function modifyDesigns(
 
     try {
         const promptContext = selector
-            ? `This change should be applied specifically to the element identified by the CSS selector: "${selector}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
-            : `Apply this change to the entire component.`;
+            ? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selector}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
+            : `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
 
-        const systemPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes.`;
-
-        const userPrompt = `User's instruction: "${modificationPrompt}".
-
-Designs to modify: ${JSON.stringify(designsToModify)}`;
+        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} The designs to modify are provided below as a JSON array of objects, each with an "id" and its current "html". Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nDesigns to modify: ${JSON.stringify(designsToModify)}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: modificationSchema,
-            messages: buildMessages(userPrompt, images),
+            messages: buildMessages(fullPrompt, images),
         });
 
         return object;
@@ -321,20 +310,15 @@ export async function modifySingleDesign(
 
     try {
         const promptContext = selectedElementPath
-            ? `This change should be applied specifically to the element identified by the CSS selector: "${selectedElementPath}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
-            : `Apply this change to the entire component.`;
+            ? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selectedElementPath}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
+            : `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
 
-        const systemPrompt = `You are an expert UI/UX designer. The user wants to modify an existing design. ${promptContext} Return a JSON object with the key "html" containing the new, self-contained HTML that uses only Tailwind CSS classes. You must return the FULL HTML for the entire component with the change applied, not just the HTML for the modified element.`;
-
-        const userPrompt = `User's instruction: "${modificationPrompt}".
-
-Current HTML: ${designToModify.html}`;
+        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify an existing design. ${promptContext} Return a JSON object with the key "html" containing the new, self-contained HTML that uses only Tailwind CSS classes. You must return the FULL HTML for the entire component with the change applied, not just the HTML for the modified element. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nCurrent HTML: ${designToModify.html}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: singleModificationSchema,
-            messages: [{ role: "user", content: userPrompt }],
+            messages: [{ role: "user", content: fullPrompt }],
         });
 
         return object;
@@ -357,7 +341,7 @@ export async function applyDesignTokens(
     }
 
     try {
-        const systemPrompt = `You are an expert UI/UX designer specializing in design systems. Your task is to refactor an HTML component to match a new visual style defined by a set of design tokens.
+        const fullPrompt = `You are an expert UI/UX designer specializing in design systems. Your task is to refactor an HTML component to match a new visual style defined by a set of design tokens.
 
 **Instructions:**
 1. Analyze the provided HTML and identify its structural elements (buttons, text, containers, etc.).
@@ -366,9 +350,9 @@ export async function applyDesignTokens(
     * Replace existing background colors, text colors, and border colors with appropriate colors from the token palette. For example, use a prominent color for primary actions (buttons) and neutral colors for backgrounds and text.
     * Update font families to match those specified in the tokens.
 4. **Crucially, preserve the original layout, structure, and HTML tags of the component.** Only modify the Tailwind CSS classes to change the styling.
-5. Return a JSON object with a single key "html" containing the full, refactored HTML code.`;
+5. Return a JSON object with a single key "html" containing the full, refactored HTML code.
 
-        const userPrompt = `**Design Tokens:**
+**Design Tokens:**
 ${JSON.stringify(tokens)}
 
 **Original HTML:**
@@ -376,9 +360,8 @@ ${html}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: singleModificationSchema,
-            messages: [{ role: "user", content: userPrompt }],
+            messages: [{ role: "user", content: fullPrompt }],
         });
 
         return object;
@@ -398,7 +381,7 @@ export async function extractDesignTokens(
     }
 
     try {
-        const systemPrompt = `You are a design system specialist. Analyze the provided HTML and extract the design tokens used.
+        const fullPrompt = `You are a design system specialist. Analyze the provided HTML and extract the design tokens used.
         
         Categorize colors into:
         - Backgrounds
@@ -409,15 +392,12 @@ export async function extractDesignTokens(
         Identify the primary font families for headings and body text.
         Extract border-radius classes (e.g., rounded-md) and box-shadow classes (e.g., shadow-lg).
 
-        Return a JSON object that follows the provided schema.`;
-
-        const userPrompt = `HTML:\n${html}`;
+        Return a JSON object that follows the provided schema. \n\nHTML:\n${html}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: designTokenSchema,
-            messages: [{ role: "user", content: userPrompt }],
+            messages: [{ role: "user", content: fullPrompt }],
         });
 
         // Post-process to ensure uniqueness
@@ -446,7 +426,16 @@ export async function findClickableSelectorsForConnections(
     }
 
     try {
-        const systemPrompt = `You are an expert UI analyst. Your task is to identify the clickable elements in a source HTML document that are most likely intended to navigate to specific target screens.
+        const fullPrompt = `You are an expert UI analyst. Your task is to identify the clickable elements in a source HTML document that are most likely intended to navigate to specific target screens.
+
+**Source HTML:**
+\`\`\`html
+${sourceHtml}
+\`\`\`
+
+**Navigation Targets:**
+You need to find the best clickable element for each of the following connections:
+${JSON.stringify(targets, null, 2)}
 
 **Instructions:**
 1.  For each target, analyze the source HTML to find the most logical clickable element (e.g., \`<button>\`, \`<a>\`, an element with \`role="button"\`, or a div with click-related classes) that would lead to that target. Consider the element's text content, class names, and attributes. For example, a button with "Login" text should link to a "Dashboard" target.
@@ -456,20 +445,10 @@ export async function findClickableSelectorsForConnections(
 
 Your response must be a JSON array that conforms to the provided schema.`;
 
-        const userPrompt = `**Source HTML:**
-\`\`\`html
-${sourceHtml}
-\`\`\`
-
-**Navigation Targets:**
-You need to find the best clickable element for each of the following connections:
-${JSON.stringify(targets, null, 2)}`;
-
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: clickableSelectorsSchema,
-            messages: [{ role: "user", content: userPrompt }],
+            messages: [{ role: "user", content: fullPrompt }],
         });
 
         return object;
@@ -500,15 +479,12 @@ export async function extractComponent(
     }
 
     try {
-        const systemPrompt = `You are an expert code refactoring assistant. Given an HTML snippet and a CSS selector, extract the HTML for the element matching the selector and its children. Clean it up to be a self-contained, reusable component, ensuring all necessary Tailwind classes are present. Return a JSON object with the key "componentHtml".`;
-
-        const userPrompt = `Full HTML:\n${html}\n\nCSS Selector:\n${selector}`;
+        const fullPrompt = `You are an expert code refactoring assistant. Given the following HTML and a CSS selector, extract the HTML for the element matching the selector and its children. Clean it up to be a self-contained, reusable component, ensuring all necessary Tailwind classes are present. Return a JSON object with the key "componentHtml".\n\nFull HTML:\n${html}\n\nCSS Selector:\n${selector}`;
 
         const { object } = await generateObject({
             model,
-            system: systemPrompt,
             schema: componentExtractionSchema,
-            messages: [{ role: "user", content: userPrompt }],
+            messages: [{ role: "user", content: fullPrompt }],
         });
 
         return object;

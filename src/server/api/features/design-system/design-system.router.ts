@@ -1,7 +1,9 @@
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { TRPCError } from "@trpc/server";
+
+
+import { assertProjectAccess, EDITOR_ACCESS } from "../projects/permissions";
 
 const designSystemSchema = z.object({
     name: z.string().min(1),
@@ -59,21 +61,7 @@ export const designSystemRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             // Verify project access
-            const project = await ctx.db.project.findUnique({
-                where: { id: input.projectId },
-                include: { memberships: true },
-            });
-
-            if (!project) {
-                throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
-            }
-
-            const isMember = project.createdById === ctx.session.user.id ||
-                project.memberships.some(m => m.userId === ctx.session.user.id);
-
-            if (!isMember) {
-                throw new TRPCError({ code: "FORBIDDEN", message: "Not a member of this project" });
-            }
+            await assertProjectAccess(ctx, input.projectId, EDITOR_ACCESS);
 
             const designSystem = await ctx.db.designSystem.upsert({
                 where: { projectId: input.projectId },

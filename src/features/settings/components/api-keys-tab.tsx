@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +27,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
+import { useSettings } from "../hooks/use-settings";
 
 function ApiKeysSkeleton() {
     return (
@@ -69,37 +69,19 @@ function ApiKeysSkeleton() {
 }
 
 export function ApiKeysTab() {
+    const { apiKeys, isLoading, createApiKey, deleteApiKey } = useSettings();
     const [newKeyName, setNewKeyName] = useState("");
     const [createdKey, setCreatedKey] = useState<string | null>(null);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-    const { data: apiKeys, isLoading, refetch: refetchApiKeys } = api.user.getApiKeys.useQuery();
-
-    const createApiKey = api.user.createApiKey.useMutation({
-        onSuccess: (data) => {
-            setCreatedKey(data.key);
-            setNewKeyName("");
-            refetchApiKeys();
-            toast.success("API key created successfully");
-        },
-        onError: (error) => {
-            toast.error(`Failed to create API key: ${error.message}`);
-        },
-    });
-
-    const deleteApiKey = api.user.deleteApiKey.useMutation({
-        onSuccess: () => {
-            refetchApiKeys();
-            toast.success("API key deleted successfully");
-        },
-        onError: (error) => {
-            toast.error(`Failed to delete API key: ${error.message}`);
-        },
-    });
-
     const handleCreateKey = () => {
         if (!newKeyName.trim()) return;
-        createApiKey.mutate({ name: newKeyName });
+        createApiKey.mutate({ name: newKeyName }, {
+            onSuccess: (data) => {
+                setCreatedKey(data.key);
+                setNewKeyName("");
+            }
+        });
     };
 
     const handleCopyKey = () => {

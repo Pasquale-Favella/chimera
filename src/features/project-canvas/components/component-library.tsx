@@ -22,7 +22,7 @@ interface ComponentLibraryProps {
 export function ComponentLibrary({ projectId }: ComponentLibraryProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"library" | "design-system">("library");
-    const { designSystem, setDesignSystem } = useDesignSystem(projectId);
+    const { designSystem, setDesignSystem, serverDesignSystem: fetchedDesignSystem, isLoading: isLoadingDS, revertToDefault } = useDesignSystem(projectId);
 
     const utils = api.useUtils();
 
@@ -32,28 +32,11 @@ export function ComponentLibrary({ projectId }: ComponentLibraryProps) {
         { enabled: isOpen && activeTab === "library" }
     );
 
-    // Design System Query
-    const { data: fetchedDesignSystem, isLoading: isLoadingDS } = api.designSystem.get.useQuery(
-        { projectId },
-        { enabled: isOpen }
-    );
-
     // Reset styling when switching projects to avoid stale state from previous project
     useEffect(() => {
-        setDesignSystem({ ...defaultDesignSystem });
-    }, [projectId, setDesignSystem]);
+        revertToDefault();
+    }, [projectId, revertToDefault]);
 
-    // Initialize store with fetched data when valid data is received
-    useEffect(() => {
-        if (fetchedDesignSystem) {
-            // Parse JSON fields if they come as strings, or use directly if tRPC typed them correctly
-            // Prisma Json type is usually any or generic JsonValue, so safe to cast if structure matches
-            setDesignSystem({
-                ...defaultDesignSystem, // Fallback
-                ...fetchedDesignSystem as any
-            });
-        }
-    }, [fetchedDesignSystem, setDesignSystem]);
 
     const deleteMutation = api.components.delete.useMutation({
         onSuccess: () => {
@@ -106,6 +89,7 @@ export function ComponentLibrary({ projectId }: ComponentLibraryProps) {
     // Since we don't have a specific "saved" flag that persists locally beyond mutation, 
     // we simply reset strict state when the dialog closes to ensure next open starts fresh from DB 
     // (or keeps current if cache is up to date, but here we want to discard *unsaved* changes in the local atom).
+    // Revert changes on close if not saved
     useEffect(() => {
         if (!isOpen && fetchedDesignSystem) {
             setDesignSystem({

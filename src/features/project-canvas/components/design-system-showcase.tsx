@@ -148,7 +148,7 @@ export function DesignSystemShowcase({ projectId }: DesignSystemShowcaseProps) {
                         <div className="space-y-2 border-b pb-2">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Typography</h4>
                         </div>
-                        <div className="grid gap-8 md:grid-cols-2">
+                        <div className="grid gap-8 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
                             <div className="space-y-4">
                                 <h1>Heading 1</h1>
                                 <h2>Heading 2</h2>
@@ -210,7 +210,7 @@ export function DesignSystemShowcase({ projectId }: DesignSystemShowcaseProps) {
                         <div className="space-y-2 border-b pb-2">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Form Controls</h4>
                         </div>
-                        <div className="grid gap-6 md:grid-cols-2">
+                        <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
                             <div className="space-y-4">
                                 <div className="grid w-full max-w-sm items-center gap-1.5">
                                     <Label htmlFor="email">Email Address</Label>
@@ -248,7 +248,7 @@ export function DesignSystemShowcase({ projectId }: DesignSystemShowcaseProps) {
                         <div className="space-y-2 border-b pb-2">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Components</h4>
                         </div>
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Notifications</CardTitle>
@@ -319,7 +319,7 @@ export function DesignSystemShowcase({ projectId }: DesignSystemShowcaseProps) {
                         <div className="space-y-2 border-b pb-2">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Navigation</h4>
                         </div>
-                        <Tabs defaultValue="account" className="w-[400px]">
+                        <Tabs defaultValue="account" className="w-full max-w-[400px] mx-auto">
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="account">Account</TabsTrigger>
                                 <TabsTrigger value="password">Password</TabsTrigger>

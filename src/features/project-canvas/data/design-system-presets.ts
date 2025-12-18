@@ -6,15 +6,15 @@ export const designSystemPresets: Record<string, Partial<DesignSystemState>> = {
         name: "Material Design 3",
         description: "Google's latest design system. Playful, adaptable, and accessible.",
         colors: {
-            primary: "hsl(262 80% 50%)", // M3 Purple
-            secondary: "hsl(262 30% 90%)",
-            background: "hsl(270 20% 99%)", // Very subtle tint
-            foreground: "hsl(260 10% 10%)",
-            muted: "hsl(260 10% 90%)",
-            mutedForeground: "hsl(260 5% 45%)",
-            border: "hsl(260 10% 85%)",
-            input: "hsl(260 10% 94%)", // Filled input style background
-            ring: "hsl(262 80% 50%)",
+            primary: "#6722d6", // M3 Purple
+            secondary: "#edeaf5",
+            background: "#fdfbfc", // Very subtle tint
+            foreground: "#1c1b1d",
+            muted: "#e6e5e7",
+            mutedForeground: "#767479",
+            border: "#dad9db",
+            input: "#f0eff1", // Filled input style background
+            ring: "#6722d6",
         },
         typography: {
             fontFamily: "Roboto",
@@ -33,15 +33,15 @@ export const designSystemPresets: Record<string, Partial<DesignSystemState>> = {
         name: "Human Interface (iOS)",
         description: "Apple's system design. Clean, refined, and content-first.",
         colors: {
-            primary: "hsl(211 100% 50%)", // SF Blue
-            secondary: "hsl(210 20% 96%)",
-            background: "hsl(0 0% 100%)",
-            foreground: "hsl(0 0% 0%)",
-            muted: "hsl(210 10% 96%)",
-            mutedForeground: "hsl(210 5% 55%)",
-            border: "hsl(210 10% 90%)",
-            input: "hsl(210 10% 94%)",
-            ring: "hsl(211 100% 50%)",
+            primary: "#007aff", // SF Blue
+            secondary: "#f2f4f5",
+            background: "#ffffff",
+            foreground: "#000000",
+            muted: "#f4f5f6",
+            mutedForeground: "#8e9297",
+            border: "#e1e3e5",
+            input: "#eff1f2",
+            ring: "#007aff",
         },
         typography: {
             fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
@@ -60,15 +60,15 @@ export const designSystemPresets: Record<string, Partial<DesignSystemState>> = {
         name: "Ant Design",
         description: "Alibaba's enterprise-grade system. Professional and compact.",
         colors: {
-            primary: "hsl(210 100% 56%)", // Ant Blue #1677ff
-            secondary: "hsl(210 100% 96%)",
-            background: "hsl(0 0% 100%)",
-            foreground: "hsl(0 0% 0%)", // 85% black usually, approximating
-            muted: "hsl(0 0% 96%)",
-            mutedForeground: "hsl(0 0% 45%)",
-            border: "hsl(220 13% 91%)",
-            input: "hsl(0 0% 100%)",
-            ring: "hsl(210 100% 85%)",
+            primary: "#1677ff", // Ant Blue #1677ff
+            secondary: "#e6f4ff",
+            background: "#ffffff",
+            foreground: "#000000", // 85% black usually, approximating
+            muted: "#f5f5f5",
+            mutedForeground: "#737373",
+            border: "#d9d9d9",
+            input: "#ffffff",
+            ring: "#b3d4ff",
         },
         typography: {
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
@@ -87,15 +87,15 @@ export const designSystemPresets: Record<string, Partial<DesignSystemState>> = {
         name: "Geist / Vercel",
         description: "Minimalist, developer-focused, High contrast.",
         colors: {
-            primary: "hsl(0 0% 0%)",
-            secondary: "hsl(0 0% 96%)",
-            background: "hsl(0 0% 100%)",
-            foreground: "hsl(0 0% 0%)",
-            muted: "hsl(0 0% 96%)",
-            mutedForeground: "hsl(0 0% 40%)",
-            border: "hsl(0 0% 90%)",
-            input: "hsl(0 0% 100%)",
-            ring: "hsl(0 0% 0%)",
+            primary: "#000000",
+            secondary: "#f5f5f5",
+            background: "#ffffff",
+            foreground: "#000000",
+            muted: "#f5f5f5",
+            mutedForeground: "#666666",
+            border: "#e6e6e6",
+            input: "#ffffff",
+            ring: "#000000",
         },
         typography: {
             fontFamily: "Inter, sans-serif", // Geist equivalent

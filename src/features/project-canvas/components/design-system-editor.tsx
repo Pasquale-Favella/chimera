@@ -11,14 +11,64 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
-import { hslToHex, hexToHsl } from "../utils/color-utils";
+
 
 import { designSystemPresets } from "../data/design-system-presets";
+import { FONT_OPTIONS } from "../data/font-options";
 import { Check, Wand2 } from "lucide-react";
 
 interface DesignSystemEditorProps {
     projectId: string;
 }
+
+const ColorPicker = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => {
+    const hexValue = value;
+
+    const handleColorChange = (newHex: string) => {
+        onChange(newHex);
+    };
+
+    return (
+        <div className="space-y-2">
+            <Label>{label}</Label>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start gap-2 px-2">
+                        <div className="h-4 w-4 rounded border shadow-sm" style={{ backgroundColor: hexValue }} />
+                        <span className="text-muted-foreground text-xs uppercase">{hexValue}</span>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3">
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                            <Input
+                                value={hexValue}
+                                onChange={(e) => handleColorChange(e.target.value)}
+                                className="h-8"
+                            />
+                            <Input
+                                type="color"
+                                value={hexValue}
+                                onChange={(e) => handleColorChange(e.target.value)}
+                                className="w-10 h-8 p-0 border-0"
+                            />
+                        </div>
+                        <div className="grid grid-cols-5 gap-1">
+                            {["#000000", "#ffffff", "#ef4444", "#f97316", "#f59e0b", "#84cc16", "#10b981", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#f43f5e", "#71717a"].map((c) => (
+                                <button
+                                    key={c}
+                                    className="h-6 w-6 rounded-md border shadow-sm hover:scale-110 transition-transform"
+                                    style={{ backgroundColor: c }}
+                                    onClick={() => handleColorChange(c)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    );
+};
 
 export function DesignSystemEditor({ projectId }: DesignSystemEditorProps) {
     const {
@@ -29,59 +79,6 @@ export function DesignSystemEditor({ projectId }: DesignSystemEditorProps) {
         updateRadius,
         applyPreset
     } = useDesignSystem(projectId);
-
-    const ColorPicker = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => {
-        // Safe conversion with fallback
-        const hexValue = value.startsWith("#") ? value : hslToHex(value);
-
-        const handleColorChange = (newHex: string) => {
-            // Convert back to HSL for consistency with the design system
-            const newHsl = hexToHsl(newHex);
-            onChange(newHsl);
-        };
-
-        return (
-            <div className="space-y-2">
-                <Label>{label}</Label>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start gap-2 px-2">
-                            <div className="h-4 w-4 rounded border shadow-sm" style={{ backgroundColor: hexValue }} />
-                            {/* User requested right color and NO PREVIEW TEXT of weird HSL */}
-                            <span className="text-muted-foreground text-xs uppercase">{hexValue}</span>
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-3">
-                        <div className="space-y-2">
-                            <div className="flex gap-2">
-                                <Input
-                                    value={hexValue}
-                                    onChange={(e) => handleColorChange(e.target.value)}
-                                    className="h-8"
-                                />
-                                <Input
-                                    type="color"
-                                    value={hexValue}
-                                    onChange={(e) => handleColorChange(e.target.value)}
-                                    className="w-10 h-8 p-0 border-0"
-                                />
-                            </div>
-                            <div className="grid grid-cols-5 gap-1">
-                                {["#000000", "#ffffff", "#ef4444", "#f97316", "#f59e0b", "#84cc16", "#10b981", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#f43f5e", "#71717a"].map((c) => (
-                                    <button
-                                        key={c}
-                                        className="h-6 w-6 rounded-md border shadow-sm hover:scale-110 transition-transform"
-                                        style={{ backgroundColor: c }}
-                                        onClick={() => handleColorChange(c)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </div>
-        );
-    };
 
     return (
         <div className="flex flex-col h-full">
@@ -224,14 +221,11 @@ export function DesignSystemEditor({ projectId }: DesignSystemEditorProps) {
                                             <SelectValue placeholder="Select font" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Inter">Inter</SelectItem>
-                                            <SelectItem value="Inter, sans-serif">Inter (Generic)</SelectItem>
-                                            <SelectItem value="Roboto">Roboto</SelectItem>
-                                            <SelectItem value="Open Sans">Open Sans</SelectItem>
-                                            <SelectItem value="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif">System Sans (iOS)</SelectItem>
-                                            <SelectItem value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">System (Ant Design)</SelectItem>
-                                            <SelectItem value="ui-serif, Georgia, serif">System Serif</SelectItem>
-                                            <SelectItem value="ui-monospace, monospace">System Mono</SelectItem>
+                                            {FONT_OPTIONS.map((font) => (
+                                                <SelectItem key={font.value} value={font.value}>
+                                                    {font.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -245,13 +239,12 @@ export function DesignSystemEditor({ projectId }: DesignSystemEditorProps) {
                                             <SelectValue placeholder="Same as default" />
                                         </SelectTrigger>
                                         <SelectContent>
+                                            {FONT_OPTIONS.map((font) => (
+                                                <SelectItem key={font.value} value={font.value}>
+                                                    {font.label}
+                                                </SelectItem>
+                                            ))}
                                             <SelectItem value="inherit">Same as body</SelectItem>
-                                            <SelectItem value="Inter">Inter</SelectItem>
-                                            <SelectItem value="Inter, sans-serif">Inter (Generic)</SelectItem>
-                                            <SelectItem value="Roboto">Roboto</SelectItem>
-                                            <SelectItem value="playfair display, serif">Playfair Display</SelectItem>
-                                            <SelectItem value="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif">System Sans (iOS)</SelectItem>
-                                            <SelectItem value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">System (Ant Design)</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>

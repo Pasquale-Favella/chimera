@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -14,7 +13,6 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Save, ChevronsUpDown, Check } from "lucide-react";
-import { toast } from "sonner";
 import { AiFeature } from "@/types/settings";
 import { LlmProvider } from "../../../../generated/prisma";
 import {
@@ -32,6 +30,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { LlmManager } from "@/server/lib/llm";
+import { useSettings } from "../hooks/use-settings";
 
 const FEATURES = [
     { id: AiFeature.GENERATE_DESIGNS, name: "Generate Designs" },
@@ -83,21 +82,9 @@ function ModelPreferencesSkeleton() {
 }
 
 export function ModelPreferencesTab() {
+    const { settings, googleModels, openrouterModels, isLoading, updateSettings } = useSettings();
     const [preferences, setPreferences] = useState<Record<string, { provider: LlmProvider; model: string }>>({});
     const [openModelPopovers, setOpenModelPopovers] = useState<Record<string, boolean>>({});
-
-    const { data: settings, isLoading } = api.user.getSettings.useQuery();
-    const { data: googleModels } = api.user.getAvailableModels.useQuery({ provider: LlmProvider.GOOGLE });
-    const { data: openrouterModels } = api.user.getAvailableModels.useQuery({ provider: LlmProvider.OPENROUTER });
-
-    const updateSettings = api.user.updateSettings.useMutation({
-        onSuccess: () => {
-            toast.success("Preferences saved successfully");
-        },
-        onError: (error) => {
-            toast.error(`Failed to save settings: ${error.message}`);
-        },
-    });
 
     useEffect(() => {
         if (settings?.llmPreferences) {
@@ -134,9 +121,9 @@ export function ModelPreferencesTab() {
 
     const getModelsForProvider = (provider: LlmProvider) => {
         if (provider === LlmProvider.OPENROUTER) {
-            return openrouterModels || [];
+            return openrouterModels;
         }
-        return googleModels || [];
+        return googleModels;
     };
 
     const getModelDisplayName = (provider: LlmProvider, modelId: string) => {

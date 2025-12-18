@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import type { AttachedImage, Design, DesignTokens } from "@/types/design";
 import { api } from "@/trpc/react";
 import { handleImagePaste } from "@/features/project-canvas/utils/clipboard-utils";
+import { useDesignSystem } from "../hooks/use-design-system";
 import { usePresentationStore } from "../hooks/use-presentation-store";
 import { PresentationToolbar } from "./presentation-mode/presentation-toolbar";
 import { PresentationPreview } from "./presentation-mode/presentation-preview";
@@ -32,6 +33,8 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
     updateHistory,
     restoreVersion
   } = usePresentationStore(design.id, design);
+
+  const { iframeFonts } = useDesignSystem(projectId);
 
   const aiModifyMutation = api.designs.aiModify.useMutation({
     onSuccess: async () => {
@@ -254,6 +257,7 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
 
   const handleDownload = () => {
     let fullHtml = state.currentHtml;
+
     if (!fullHtml.toLowerCase().includes('<html')) {
       fullHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -262,6 +266,10 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${design.description || 'Design'}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    ${iframeFonts.fontLinkTag}
+    <style>
+        ${iframeFonts.fontStyle}
+    </style>
 </head>
 <body>
     ${state.currentHtml}

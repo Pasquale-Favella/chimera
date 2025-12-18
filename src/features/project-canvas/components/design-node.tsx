@@ -35,6 +35,7 @@ import {
 
 import { Editor, type OnMount } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
+import { useDesignSystem } from "../hooks/use-design-system";
 
 // Node data type - the data property of the node
 export type DesignNodeData = {
@@ -112,6 +113,8 @@ const DesignNode = ({ data, selected }: DesignNodeProps) => {
         isApplyingStyle,
     } = useDesignElement(design.id);
 
+    const { iframeFonts } = useDesignSystem(projectId);
+
     const { duplicateDesign, copyStyle, deleteDesigns, updateDesignLocal, updateDesign } = useCanvasActions(projectId);
     const { setPresentationDesignId, setPrototypeStartId, designs } = useCanvasState(projectId);
 
@@ -127,19 +130,22 @@ const DesignNode = ({ data, selected }: DesignNodeProps) => {
     const onEnterPresentationMode = useCallback(() => setPresentationDesignId(design.id), [design.id, setPresentationDesignId]);
     const onStartPrototype = useCallback(() => setPrototypeStartId(design.id), [design.id, setPrototypeStartId]);
 
-    const iframeContent = useMemo(
-        () => `
-      <html>
-        <head>
-          <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body class="overflow-hidden bg-transparent">
-          <div id="wrapper">${design.html}</div>
-        </body>
-      </html>
-    `,
-        [design.html],
-    );
+    const iframeContent = useMemo(() => {
+        return `
+            <html>
+            <head>
+                <script src="https://cdn.tailwindcss.com"></script>
+                ${iframeFonts.fontLinkTag}
+                <style>
+                    ${iframeFonts.fontStyle}
+                </style>
+            </head>
+            <body class="overflow-hidden bg-transparent">
+                <div id="wrapper">${design.html}</div>
+            </body>
+        </html>
+        `;
+    }, [design.html, iframeFonts]);
 
     const toolbarScale = useMemo(() => {
         const scaleFactor = 1 / zoom;
@@ -175,7 +181,7 @@ const DesignNode = ({ data, selected }: DesignNodeProps) => {
                 className="pointer-events-auto absolute bottom-full left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 style={{
                     marginBottom: "8px",
-                    transform: `translate(-50%, 0) scale(${toolbarScale})`,
+                    transform: `translate(-50 %, 0) scale(${toolbarScale})`,
                     transformOrigin: "bottom center",
                 }}
             >

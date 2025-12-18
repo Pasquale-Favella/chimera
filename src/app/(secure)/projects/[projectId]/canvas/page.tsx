@@ -25,6 +25,7 @@ export default async function CanvasPage({ params }: CanvasPageProps) {
 		api.projects.getById.prefetch({ projectId }),
 		api.designs.listByProject.prefetch({ projectId }),
 		api.designConnections.listByProject.prefetch({ projectId }),
+		api.designSystem.get.prefetch({ projectId }),
 	]);
 
 	return (
