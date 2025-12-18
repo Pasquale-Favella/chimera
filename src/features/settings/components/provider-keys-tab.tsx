@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Save } from "lucide-react";
-import { toast } from "sonner";
 import { LlmProvider } from "../../../../generated/prisma";
+import { useSettings } from "../hooks/use-settings";
 
 function ProviderKeysSkeleton() {
     return (
@@ -42,19 +41,9 @@ function ProviderKeysSkeleton() {
 }
 
 export function ProviderKeysTab() {
+    const { settings, isLoading, setLlmApiKey } = useSettings();
     const [googleApiKey, setGoogleApiKey] = useState("");
     const [openrouterApiKey, setOpenrouterApiKey] = useState("");
-
-    const { data: settings, isLoading } = api.user.getSettings.useQuery();
-
-    const setLlmApiKey = api.user.setLlmApiKey.useMutation({
-        onSuccess: () => {
-            toast.success("API key saved successfully");
-        },
-        onError: (error) => {
-            toast.error(`Failed to save API key: ${error.message}`);
-        },
-    });
 
     useEffect(() => {
         if (settings) {

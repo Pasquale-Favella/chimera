@@ -17,22 +17,17 @@ import { api } from "@/trpc/react";
 import { useCanvasState } from "./hooks/use-canvas-state";
 import { useCanvasActions } from "./hooks/use-canvas-actions";
 import { useCanvasAI } from "./hooks/use-canvas-ai";
-import { mapConnection, mapDesign } from "./utils/canvas-utils";
+import { useDesignSystem } from "./hooks/use-design-system";
 
 type ProjectCanvasClientProps = {
 	projectId: string;
 };
 
 function CanvasContent({ projectId }: { projectId: string }) {
-	// TRPC Queries
-	const [designsData] = api.designs.listByProject.useSuspenseQuery({ projectId });
-	const [connectionsData] = api.designConnections.listByProject.useSuspenseQuery({ projectId });
 
 	// Custom Hooks
 	const {
 		designs,
-		setDesigns,
-		setConnections,
 		presentationDesignId,
 		setPresentationDesignId,
 		prototypeStartId,
@@ -45,18 +40,12 @@ function CanvasContent({ projectId }: { projectId: string }) {
 		styleClipboard,
 	} = useCanvasActions(projectId);
 
+	useDesignSystem(projectId);
+
 	const {
 		isGenerating,
 	} = useCanvasAI(projectId);
 
-	// Sync data from server
-	useEffect(() => {
-		setDesigns(designsData.map(mapDesign));
-	}, [designsData, setDesigns]);
-
-	useEffect(() => {
-		setConnections(connectionsData.map(mapConnection));
-	}, [connectionsData, setConnections]);
 
 	return (
 		<>

@@ -9,6 +9,7 @@ import { LlmManager } from "@/server/lib/llm";
 import { LlmProvider } from "../../../generated/prisma";
 import type {
     AttachedImage,
+    DesignSystemContext,
     DesignTokens,
     GeneratedDesign,
     GeneratedFlow,
@@ -160,6 +161,7 @@ export async function generateDesigns(
     count: number,
     images?: AttachedImage[] | null,
     config?: AiConfig,
+    designSystem?: DesignSystemContext | null,
 ): Promise<GeneratedDesign[]> {
     const model = createClient(config);
     if (!model) {
@@ -167,7 +169,28 @@ export async function generateDesigns(
     }
 
     try {
-        const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do not include any external stylesheets or script tags. The designs should be visually complete components.`;
+        const designSystemContext = designSystem ? `
+IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use arbitrary colors or fonts.
+- Colors:
+  - Primary: ${designSystem.colors.primary}
+  - Secondary: ${designSystem.colors.secondary}
+  - Background: ${designSystem.colors.background}
+  - Foreground: ${designSystem.colors.foreground}
+  - Muted: ${designSystem.colors.muted}
+  - Border: ${designSystem.colors.border}
+- Typography:
+  - Font Family: ${designSystem.typography.fontFamily}
+  - Heading Font: ${designSystem.typography.headingFont || designSystem.typography.fontFamily}
+  - Base Size: ${designSystem.typography.baseSize}
+- Radius:
+  - Small: ${designSystem.radius.small}
+  - Medium: ${designSystem.radius.medium}
+  - Large: ${designSystem.radius.large}
+
+Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
+` : "";
+
+        const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
 
         const { object } = await generateObject({
             model,
@@ -188,6 +211,7 @@ export async function generateDesignFlow(
     prompt: string,
     images?: AttachedImage[] | null,
     config?: AiConfig,
+    designSystem?: DesignSystemContext | null,
 ): Promise<GeneratedFlow> {
     const model = createClient(config);
     if (!model) {
@@ -195,13 +219,34 @@ export async function generateDesignFlow(
     }
 
     try {
+        const designSystemContext = designSystem ? `
+IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use arbitrary colors or fonts.
+- Colors:
+  - Primary: ${designSystem.colors.primary}
+  - Secondary: ${designSystem.colors.secondary}
+  - Background: ${designSystem.colors.background}
+  - Foreground: ${designSystem.colors.foreground}
+  - Muted: ${designSystem.colors.muted}
+  - Border: ${designSystem.colors.border}
+- Typography:
+  - Font Family: ${designSystem.typography.fontFamily}
+  - Heading Font: ${designSystem.typography.headingFont || designSystem.typography.fontFamily}
+  - Base Size: ${designSystem.typography.baseSize}
+- Radius:
+  - Small: ${designSystem.radius.small}
+  - Medium: ${designSystem.radius.medium}
+  - Large: ${designSystem.radius.large}
+
+Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
+` : "";
+
         const fullPrompt = `You are an expert UI/UX designer specializing in user flows. Based on the user's prompt (and the provided image(s), if any), generate a series of connected UI designs that represent a complete user flow. The user's prompt is: "${prompt}".
 
 Your task is to:
 1.  Identify the key screens or states in the described flow.
 2.  Generate the HTML for each screen using only Tailwind CSS classes.
 3.  Define the connections between these screens. For a standard left-to-right flow, connect the 'right' side of one component to the 'left' side of the next.
-4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them.`;
+4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. ${designSystemContext}`;
 
         const { object } = await generateObject({
             model,
@@ -235,7 +280,7 @@ export async function modifyDesigns(
             ? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selector}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
             : `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
 
-        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} The designs to modify are provided below as a JSON array of objects, each with an "id" and its current "html". Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes. \n\nDesigns to modify: ${JSON.stringify(designsToModify)}`;
+        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} The designs to modify are provided below as a JSON array of objects, each with an "id" and its current "html". Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nDesigns to modify: ${JSON.stringify(designsToModify)}`;
 
         const { object } = await generateObject({
             model,
@@ -268,7 +313,7 @@ export async function modifySingleDesign(
             ? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selectedElementPath}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
             : `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
 
-        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify an existing design. ${promptContext} Return a JSON object with the key "html" containing the new, self-contained HTML that uses only Tailwind CSS classes. You must return the FULL HTML for the entire component with the change applied, not just the HTML for the modified element. \n\nCurrent HTML: ${designToModify.html}`;
+        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify an existing design. ${promptContext} Return a JSON object with the key "html" containing the new, self-contained HTML that uses only Tailwind CSS classes. You must return the FULL HTML for the entire component with the change applied, not just the HTML for the modified element. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nCurrent HTML: ${designToModify.html}`;
 
         const { object } = await generateObject({
             model,

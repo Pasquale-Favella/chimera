@@ -91,10 +91,11 @@ model Project {
   createdBy   User   @relation(fields: [createdById], references: [id])
   createdById String
 
-  memberships ProjectMembership[]
-  designs     Design[]
-  components  Component[]
-  connections DesignConnection[]
+  memberships  ProjectMembership[]
+  designs      Design[]
+  components   Component[]
+  connections  DesignConnection[]
+  designSystem DesignSystem?
 
   @@index([createdById])
   @@map("project")
@@ -234,4 +235,27 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
+}
+
+model DesignSystem {
+  id          String  @id @default(cuid())
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String  @unique
+  name        String  @default("Default System")
+  description String?
+
+  // Design Tokens (stored as JSON)
+  colors     Json // { primary: string, secondary: string, ... }
+  typography Json // { fontFamily: string, headings: {}, body: {} }
+  spacing    Json // { base: number, scale: number }
+  radius     Json // { small: string, medium: string, large: string }
+
+  // Configuration
+  type       String  @default("custom") // 'custom' | 'preset'
+  presetName String? // e.g., 'material', 'shadcn', 'ant'
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("design_system")
 }

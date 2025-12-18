@@ -51,3 +51,45 @@ export interface GeneratedFlow {
     designs: FlowDesign[];
     connections: FlowConnection[];
 }
+// Design System Context Types
+export interface DesignSystemColors {
+    primary: string;
+    secondary: string;
+    background: string;
+    foreground: string;
+    muted: string;
+    mutedForeground: string;
+    border: string;
+    input: string;
+    ring: string;
+    [key: string]: string;
+}
+
+export interface DesignSystemTypography {
+    fontFamily: string;
+    headingFont?: string;
+    bodyFont?: string;
+    baseSize?: string;
+    scale?: number;
+    [key: string]: any;
+}
+
+export interface DesignSystemSpacing {
+    base: number;
+    scale: number;
+    [key: string]: any;
+}
+
+export interface DesignSystemRadius {
+    small: string;
+    medium: string;
+    large: string;
+    [key: string]: string;
+}
+
+export interface DesignSystemContext {
+    colors: DesignSystemColors;
+    typography: DesignSystemTypography;
+    spacing: DesignSystemSpacing;
+    radius: DesignSystemRadius;
+}

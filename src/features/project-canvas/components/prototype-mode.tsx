@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePrototype } from "../hooks/use-prototype";
+import { useDesignSystem } from "../hooks/use-design-system";
 
 interface PrototypeModeProps {
   projectId: string;
@@ -90,12 +91,18 @@ export function PrototypeMode({
     retry,
   } = usePrototype(projectId, startId);
 
+  const { designSystem, iframeFonts } = useDesignSystem(projectId);
+
   const iframeContent = useMemo(() => {
     if (!currentDesign) return '';
     return `
       <html>
         <head>
           <script src="https://cdn.tailwindcss.com"></script>
+          ${iframeFonts.fontLinkTag}
+          <style>
+            ${iframeFonts.fontStyle}
+          </style>
         </head>
         <body class="bg-white">
           <div id="wrapper">${currentDesign.html}</div>
@@ -103,7 +110,7 @@ export function PrototypeMode({
         </body>
       </html>
     `;
-  }, [currentDesign]);
+  }, [currentDesign, iframeFonts]);
 
   return (
     <div className="fixed inset-0 z-[99] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in-0">

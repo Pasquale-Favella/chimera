@@ -32,6 +32,8 @@ import {
 	viewModeSchema,
 } from "./design.dto";
 
+import type { DesignSystemContext } from "@/types/shared";
+
 const designSelect = {
 	id: true,
 	projectId: true,
@@ -350,6 +352,10 @@ export const designsRouter = createTRPCRouter({
 				promptWithContext += `\n\nAvailable Reusable Components (Use these if relevant):\n${componentContext}`;
 			}
 
+			const designSystem = await ctx.db.designSystem.findUnique({
+				where: { projectId: input.projectId },
+			});
+
 			const config = await getLlmConfig(ctx, AiFeature.GENERATE_DESIGNS);
 
 			const designs = await generateDesigns(
@@ -357,6 +363,7 @@ export const designsRouter = createTRPCRouter({
 				input.count ?? 1,
 				input.images,
 				config,
+				designSystem as unknown as DesignSystemContext,
 			);
 
 			const created: Prisma.DesignGetPayload<{ select: typeof designSelect }>[] = [];
@@ -419,12 +426,17 @@ export const designsRouter = createTRPCRouter({
 				promptWithContext += `\n\nAvailable Reusable Components (Use these if relevant):\n${componentContext}`;
 			}
 
+			const designSystem = await ctx.db.designSystem.findUnique({
+				where: { projectId: input.projectId },
+			});
+
 			const config = await getLlmConfig(ctx, AiFeature.GENERATE_DESIGN_FLOW);
 
 			const flow = await generateDesignFlow(
 				promptWithContext,
 				input.images,
 				config,
+				designSystem as unknown as DesignSystemContext,
 			);
 
 			const tempToReal = new Map<string, string>();
