@@ -3,7 +3,7 @@
  * Generic AI service that uses the LlmManager for provider-agnostic generation.
  */
 
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { z } from "zod";
 import { LlmManager } from "@/server/lib/llm";
 import { LlmProvider } from "../../../generated/prisma";
@@ -192,13 +192,13 @@ Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if t
 
         const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: generationSchema,
+            output: Output.object({ schema: generationSchema }),
             messages: buildMessages(fullPrompt, images),
         });
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error generating designs:", error);
         throw new Error(
@@ -248,13 +248,13 @@ Your task is to:
 3.  Define the connections between these screens. For a standard left-to-right flow, connect the 'right' side of one component to the 'left' side of the next.
 4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. ${designSystemContext}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: flowGenerationSchema,
+            output: Output.object({ schema: flowGenerationSchema }),
             messages: buildMessages(fullPrompt, images),
         });
 
-        return object as GeneratedFlow;
+        return output as GeneratedFlow;
     } catch (error) {
         console.error("Error generating design flow:", error);
         throw new Error(
@@ -282,13 +282,13 @@ export async function modifyDesigns(
 
         const fullPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} The designs to modify are provided below as a JSON array of objects, each with an "id" and its current "html". Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nDesigns to modify: ${JSON.stringify(designsToModify)}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: modificationSchema,
+            output: Output.object({ schema: modificationSchema }),
             messages: buildMessages(fullPrompt, images),
         });
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error modifying designs:", error);
         throw new Error(
@@ -315,13 +315,13 @@ export async function modifySingleDesign(
 
         const fullPrompt = `You are an expert UI/UX designer. The user wants to modify an existing design. ${promptContext} Return a JSON object with the key "html" containing the new, self-contained HTML that uses only Tailwind CSS classes. You must return the FULL HTML for the entire component with the change applied, not just the HTML for the modified element. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nCurrent HTML: ${designToModify.html}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: singleModificationSchema,
+            output: Output.object({ schema: singleModificationSchema }),
             messages: [{ role: "user", content: fullPrompt }],
         });
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error modifying single design:", error);
         throw new Error(
@@ -358,13 +358,13 @@ ${JSON.stringify(tokens)}
 **Original HTML:**
 ${html}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: singleModificationSchema,
+            output: Output.object({ schema: singleModificationSchema }),
             messages: [{ role: "user", content: fullPrompt }],
         });
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error applying design tokens:", error);
         throw new Error("Failed to apply the design style.");
@@ -394,21 +394,21 @@ export async function extractDesignTokens(
 
         Return a JSON object that follows the provided schema. \n\nHTML:\n${html}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: designTokenSchema,
+            output: Output.object({ schema: designTokenSchema }),
             messages: [{ role: "user", content: fullPrompt }],
         });
 
         // Post-process to ensure uniqueness
-        object.colors.background = [...new Set(object.colors.background)];
-        object.colors.text = [...new Set(object.colors.text)];
-        object.colors.primary = [...new Set(object.colors.primary)];
-        object.colors.border = [...new Set(object.colors.border)];
-        object.borderRadius = [...new Set(object.borderRadius)];
-        object.boxShadow = [...new Set(object.boxShadow)];
+        output.colors.background = [...new Set(output.colors.background)];
+        output.colors.text = [...new Set(output.colors.text)];
+        output.colors.primary = [...new Set(output.colors.primary)];
+        output.colors.border = [...new Set(output.colors.border)];
+        output.borderRadius = [...new Set(output.borderRadius)];
+        output.boxShadow = [...new Set(output.boxShadow)];
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error extracting design tokens:", error);
         throw new Error("Failed to extract design tokens.");
@@ -445,13 +445,13 @@ ${JSON.stringify(targets, null, 2)}
 
 Your response must be a JSON array that conforms to the provided schema.`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: clickableSelectorsSchema,
+            output: Output.object({ schema: clickableSelectorsSchema }),
             messages: [{ role: "user", content: fullPrompt }],
         });
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error finding clickable selectors:", error);
         throw new Error(
@@ -481,13 +481,13 @@ export async function extractComponent(
     try {
         const fullPrompt = `You are an expert code refactoring assistant. Given the following HTML and a CSS selector, extract the HTML for the element matching the selector and its children. Clean it up to be a self-contained, reusable component, ensuring all necessary Tailwind classes are present. Return a JSON object with the key "componentHtml".\n\nFull HTML:\n${html}\n\nCSS Selector:\n${selector}`;
 
-        const { object } = await generateObject({
+        const { output } = await generateText({
             model,
-            schema: componentExtractionSchema,
+            output: Output.object({ schema: componentExtractionSchema }),
             messages: [{ role: "user", content: fullPrompt }],
         });
 
-        return object;
+        return output;
     } catch (error) {
         console.error("Error extracting component:", error);
         throw new Error("Failed to extract the component.");
