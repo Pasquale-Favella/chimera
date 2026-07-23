@@ -2,9 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { boolean, object, string, type z } from "zod";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -18,18 +20,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/server/better-auth/client";
-import { useTransition } from "react";
+
 import Github from "../../_components/logos/github";
 
-export const signInSchema = object({
-	email: string({ required_error: "Email is required" })
-		.min(1, "Email is required")
-		.email("Invalid email"),
-	password: string({ required_error: "Password is required" })
+export const signInSchema = z.object({
+	email: z.string().min(1, "Email is required").email("Invalid email"),
+	password: z
+		.string()
 		.min(1, "Password is required")
 		.min(8, "Password must be more than 8 characters")
 		.max(32, "Password must be less than 32 characters"),
-	rememberMe: boolean().default(true).optional(),
+	rememberMe: z.boolean().default(true).optional(),
 });
 
 type FormData = z.infer<typeof signInSchema>;
@@ -38,8 +39,6 @@ export function LoginForm({
 	className,
 	...props
 }: React.ComponentProps<"form">) {
-
-
 	const [isPending, startTransition] = useTransition();
 
 	const form = useForm<FormData>({
@@ -53,8 +52,8 @@ export function LoginForm({
 
 	const onSubmit = async (formData: FormData) => {
 		const { data, error } = await authClient.signIn.email({
-			email: formData.email, // required
-			password: formData.password, // required
+			email: formData.email,
+			password: formData.password,
 			rememberMe: formData.rememberMe,
 			callbackURL: "/dashboard",
 		});
@@ -106,12 +105,12 @@ export function LoginForm({
 								<FormItem>
 									<div className="flex items-center">
 										<FormLabel htmlFor="password">Password</FormLabel>
-										<a
+										<button
 											className="ml-auto text-sm underline-offset-4 hover:underline"
-											href="#"
+											type="button"
 										>
 											Forgot your password?
-										</a>
+										</button>
 									</div>
 									<FormControl>
 										<Input id="password" type="password" {...field} />
@@ -152,14 +151,18 @@ export function LoginForm({
 					Or continue with
 				</span>
 			</div>
-			<Button className="w-full" variant="outline" onClick={() => {
-				startTransition(async () => {
-					await authClient.signIn.social({
-						provider: "github",
-						callbackURL: "/",
-					})
-				})
-			}}>
+			<Button
+				className="w-full"
+				onClick={() => {
+					startTransition(async () => {
+						await authClient.signIn.social({
+							provider: "github",
+							callbackURL: "/",
+						});
+					});
+				}}
+				variant="outline"
+			>
 				<Github />
 				{isPending ? "Logging in..." : "Login with GitHub"}
 			</Button>

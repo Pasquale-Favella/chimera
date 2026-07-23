@@ -1,13 +1,12 @@
-import { ProjectRole } from "../../../../../generated/prisma";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { ProjectRole } from "../../../../../generated/prisma";
 
 import {
-	OWNER_ACCESS,
 	assertProjectAccess,
 	ensureProjectRetainsOwner,
+	OWNER_ACCESS,
 } from "./permissions";
 
 const baseInput = z.object({
@@ -53,7 +52,7 @@ export const projectMembershipRouter = createTRPCRouter({
 			baseInput
 				.extend({
 					userId: z.string().optional(),
-					email: z.string().email().optional(),
+					email: z.email().optional(),
 					role: z.nativeEnum(ProjectRole).default(ProjectRole.VIEWER),
 				})
 				.refine(
@@ -89,7 +88,10 @@ export const projectMembershipRouter = createTRPCRouter({
 				});
 			}
 
-			if (resolvedUserId === ctx.session.user.id && input.role !== ProjectRole.OWNER) {
+			if (
+				resolvedUserId === ctx.session.user.id &&
+				input.role !== ProjectRole.OWNER
+			) {
 				throw new TRPCError({
 					code: "BAD_REQUEST",
 					message: "You cannot change your own owner role via sharing.",
@@ -210,4 +212,3 @@ export const projectMembershipRouter = createTRPCRouter({
 			return { success: true };
 		}),
 });
-

@@ -2,9 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { object, string, type z } from "zod";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -17,30 +20,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/server/better-auth/client";
-import Github from "../../_components/logos/github";
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 
-export const signUpSchema = object({
-	name: string({ required_error: "Name is required" }).min(
-		1,
-		"Name is required",
-	),
-	email: string({ required_error: "Email is required" })
-		.min(1, "Email is required")
-		.email("Invalid email"),
-	password: string({ required_error: "Password is required" })
-		.min(1, "Password is required")
-		.min(8, "Password must be more than 8 characters")
-		.max(32, "Password must be less than 32 characters"),
-	confirmPassword: string({ required_error: "Confirm Password is required" })
-		.min(1, "Confirm Password is required")
-		.min(8, "Confirm Password must be more than 8 characters")
-		.max(32, "Confirm Password must be less than 32 characters"),
-}).refine((data) => data.password === data.confirmPassword, {
-	message: "Passwords don't match",
-	path: ["confirmPassword"],
-});
+import Github from "../../_components/logos/github";
+
+export const signUpSchema = z
+	.object({
+		name: z.string().min(1, "Name is required"),
+		email: z.string().min(1, "Email is required").email("Invalid email"),
+		password: z
+			.string()
+			.min(1, "Password is required")
+			.min(8, "Password must be more than 8 characters")
+			.max(32, "Password must be less than 32 characters"),
+		confirmPassword: z
+			.string()
+			.min(1, "Confirm Password is required")
+			.min(8, "Confirm Password must be more than 8 characters")
+			.max(32, "Confirm Password must be less than 32 characters"),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords don't match",
+		path: ["confirmPassword"],
+	});
 
 type FormData = z.infer<typeof signUpSchema>;
 
@@ -49,7 +50,6 @@ export function RegisterForm({
 	...props
 }: React.ComponentProps<"form">) {
 	const router = useRouter();
-
 	const [isPending, startTransition] = useTransition();
 
 	const form = useForm<FormData>({
@@ -64,9 +64,9 @@ export function RegisterForm({
 
 	const onSubmit = async (formData: FormData) => {
 		const { data, error } = await authClient.signUp.email({
-			name: formData.name, // required
-			email: formData.email, // required
-			password: formData.password, // required
+			name: formData.name,
+			email: formData.email,
+			password: formData.password,
 			callbackURL: "/dashboard",
 		});
 
@@ -164,7 +164,7 @@ export function RegisterForm({
 						>
 							{form.formState.isSubmitting ? "Registering..." : "Register"}
 						</Button>
-					</div >
+					</div>
 				</form>
 			</Form>
 
@@ -174,14 +174,18 @@ export function RegisterForm({
 				</span>
 			</div>
 
-			<Button className="w-full" variant="outline" onClick={() => {
-				startTransition(async () => {
-					await authClient.signIn.social({
-						provider: "github",
-						callbackURL: "/",
-					})
-				})
-			}}>
+			<Button
+				className="w-full"
+				onClick={() => {
+					startTransition(async () => {
+						await authClient.signIn.social({
+							provider: "github",
+							callbackURL: "/",
+						});
+					});
+				}}
+				variant="outline"
+			>
 				<Github />
 				{isPending ? "Registering..." : "Register"} with GitHub
 			</Button>
