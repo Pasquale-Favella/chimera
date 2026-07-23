@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 import {
     EDITOR_ACCESS,
     OWNER_ACCESS,
@@ -52,7 +53,7 @@ export const componentsRouter = createTRPCRouter({
                 data: {
                     projectId: input.projectId,
                     name: input.name,
-                    html: input.html,
+                    html: sanitizeGeneratedHtml(input.html),
                     createdById: ctx.session.user.id,
                 },
             });

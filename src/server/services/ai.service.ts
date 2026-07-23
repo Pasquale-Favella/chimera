@@ -6,6 +6,7 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { LlmManager } from "@/server/lib/llm";
+import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 import { LlmProvider } from "../../../generated/prisma";
 import type {
     AttachedImage,
@@ -198,7 +199,7 @@ Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if t
             messages: buildMessages(fullPrompt, images),
         });
 
-        return output;
+        return output.map((item) => ({ ...item, html: sanitizeGeneratedHtml(item.html) }));
     } catch (error) {
         console.error("Error generating designs:", error);
         throw new Error(
@@ -254,7 +255,10 @@ Your task is to:
             messages: buildMessages(fullPrompt, images),
         });
 
-        return output as GeneratedFlow;
+        return {
+            ...output,
+            designs: output.designs.map((d) => ({ ...d, html: sanitizeGeneratedHtml(d.html) })),
+        } as GeneratedFlow;
     } catch (error) {
         console.error("Error generating design flow:", error);
         throw new Error(
@@ -288,7 +292,7 @@ export async function modifyDesigns(
             messages: buildMessages(fullPrompt, images),
         });
 
-        return output;
+        return output.map((item) => ({ ...item, html: sanitizeGeneratedHtml(item.html) }));
     } catch (error) {
         console.error("Error modifying designs:", error);
         throw new Error(
@@ -331,7 +335,7 @@ ${html}`;
             messages: [{ role: "user", content: fullPrompt }],
         });
 
-        return output;
+        return { html: sanitizeGeneratedHtml(output.html) };
     } catch (error) {
         console.error("Error applying design tokens:", error);
         throw new Error("Failed to apply the design style.");
@@ -454,7 +458,7 @@ export async function extractComponent(
             messages: [{ role: "user", content: fullPrompt }],
         });
 
-        return output;
+        return { componentHtml: sanitizeGeneratedHtml(output.componentHtml) };
     } catch (error) {
         console.error("Error extracting component:", error);
         throw new Error("Failed to extract the component.");
