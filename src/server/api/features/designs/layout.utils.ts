@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../../../generated/prisma/client";
 
 interface Point {
     x: number;
@@ -130,3 +130,4 @@ export function calculateNextPosition(
     const rightMost = occupiedRects.reduce((max, r) => Math.max(max, r.x + r.width), 0);
     return { x: rightMost + DEFAULT_GAP, y: 0 };
 }
+

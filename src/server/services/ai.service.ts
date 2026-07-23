@@ -20,7 +20,7 @@ import type {
 	GeneratedFlow,
 	ModifiedDesign,
 } from "@/types/shared";
-import { LlmProvider } from "../../../generated/prisma";
+import { LlmProvider } from "../../../generated/prisma/client";
 
 export type AiConfig = {
 	provider?: LlmProvider;
@@ -503,3 +503,4 @@ export function parseTokens(tokens: unknown): DesignTokens | undefined {
 	}
 	return undefined;
 }
+

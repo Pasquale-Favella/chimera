@@ -1,8 +1,12 @@
 import { env } from "@/env";
-import { PrismaClient } from "../../generated/prisma";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "../../generated/prisma/client";
 
 const createPrismaClient = () =>
 	new PrismaClient({
+		adapter: new PrismaBetterSqlite3({
+			url: env.DATABASE_URL,
+		}),
 		log:
 			env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
 	});

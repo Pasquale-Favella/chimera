@@ -1,4 +1,4 @@
-import { Prisma } from "../../../../../generated/prisma";
+import { Prisma } from "../../../../../generated/prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -181,3 +181,4 @@ export const designConnectionsRouter = createTRPCRouter({
 			return { success: true };
 		}),
 });
+

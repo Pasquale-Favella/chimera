@@ -1,4 +1,4 @@
-import { ProjectRole } from "../../../../../generated/prisma";
+import { ProjectRole } from "../../../../../generated/prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -281,4 +281,5 @@ export const projectsRouter = createTRPCRouter({
 			});
 		}),
 });
+
 

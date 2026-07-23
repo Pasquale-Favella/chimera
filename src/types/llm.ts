@@ -5,10 +5,10 @@
  * Note: LlmProvider enum is imported from Prisma generated client.
  */
 
-import type { LlmProvider } from "../../generated/prisma";
+import type { LlmProvider } from "../../generated/prisma/client";
 
 // Re-export from Prisma for convenience
-export type { LlmProvider } from "../../generated/prisma";
+export type { LlmProvider } from "../../generated/prisma/client";
 
 export interface LlmConfig {
     provider: LlmProvider;
@@ -21,3 +21,4 @@ export interface LlmModelInfo {
     name: string;
     provider: LlmProvider;
 }
+

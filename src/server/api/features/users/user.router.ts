@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { Prisma, LlmProvider } from "../../../../../generated/prisma";
+import { Prisma, LlmProvider } from "../../../../../generated/prisma/client";
 import { LlmManager } from "@/server/lib/llm";
 
 const llmPreferencesSchema = z.record(
@@ -206,3 +206,4 @@ export const userRouter = createTRPCRouter({
             });
         }),
 });
+

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, ChevronsUpDown, Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
-import { ProjectRole } from "../../../../../generated/prisma";
+import { ProjectRole } from "../../../../../generated/prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -265,3 +265,4 @@ export function InviteCollaboratorDialog() {
         </Dialog>
     );
 }
+

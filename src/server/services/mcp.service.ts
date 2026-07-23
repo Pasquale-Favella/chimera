@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { ConnectionPosition, LlmProvider, Prisma, ProjectRole } from "../../../generated/prisma";
+import { ConnectionPosition, LlmProvider, Prisma, ProjectRole } from "../../../generated/prisma/client";
 import { generateDesigns, generateDesignFlow, modifyDesigns } from "./ai.service";
 import { sanitizeGeneratedHtml } from "../lib/sanitize-html";
 import { calculateNextPosition } from "../api/features/designs/layout.utils";

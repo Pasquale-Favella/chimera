@@ -4,7 +4,7 @@
  */
 
 import type { LanguageModel } from "ai";
-import { LlmProvider } from "../../../../generated/prisma";
+import { LlmProvider } from "../../../../generated/prisma/client";
 import type { LlmConfig, LlmModelInfo } from "@/types/llm";
 import { GoogleProvider } from "./providers/google.provider";
 import { OpenRouterProvider } from "./providers/openrouter.provider";
@@ -76,3 +76,4 @@ export class LlmManager {
         return this.getProvider(provider).defaultModel;
     }
 }
+

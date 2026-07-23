@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MembershipManager } from "@/app/(secure)/projects/[projectId]/_components/membership-manager";
-import { ProjectRole } from "../../../../../generated/prisma";
+import { ProjectRole } from "../../../../../generated/prisma/client";
 import { authClient } from "@/server/better-auth/client";
 import { api } from "@/trpc/react";
 import { DeleteProjectCard } from "./_components/delete-project-card";
@@ -195,5 +195,6 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
 		</div>
 	);
 }
+
 
 

@@ -8,7 +8,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { ProjectRole } from "../../../../../../generated/prisma";
+import { ProjectRole } from "../../../../../../generated/prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -163,3 +163,4 @@ export function ProjectHeader({ project, currentRole }: ProjectHeaderProps) {
         </div>
     );
 }
+

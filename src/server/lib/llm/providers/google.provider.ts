@@ -5,7 +5,7 @@
 
 import { createGoogle } from "@ai-sdk/google";
 import type { LlmModelInfo } from "@/types/llm";
-import { LlmProvider } from "../../../../../generated/prisma";
+import { LlmProvider } from "../../../../../generated/prisma/client";
 import { BaseLlmProvider, type ProviderConfig } from "../types";
 
 /** Static fallback models for when API fetch fails */
@@ -62,3 +62,4 @@ export class GoogleProvider extends BaseLlmProvider {
 		}
 	}
 }
+
