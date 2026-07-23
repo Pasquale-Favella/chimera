@@ -67,6 +67,7 @@ export type DesignCountAggregateOutputType = {
   name: number
   description: number
   html: number
+  schema: number
   position: number
   size: number
   viewMode: number
@@ -121,6 +122,7 @@ export type DesignCountAggregateInputType = {
   name?: true
   description?: true
   html?: true
+  schema?: true
   position?: true
   size?: true
   viewMode?: true
@@ -226,6 +228,7 @@ export type DesignGroupByOutputType = {
   name: string
   description: string | null
   html: string
+  schema: runtime.JsonValue | null
   position: runtime.JsonValue | null
   size: runtime.JsonValue | null
   viewMode: $Enums.DesignViewMode
@@ -267,6 +270,7 @@ export type DesignWhereInput = {
   name?: Prisma.StringFilter<"Design"> | string
   description?: Prisma.StringNullableFilter<"Design"> | string | null
   html?: Prisma.StringFilter<"Design"> | string
+  schema?: Prisma.JsonNullableFilter<"Design">
   position?: Prisma.JsonNullableFilter<"Design">
   size?: Prisma.JsonNullableFilter<"Design">
   viewMode?: Prisma.EnumDesignViewModeFilter<"Design"> | $Enums.DesignViewMode
@@ -289,6 +293,7 @@ export type DesignOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   html?: Prisma.SortOrder
+  schema?: Prisma.SortOrderInput | Prisma.SortOrder
   position?: Prisma.SortOrderInput | Prisma.SortOrder
   size?: Prisma.SortOrderInput | Prisma.SortOrder
   viewMode?: Prisma.SortOrder
@@ -314,6 +319,7 @@ export type DesignWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Design"> | string
   description?: Prisma.StringNullableFilter<"Design"> | string | null
   html?: Prisma.StringFilter<"Design"> | string
+  schema?: Prisma.JsonNullableFilter<"Design">
   position?: Prisma.JsonNullableFilter<"Design">
   size?: Prisma.JsonNullableFilter<"Design">
   viewMode?: Prisma.EnumDesignViewModeFilter<"Design"> | $Enums.DesignViewMode
@@ -336,6 +342,7 @@ export type DesignOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   html?: Prisma.SortOrder
+  schema?: Prisma.SortOrderInput | Prisma.SortOrder
   position?: Prisma.SortOrderInput | Prisma.SortOrder
   size?: Prisma.SortOrderInput | Prisma.SortOrder
   viewMode?: Prisma.SortOrder
@@ -362,6 +369,7 @@ export type DesignScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Design"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Design"> | string | null
   html?: Prisma.StringWithAggregatesFilter<"Design"> | string
+  schema?: Prisma.JsonNullableWithAggregatesFilter<"Design">
   position?: Prisma.JsonNullableWithAggregatesFilter<"Design">
   size?: Prisma.JsonNullableWithAggregatesFilter<"Design">
   viewMode?: Prisma.EnumDesignViewModeWithAggregatesFilter<"Design"> | $Enums.DesignViewMode
@@ -378,6 +386,7 @@ export type DesignCreateInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -400,6 +409,7 @@ export type DesignUncheckedCreateInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -418,6 +428,7 @@ export type DesignUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -440,6 +451,7 @@ export type DesignUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -460,6 +472,7 @@ export type DesignCreateManyInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -476,6 +489,7 @@ export type DesignUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -494,6 +508,7 @@ export type DesignUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -522,6 +537,7 @@ export type DesignCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   html?: Prisma.SortOrder
+  schema?: Prisma.SortOrder
   position?: Prisma.SortOrder
   size?: Prisma.SortOrder
   viewMode?: Prisma.SortOrder
@@ -701,6 +717,7 @@ export type DesignCreateWithoutCreatedByInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -721,6 +738,7 @@ export type DesignUncheckedCreateWithoutCreatedByInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -769,6 +787,7 @@ export type DesignScalarWhereInput = {
   name?: Prisma.StringFilter<"Design"> | string
   description?: Prisma.StringNullableFilter<"Design"> | string | null
   html?: Prisma.StringFilter<"Design"> | string
+  schema?: Prisma.JsonNullableFilter<"Design">
   position?: Prisma.JsonNullableFilter<"Design">
   size?: Prisma.JsonNullableFilter<"Design">
   viewMode?: Prisma.EnumDesignViewModeFilter<"Design"> | $Enums.DesignViewMode
@@ -785,6 +804,7 @@ export type DesignCreateWithoutProjectInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -805,6 +825,7 @@ export type DesignUncheckedCreateWithoutProjectInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -848,6 +869,7 @@ export type DesignCreateWithoutConnectionsFromInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -869,6 +891,7 @@ export type DesignUncheckedCreateWithoutConnectionsFromInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -891,6 +914,7 @@ export type DesignCreateWithoutConnectionsToInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -912,6 +936,7 @@ export type DesignUncheckedCreateWithoutConnectionsToInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -945,6 +970,7 @@ export type DesignUpdateWithoutConnectionsFromInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -966,6 +992,7 @@ export type DesignUncheckedUpdateWithoutConnectionsFromInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -994,6 +1021,7 @@ export type DesignUpdateWithoutConnectionsToInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1015,6 +1043,7 @@ export type DesignUncheckedUpdateWithoutConnectionsToInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1033,6 +1062,7 @@ export type DesignCreateManyCreatedByInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -1049,6 +1079,7 @@ export type DesignUpdateWithoutCreatedByInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1069,6 +1100,7 @@ export type DesignUncheckedUpdateWithoutCreatedByInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1088,6 +1120,7 @@ export type DesignUncheckedUpdateManyWithoutCreatedByInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1105,6 +1138,7 @@ export type DesignCreateManyProjectInput = {
   name: string
   description?: string | null
   html?: string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: $Enums.DesignViewMode
@@ -1121,6 +1155,7 @@ export type DesignUpdateWithoutProjectInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1141,6 +1176,7 @@ export type DesignUncheckedUpdateWithoutProjectInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1160,6 +1196,7 @@ export type DesignUncheckedUpdateManyWithoutProjectInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   html?: Prisma.StringFieldUpdateOperationsInput | string
+  schema?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   size?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   viewMode?: Prisma.EnumDesignViewModeFieldUpdateOperationsInput | $Enums.DesignViewMode
@@ -1218,6 +1255,7 @@ export type DesignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name?: boolean
   description?: boolean
   html?: boolean
+  schema?: boolean
   position?: boolean
   size?: boolean
   viewMode?: boolean
@@ -1241,6 +1279,7 @@ export type DesignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   description?: boolean
   html?: boolean
+  schema?: boolean
   position?: boolean
   size?: boolean
   viewMode?: boolean
@@ -1261,6 +1300,7 @@ export type DesignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   description?: boolean
   html?: boolean
+  schema?: boolean
   position?: boolean
   size?: boolean
   viewMode?: boolean
@@ -1281,6 +1321,7 @@ export type DesignSelectScalar = {
   name?: boolean
   description?: boolean
   html?: boolean
+  schema?: boolean
   position?: boolean
   size?: boolean
   viewMode?: boolean
@@ -1292,7 +1333,7 @@ export type DesignSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DesignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "createdById" | "name" | "description" | "html" | "position" | "size" | "viewMode" | "history" | "tokens" | "data" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["design"]>
+export type DesignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "createdById" | "name" | "description" | "html" | "schema" | "position" | "size" | "viewMode" | "history" | "tokens" | "data" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["design"]>
 export type DesignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1324,6 +1365,7 @@ export type $DesignPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     name: string
     description: string | null
     html: string
+    schema: runtime.JsonValue | null
     position: runtime.JsonValue | null
     size: runtime.JsonValue | null
     viewMode: $Enums.DesignViewMode
@@ -1766,6 +1808,7 @@ export interface DesignFieldRefs {
   readonly name: Prisma.FieldRef<"Design", 'String'>
   readonly description: Prisma.FieldRef<"Design", 'String'>
   readonly html: Prisma.FieldRef<"Design", 'String'>
+  readonly schema: Prisma.FieldRef<"Design", 'Json'>
   readonly position: Prisma.FieldRef<"Design", 'Json'>
   readonly size: Prisma.FieldRef<"Design", 'Json'>
   readonly viewMode: Prisma.FieldRef<"Design", 'DesignViewMode'>
