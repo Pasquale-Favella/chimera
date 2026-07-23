@@ -169,11 +169,17 @@ Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/serv
 
 **Why @effect-atom/atom-react (full Jotai replacement, by decision)**: purpose-built by the Effect core team for exactly this shape of problem — atoms whose lifecycle is wired directly to Effect computations/RPC calls (auto fetch-on-mount, cancellation, retry, SSR/hydration), which a hand-rolled React-Query-compatible wrapper around `@effect/rpc` would have to reinvent. Once the client is committed to Effect Atom for RPC-bound state, keeping Jotai around for local UI state (canvas node/selection/viewport atoms in `src/features/project-canvas/stores`) would mean maintaining two atom-shaped state libraries side by side for no architectural benefit — Effect Atom's local (non-RPC) atoms are a drop-in equivalent to Jotai's `atom`/`atomFamily`. Full replacement keeps one consistent state model app-wide instead of a split-brain Jotai/Effect Atom boundary.
 
+**Zod vs. Effect Schema (important constraint)**: `@effect/rpc` requires Effect `Schema` for its request/response contracts — it cannot consume Zod schemas directly, because Effect `Schema` is bidirectional (encode *and* decode) while Zod is decode-only, and `@effect/rpc`'s serialization/streaming machinery depends on that bidirectionality. There is no drop-in Zod adapter, so every existing Zod input schema in `src/server/api/routers/**` must be **manually converted** to an equivalent Effect `Schema` definition as part of the router it belongs to (not deferred to the client-migration step). To keep this from being reinvented per-router:
+  - [ ] Foundation establishes a shared `src/server/effect/schema/` module with Effect `Schema` equivalents for common cross-router primitives (IDs, pagination, enums like project/component visibility, the `count` 1–4 constraint used by design generation, etc.) so router-port tasks reuse these instead of redefining them independently
+  - [ ] Each router-port task converts only that router's own request/response Zod schemas to Effect `Schema`, reusing the shared primitives module
+  - [ ] Zod itself is **not removed** from the project by this wave — it stays for any non-RPC validation (e.g. env var validation via `@t3-oss/env-nextjs`, form validation via `react-hook-form`/`hookform-resolvers` on the client) where Effect Schema has no established replacement in this codebase; only RPC-boundary schemas move to Effect Schema
+
 - [ ] **G-effect-rpc: Foundation** (`effect-rpc-foundation`) — sequential, blocks the rest of this wave
   - [ ] Branch `feature/effect-rpc-foundation` off `develop`
-  - [ ] Install `effect`, `@effect/rpc`, `@effect/platform` (+ Next.js-appropriate platform adapter); define Effect `Schema` versions/bridges for the existing Zod schemas; scaffold an `RpcRouter` and a single `app/api/rpc/route.ts` handler analogous to today's `app/api/trpc/[trpc]/route.ts`
+  - [ ] Install `effect`, `@effect/rpc`, `@effect/platform` (+ Next.js-appropriate platform adapter); scaffold an `RpcRouter` and a single `app/api/rpc/route.ts` handler analogous to today's `app/api/trpc/[trpc]/route.ts`
+  - [ ] Build the shared `src/server/effect/schema/` primitives module (Zod→Effect Schema conversions for cross-router primitives, see above) so downstream router ports have a common, consistent base to build on
   - [ ] code-review sub-agent pass
-  - [ ] smoke test: one trivial round-trip RPC call end-to-end
+  - [ ] smoke test: one trivial round-trip RPC call end-to-end, verifying Effect Schema decode/encode against the same payload shapes the old Zod schemas accepted
   - [ ] Merged to `develop`
 - [ ] **G-effect-rpc: Auth layer** (`effect-rpc-auth-layer`) — sequential, depends on foundation
   - [ ] Branch, port Better Auth session resolution into an Effect `Layer`/`Context.Tag` providing `CurrentUser` (replacing `protectedProcedure`); model `Unauthorized`/`Forbidden` as tagged Effect errors (replacing `TRPCError`)
@@ -181,11 +187,11 @@ Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/serv
   - [ ] auth-rejection + happy-path test
   - [ ] Merged to `develop`
 - [ ] **G-effect-rpc: Router ports** — parallel, all depend only on the auth layer, independent of each other
-  - [ ] `effect-rpc-projects` (opencode-delegated: projects + permissions router)
-  - [ ] `effect-rpc-designs` (self: designs router — the largest port, converts `aiGenerate`/`aiModify`/`aiGenerateFlow` to `Rpc.StreamRequest`-based streaming)
-  - [ ] `effect-rpc-components` (opencode-delegated: components router)
-  - [ ] `effect-rpc-settings-misc` (opencode-delegated: user settings, LLM API keys, API key management)
-  - [ ] Each: branch, implement, code-review pass, run both old tRPC route and new Effect RPC route side-by-side and diff outputs before removing the old path, merge to `develop`
+  - [ ] `effect-rpc-projects` (opencode-delegated: projects + permissions router; convert its Zod input schemas to Effect Schema using the shared primitives module)
+  - [ ] `effect-rpc-designs` (self: designs router — the largest port, converts `aiGenerate`/`aiModify`/`aiGenerateFlow` to `Rpc.StreamRequest`-based streaming; convert its Zod input schemas, including the `count` 1–4 constraint, to Effect Schema)
+  - [ ] `effect-rpc-components` (opencode-delegated: components router; convert its Zod input schemas to Effect Schema)
+  - [ ] `effect-rpc-settings-misc` (opencode-delegated: user settings, LLM API keys, API key management; convert its Zod input schemas to Effect Schema)
+  - [ ] Each: branch, implement, convert that router's Zod schemas to Effect Schema, code-review pass, run both old tRPC route and new Effect RPC route side-by-side and diff outputs (including schema validation edge cases — required/optional fields, enums, refinements) before removing the old path, merge to `develop`
 - [ ] **G-effect-rpc: Client migration** (`effect-rpc-client-migration`) — sequential, depends on all router ports; highest blast radius on the RPC side (touches every component)
   - [ ] Branch, replace every `api.<router>.<procedure>.useQuery/useMutation` call site across `src/features/**` and `src/app/**` with `@effect-atom/atom-react` atoms wired to the new `@effect/rpc` client (`useAtomValue`/`useAtomSet`/`useAtomSuspense`), including dedicated streaming atoms for `aiGenerate`/`aiModify`/`aiGenerateFlow` that consume `Rpc.StreamRequest` for incremental canvas updates
   - [ ] rubber-duck + code-review sub-agent pass (large diff, high risk of missed call sites)
