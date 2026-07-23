@@ -13,7 +13,7 @@ export const env = createEnv({
 				: z.string().optional(),
 		BETTER_AUTH_GITHUB_CLIENT_ID: z.string(),
 		BETTER_AUTH_GITHUB_CLIENT_SECRET: z.string(),
-		DATABASE_URL: z.string().url(),
+		DATABASE_URL: z.url(),
 		GEMINI_API_KEY: z.string().optional(),
 		OPENROUTER_API_KEY: z.string().optional(),
 		NODE_ENV: z
