@@ -408,7 +408,8 @@ export const ModelName = {
   Account: 'Account',
   DesignConnection: 'DesignConnection',
   Verification: 'Verification',
-  DesignSystem: 'DesignSystem'
+  DesignSystem: 'DesignSystem',
+  AiUsageLog: 'AiUsageLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "apiKey" | "llmApiKey" | "project" | "projectMembership" | "design" | "component" | "session" | "account" | "designConnection" | "verification" | "designSystem"
+    modelProps: "user" | "apiKey" | "llmApiKey" | "project" | "projectMembership" | "design" | "component" | "session" | "account" | "designConnection" | "verification" | "designSystem" | "aiUsageLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1316,6 +1317,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AiUsageLog: {
+      payload: Prisma.$AiUsageLogPayload<ExtArgs>
+      fields: Prisma.AiUsageLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiUsageLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiUsageLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AiUsageLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiUsageLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>
+        }
+        findMany: {
+          args: Prisma.AiUsageLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>[]
+        }
+        create: {
+          args: Prisma.AiUsageLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>
+        }
+        createMany: {
+          args: Prisma.AiUsageLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiUsageLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AiUsageLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>
+        }
+        update: {
+          args: Prisma.AiUsageLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiUsageLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiUsageLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiUsageLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiUsageLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AiUsageLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiUsageLog>
+        }
+        groupBy: {
+          args: Prisma.AiUsageLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiUsageLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1526,6 +1601,25 @@ export const DesignSystemScalarFieldEnum = {
 } as const
 
 export type DesignSystemScalarFieldEnum = (typeof DesignSystemScalarFieldEnum)[keyof typeof DesignSystemScalarFieldEnum]
+
+
+export const AiUsageLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  operation: 'operation',
+  provider: 'provider',
+  model: 'model',
+  promptTokens: 'promptTokens',
+  completionTokens: 'completionTokens',
+  totalTokens: 'totalTokens',
+  latencyMs: 'latencyMs',
+  success: 'success',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+} as const
+
+export type AiUsageLogScalarFieldEnum = (typeof AiUsageLogScalarFieldEnum)[keyof typeof AiUsageLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1821,6 +1915,7 @@ export type GlobalOmitConfig = {
   designConnection?: Prisma.DesignConnectionOmit
   verification?: Prisma.VerificationOmit
   designSystem?: Prisma.DesignSystemOmit
+  aiUsageLog?: Prisma.AiUsageLogOmit
 }
 
 /* Types for Logging */
