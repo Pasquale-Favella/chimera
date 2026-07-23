@@ -23,7 +23,7 @@
 
 ## Git Flow model
 
-`develop` (pushed to `origin/develop`) is the long-lived integration branch for this whole upgrade initiative. `main` is never pushed to or force-pushed — it stays exactly as it was before this initiative started until the user decides to promote a release.
+`develop` (pushed to `origin/develop`) is the long-lived integration branch for this whole upgrade initiative and the **only** branch ever pushed to `origin`. `main` is never merged into, pushed to, or force-pushed — under any circumstances, for any wave, ever.
 
 - **Feature branch per todo**: `feature/<todo-id>` (e.g. `feature/fix-openrouter-bug`), always branched from `develop`, worked in its own `git worktree` to avoid ever mixing in unrelated working-directory state.
 - **Per-task flow** (extends the standard QA loop with git steps):
@@ -34,16 +34,16 @@
   5. Loop (revise → re-review → re-test) until green, bounded to 3 iterations
   6. `git merge --no-ff feature/<todo-id>` into `develop` (merge commit kept for traceability), delete the feature branch and worktree
 - **Wave = parallel feature branches, all merged into `develop` before the wave is considered closed.**
-- **Release per wave**: once a wave's branches are all merged to `develop` and green, cut `release/wave-N-<name>` from `develop`, run the wave-level regression pass, merge to `main` with a tag (`v0.1.0` … `v1.0.0`), then back-merge `main` into `develop` before cutting the next wave's feature branches.
-- **Hotfix branches** (`hotfix/<name>` off `main`) only if something breaks in production between waves — merged back to both `main` and `develop`.
+- **Release per wave**: once a wave's branches are all merged to `develop` and green, run the wave-level regression pass directly on `develop`, then tag `develop` itself (`v0.1.0` … `v1.0.0`). **`main` is never touched — no merges, no pushes, ever.** `develop` is the only branch pushed to `origin`.
+- No hotfix branches off `main` — `main` is permanently out of scope for this initiative.
 
-| Wave | Release branch | Tag |
-|---|---|---|
-| 1 | `release/wave-1-hygiene` | v0.1.0 |
-| 2 | `release/wave-2-ai-core-deps` | v0.2.0 |
-| 3 | `release/wave-3-structured-schema` | v0.3.0 |
-| 4 | `release/wave-4-editing-collab` | v0.4.0 |
-| 5 | `release/wave-5-next-major` | v1.0.0 |
+| Wave | Tag (on `develop`) |
+|---|---|
+| 1 | v0.1.0 |
+| 2 | v0.2.0 |
+| 3 | v0.3.0 |
+| 4 | v0.4.0 |
+| 5 | v1.0.0 |
 
 ## Checklist
 
@@ -84,10 +84,9 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [x] Merged to `develop`
 
 **Wave 1 release gate:**
-- [ ] Cut `release/wave-1-hygiene` from `develop`
-- [ ] Wave-level regression pass
-- [ ] Merge to `main`, tag `v0.1.0`
-- [ ] Back-merge `main` into `develop`
+- [ ] Wave-level regression pass on `develop`
+- [ ] Tag `develop` as `v0.1.0` (no merge/push to `main`)
+- [ ] Push tag to `origin`
 
 ### Wave 2 — parallel, gated on Wave 1 completing
 - [ ] **B-ai-core: Upgrade AI SDK to v7** (`deps-ai-sdk-major`)
@@ -116,10 +115,9 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [ ] Merged to `develop`
 
 **Wave 2 release gate:**
-- [ ] Cut `release/wave-2-ai-core-deps` from `develop`
-- [ ] Wave-level regression pass
-- [ ] Merge to `main`, tag `v0.2.0`
-- [ ] Back-merge `main` into `develop`
+- [ ] Wave-level regression pass on `develop`
+- [ ] Tag `develop` as `v0.2.0` (no merge/push to `main`)
+- [ ] Push tag to `origin`
 
 ### Wave 3 — strictly sequential (cannot parallelize)
 - [ ] **B-ai-core: AI reliability layer** (`ai-reliability`) — depends on AI SDK v7
@@ -136,10 +134,9 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [ ] Merged to `develop`
 
 **Wave 3 release gate:**
-- [ ] Cut `release/wave-3-structured-schema` from `develop`
-- [ ] Wave-level regression pass
-- [ ] Merge to `main`, tag `v0.3.0`
-- [ ] Back-merge `main` into `develop`
+- [ ] Wave-level regression pass on `develop`
+- [ ] Tag `develop` as `v0.3.0` (no merge/push to `main`)
+- [ ] Push tag to `origin`
 
 ### Wave 4 — parallel, gated on structured-ui-schema
 - [ ] **C-mastra: Patch-based auto-fix refinement** (`mastra-integration-refine`)
@@ -150,20 +147,18 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [ ] Branch, implement presence/live cursors + version-node history, code-review + rubber-duck, multi-user concurrent-edit test, merge
 
 **Wave 4 release gate:**
-- [ ] Cut `release/wave-4-editing-collab` from `develop`
-- [ ] Wave-level regression pass
-- [ ] Merge to `main`, tag `v0.4.0`
-- [ ] Back-merge `main` into `develop`
+- [ ] Wave-level regression pass on `develop`
+- [ ] Tag `develop` as `v0.4.0` (no merge/push to `main`)
+- [ ] Push tag to `origin`
 
 ### Wave 5 — final, after everything else is stable
 - [ ] **A-hygiene: Upgrade Next.js 15→16** (`deps-next-major`)
   - [ ] Branch, bump Next major, code-review, full e2e smoke test (canvas, auth, tRPC, MCP routes), merge
 
 **Wave 5 release gate (final):**
-- [ ] Cut `release/wave-5-next-major` from `develop`
-- [ ] Full regression pass
-- [ ] Merge to `main`, tag `v1.0.0`
-- [ ] Back-merge `main` into `develop`
+- [ ] Full regression pass on `develop`
+- [ ] Tag `develop` as `v1.0.0` (no merge/push to `main`)
+- [ ] Push tag to `origin`
 
 ## Verdict: evolve, don't rewrite
 Core architecture is sound and worth keeping: iframe `srcDoc` + `sandbox="allow-scripts"` sandboxing, React Flow canvas, tRPC + Prisma + Better Auth, provider-agnostic LlmManager, MCP server exposing designs to external agents. No reason to throw this away — problems are additive gaps and a few real bugs, not systemic flaws.
