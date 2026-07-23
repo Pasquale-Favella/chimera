@@ -80,6 +80,62 @@ const handler = createMcpHandler(
                         content: [{ type: "text", text: JSON.stringify(flows) }],
                     };
                 }
+            ),
+            server.registerTool(
+                "chimera_generate_design",
+                {
+                    description: "Generate one or more new AI design variations directly into a project, based on a text prompt. Requires editor or owner access to the project. Returns the newly created design records.",
+                    inputSchema: z.object({
+                        projectId: z.string().describe("The ID of the project to generate the design(s) into"),
+                        prompt: z.string().describe("A description of the design to generate"),
+                        count: z.number().int().min(1).max(4).optional().describe("How many design variations to generate (default 1, max 4)"),
+                        namePrefix: z.string().optional().describe("Optional name to use for the generated design(s) instead of the default 'AI Concept N'"),
+                    }),
+                },
+                async ({ projectId, prompt, count, namePrefix }, extra) => {
+                    const userId = extra.authInfo?.clientId!;
+                    const designs = await McpService.generateDesign(userId, projectId, prompt, count ?? 1, namePrefix);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(designs) }],
+                    };
+                }
+            ),
+            server.registerTool(
+                "chimera_modify_design",
+                {
+                    description: "Modify one or more existing designs in a project using an AI prompt, optionally scoped to a specific CSS selector. Requires editor or owner access to the project. Returns the updated design records.",
+                    inputSchema: z.object({
+                        projectId: z.string().describe("The ID of the project the designs belong to"),
+                        designIds: z.array(z.string()).min(1).describe("The IDs of the designs to modify"),
+                        prompt: z.string().describe("The instruction describing how to modify the design(s)"),
+                        selector: z.string().optional().describe("An optional CSS selector to scope the modification to a specific element"),
+                    }),
+                },
+                async ({ projectId, designIds, prompt, selector }, extra) => {
+                    const userId = extra.authInfo?.clientId!;
+                    const designs = await McpService.modifyDesign(userId, projectId, designIds, prompt, selector);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(designs) }],
+                    };
+                }
+            ),
+            server.registerTool(
+                "chimera_create_flow",
+                {
+                    description: "Generate a complete connected multi-screen user flow (several designs plus the connections between them) directly into a project, based on a text prompt. Requires editor or owner access to the project. Returns the newly created designs and connections.",
+                    inputSchema: z.object({
+                        projectId: z.string().describe("The ID of the project to generate the flow into"),
+                        prompt: z.string().describe("A description of the user flow to generate"),
+                        namePrefix: z.string().optional().describe("Optional name prefix to use for the generated screens instead of the default 'Flow Concept N'"),
+                    }),
+                },
+                async ({ projectId, prompt, namePrefix }, extra) => {
+                    const userId = extra.authInfo?.clientId!;
+                    const flow = await McpService.createFlow(userId, projectId, prompt, namePrefix);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(flow) }],
+                    };
+                }
             )
     },
     {},
