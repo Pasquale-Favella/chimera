@@ -91,7 +91,7 @@ export function PrototypeMode({
     retry,
   } = usePrototype(projectId, startId);
 
-  const { designSystem, iframeFonts } = useDesignSystem(projectId);
+  const { iframeFonts } = useDesignSystem(projectId);
 
   const iframeContent = useMemo(() => {
     if (!currentDesign) return '';

@@ -297,39 +297,6 @@ export async function modifyDesigns(
     }
 }
 
-export async function modifySingleDesign(
-    designToModify: { html: string },
-    modificationPrompt: string,
-    selectedElementPath?: string | null,
-    config?: AiConfig,
-): Promise<{ html: string }> {
-    const model = createClient(config);
-    if (!model) {
-        throw new Error("No API key configured for the selected provider");
-    }
-
-    try {
-        const promptContext = selectedElementPath
-            ? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selectedElementPath}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
-            : `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
-
-        const fullPrompt = `You are an expert UI/UX designer. The user wants to modify an existing design. ${promptContext} Return a JSON object with the key "html" containing the new, self-contained HTML that uses only Tailwind CSS classes. You must return the FULL HTML for the entire component with the change applied, not just the HTML for the modified element. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nCurrent HTML: ${designToModify.html}`;
-
-        const { output } = await generateText({
-            model,
-            output: Output.object({ schema: singleModificationSchema }),
-            messages: [{ role: "user", content: fullPrompt }],
-        });
-
-        return output;
-    } catch (error) {
-        console.error("Error modifying single design:", error);
-        throw new Error(
-            "Failed to modify the design. The model may not have been able to apply the changes.",
-        );
-    }
-}
-
 export async function applyDesignTokens(
     html: string,
     tokens: DesignTokens,
