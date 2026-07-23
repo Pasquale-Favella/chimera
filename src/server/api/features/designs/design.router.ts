@@ -20,6 +20,7 @@ import {
 	parseTokens,
 } from "@/server/services/ai.service";
 import { calculateNextPosition } from "./layout.utils";
+import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 import { AiFeature } from "@/types/settings";
 
 import {
@@ -234,7 +235,7 @@ export const designsRouter = createTRPCRouter({
 					description: input.description ?? null,
 					data: payloadData,
 					createdById: ctx.session.user.id,
-					html: input.html ?? "",
+					html: sanitizeGeneratedHtml(input.html ?? ""),
 					position: toJsonInput(position),
 					size: toJsonInput(size),
 					viewMode: input.viewMode ? toDesignViewMode(input.viewMode) : undefined,
@@ -294,11 +295,11 @@ export const designsRouter = createTRPCRouter({
 			}
 
 			if (input.html !== undefined) {
-				data.html = input.html;
+				data.html = sanitizeGeneratedHtml(input.html);
 			}
 
 			if (input.history !== undefined) {
-				data.history = toJsonInput(input.history);
+				data.history = toJsonInput(input.history.map(sanitizeGeneratedHtml));
 			}
 
 			if (input.tokens !== undefined) {
