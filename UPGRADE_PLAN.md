@@ -7,9 +7,9 @@
 | Wave | Tracks running in parallel | Gate to next wave |
 |---|---|---|
 | 1 | A-hygiene (bug fixes, sanitization, safe/misc deps), D-mcp (mutation tools), E-editing-ux (dnd-kit audit only) | All wave-1 items pass their QA loop |
-| 2 | B-ai-core (ai SDK v7, zod v4, prisma v7 — parallel to each other), C-mastra (install + scaffold) | AI SDK + zod major bumps merged and green |
-| 3 | B-ai-core sequential: ai-reliability → structured-ui-schema (this one is inherently linear, cannot parallelize — each step is a precondition for the next) | structured-ui-schema merged and passes full canvas regression |
-| 4 | E-editing-ux (props panel), C-mastra (patch-based refinement) — both only need the schema, independent of each other | all green |
+| 2 | B-ai-core (ai SDK v7, zod v4, prisma v7 — parallel to each other), C-mastra (install + scaffold shells only, no live AI wiring) | AI SDK + zod major bumps merged and green |
+| 3 | B-ai-core sequential: ai-reliability → structured-ui-schema (inherently linear); C-mastra (`mastra-integration-live`) runs parallel to `structured-ui-schema` once `ai-reliability` merges, since it only needs the reliability layer | structured-ui-schema + mastra-integration-live merged and pass full regression |
+| 4 | E-editing-ux (props panel), C-mastra (patch-based refinement, now depends on mastra-integration-live) — both only need the schema/live-Mastra layer, independent of each other | all green |
 | 5 | deps-next-major (Next 15→16, done last since it touches everything) | — |
 | 6 | G-effect-rpc: full tRPC → @effect/rpc migration + full Jotai → @effect-atom/atom-react migration (foundation → auth layer → per-router ports in parallel → client migration → Jotai migration → cutover). Deliberately the very last core-transport wave — bigger blast radius than the Next.js major bump, so it only starts once everything else is stable | full regression + streaming verified + canvas interaction regression verified |
 | 7 | F-collab: real-time collaboration + branching versioning (`collab-versioning-v2`), rebuilt natively on the Wave 6 stack. Deliberately deferred until after Wave 6 so its sync layer is built once — on `Rpc.StreamRequest` + Effect Atom — instead of twice (first on tRPC/Jotai, then migrated) | full regression + multi-user concurrent-edit test |
@@ -110,11 +110,11 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [ ] code-review sub-agent pass
   - [ ] `db:push` + query smoke test
   - [ ] Merged to `develop`
-- [ ] **C-mastra: Install + scaffold Mastra workflows** (`mastra-integration`)
-  - [ ] Branch `feature/mastra-integration` off `develop`
-  - [ ] Install `mastra`, scaffold design-quality / memory / product-flow
+- [ ] **C-mastra: Install + scaffold Mastra workflow shells** (`mastra-scaffold-wiring`)
+  - [ ] Branch `feature/mastra-scaffold-wiring` off `develop`
+  - [ ] Install `mastra`, scaffold design-quality / memory / product-flow workflow shells, wire config and project structure only — no real calls into `ai.service.ts` and no integration tests exercising actual AI generation (deferred to `mastra-integration-live` in Wave 3, once `ai.service.ts` is Effect-native, so Mastra is wired once against the stable interface instead of being reworked when Wave 3 changes it)
   - [ ] code-review sub-agent pass
-  - [ ] integration test each workflow independently
+  - [ ] verify scaffold compiles and workflows are registered (no AI-call testing here)
   - [ ] Merged to `develop`
 
 **Wave 2 release gate:**
@@ -122,7 +122,7 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
 - [ ] Tag `develop` as `v0.2.0` (no merge/push to `main`)
 - [ ] Push tag to `origin`
 
-### Wave 3 — strictly sequential (cannot parallelize)
+### Wave 3 — mostly sequential, one parallel branch
 - [ ] **B-ai-core: AI reliability layer** (`ai-reliability`) — depends on AI SDK v7
   - [ ] Branch `feature/ai-reliability` off `develop`
   - [ ] Implement retry/backoff/timeout, rate limiting, `AiUsageLog`, `streamObject` conversion — **build this internally on the `effect` core library** (`Effect.retry` + `Schedule` for backoff, `Effect.timeout`, `Effect.Stream` for the streaming conversion) rather than hand-rolled retry logic. This is a deliberate forward-compatibility choice: Wave 6 replaces the tRPC *transport* around `ai.service.ts`, and if the reliability/streaming logic underneath is already Effect-native, Wave 6 becomes a much smaller transport-only swap instead of a rewrite of both layers at once.
@@ -135,14 +135,20 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [ ] Multi-agent review: code-review + rubber-duck
   - [ ] full canvas regression test
   - [ ] Merged to `develop`
+- [ ] **C-mastra: Wire Mastra workflows into live AI calls** (`mastra-integration-live`) — depends on `ai-reliability` (and the already-satisfied `deps-ai-sdk-major`/`mastra-scaffold-wiring`); can run **in parallel with `structured-ui-schema`** once `ai-reliability` merges, since it only needs the reliability layer, not the UI schema
+  - [ ] Branch `feature/mastra-integration-live` off `develop`
+  - [ ] Connect the Wave 2 workflow scaffolds (design-quality, memory, product-flow) to the now-Effect-native `ai.service.ts` — retry/backoff, rate limiting, `AiUsageLog`, streaming — built once against the stable interface instead of against the pre-reliability service
+  - [ ] code-review sub-agent pass
+  - [ ] integration test each workflow against real AI calls
+  - [ ] Merged to `develop`
 
 **Wave 3 release gate:**
 - [ ] Wave-level regression pass on `develop`
 - [ ] Tag `develop` as `v0.3.0` (no merge/push to `main`)
 - [ ] Push tag to `origin`
 
-### Wave 4 — parallel, gated on structured-ui-schema
-- [ ] **C-mastra: Patch-based auto-fix refinement** (`mastra-integration-refine`)
+### Wave 4 — parallel, gated on structured-ui-schema + mastra-integration-live
+- [ ] **C-mastra: Patch-based auto-fix refinement** (`mastra-integration-refine`) — depends on `mastra-integration-live` + `structured-ui-schema`
   - [ ] Branch, implement tree-node patch auto-fix, review, regression test, merge
 - [ ] **E-editing-ux: Visual props panel** (`editing-ux-props-panel`)
   - [ ] Branch, implement props panel bound to UI schema, review, UI interaction test, merge
@@ -235,5 +241,5 @@ Deliberately deferred until after Wave 6 completes (`effect-rpc-cutover-cleanup`
 Core architecture is sound and worth keeping: iframe `srcDoc` + `sandbox="allow-scripts"` sandboxing, React Flow canvas, Prisma + Better Auth, provider-agnostic LlmManager, MCP server exposing designs to external agents. No reason to throw this away — problems are additive gaps and a few real bugs, not systemic flaws. The one deliberate exception is the RPC transport itself (Wave 6): tRPC's lack of first-class streaming is a real limitation once AI generation needs to stream incrementally, so `@effect/rpc` replaces it — but only after everything built on top of it (Waves 1–5) is stable, and only as a transport swap around business logic that Wave 3 already made Effect-native internally. Real-time collaboration (Wave 7) was deliberately pulled out of Wave 4 and deferred until after Wave 6 for the same reason: building its sync layer once on the final streaming/state stack is strictly better than building it on tRPC/Jotai in Wave 4 and migrating it again in Wave 6.
 
 ## Sequencing rationale
-Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold (Wave 2) → AI reliability + structured schema (Wave 3, unlocks everything else, built Effect-native internally) → Mastra refinement + editing UX (Wave 4, collab intentionally excluded here) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration + full Jotai → Effect Atom state migration (Wave 6, biggest blast radius, streaming payoff + unified state model) → real-time collaboration + branching versioning (Wave 7, built once on the finished Effect RPC/Atom stack instead of twice).
+Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold shells (Wave 2, scaffold-only — deliberately not wired to live AI calls yet) → AI reliability + structured schema + Mastra live wiring (Wave 3, unlocks everything else, built Effect-native internally; Mastra's live AI wiring is deliberately deferred from Wave 2 to here so it's built directly on the Effect-native `ai.service.ts` instead of the pre-migration version, avoiding a rework once Wave 3 lands — the same reasoning already applied to `ai-reliability` itself relative to Wave 6) → Mastra refinement + editing UX (Wave 4, collab intentionally excluded here) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration + full Jotai → Effect Atom state migration (Wave 6, biggest blast radius, streaming payoff + unified state model) → real-time collaboration + branching versioning (Wave 7, built once on the finished Effect RPC/Atom stack instead of twice).
 
