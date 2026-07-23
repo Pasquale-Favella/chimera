@@ -34,6 +34,7 @@ model User {
   llmPreferences    Json?     // { [feature: AiFeature]: { provider: LlmProvider, model: string } }
 
   apiKeys           ApiKey[]
+  aiUsageLogs       AiUsageLog[]
 
   @@unique([email])
   @@map("user")
@@ -95,6 +96,7 @@ model Project {
   components  Component[]
   connections DesignConnection[]
   designSystem DesignSystem?
+  aiUsageLogs   AiUsageLog[]
 
   @@index([createdById])
   @@map("project")
@@ -258,4 +260,27 @@ model DesignSystem {
   updatedAt   DateTime @updatedAt
 
   @@map("design_system")
+}
+
+model AiUsageLog {
+  id               String      @id @default(cuid())
+  user             User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId           String?
+  project          Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId        String?
+  operation        String
+  provider         LlmProvider
+  model            String
+  promptTokens     Int?
+  completionTokens Int?
+  totalTokens      Int?
+  latencyMs        Int
+  success          Boolean
+  errorMessage     String?
+  createdAt        DateTime    @default(now())
+
+  @@index([userId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([provider, createdAt])
+  @@map("ai_usage_log")
 }

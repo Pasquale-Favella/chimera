@@ -1,14 +1,11 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { Prisma, DesignViewMode, ConnectionPosition, LlmProvider } from "../../../../../generated/prisma/client";
-
-import { createTRPCRouter, protectedProcedure, type ProtectedContext } from "@/server/api/trpc";
 import {
-	EDITOR_ACCESS,
-	OWNER_ACCESS,
-	VIEWER_ACCESS,
-	assertProjectAccess,
-} from "../projects/permissions";
+	createTRPCRouter,
+	type ProtectedContext,
+	protectedProcedure,
+} from "@/server/api/trpc";
+import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 import {
 	applyDesignTokens,
 	extractComponent,
@@ -19,9 +16,20 @@ import {
 	modifyDesigns,
 	parseTokens,
 } from "@/server/services/ai.service";
-import { calculateNextPosition } from "./layout.utils";
-import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 import { AiFeature } from "@/types/settings";
+import type { DesignSystemContext } from "@/types/shared";
+import {
+	ConnectionPosition,
+	type DesignViewMode,
+	LlmProvider,
+	Prisma,
+} from "../../../../../generated/prisma/client";
+import {
+	assertProjectAccess,
+	EDITOR_ACCESS,
+	OWNER_ACCESS,
+	VIEWER_ACCESS,
+} from "../projects/permissions";
 
 import {
 	attachedImageSchema,
@@ -32,8 +40,7 @@ import {
 	sizeSchema,
 	viewModeSchema,
 } from "./design.dto";
-
-import type { DesignSystemContext } from "@/types/shared";
+import { calculateNextPosition } from "./layout.utils";
 
 const designSelect = {
 	id: true,
@@ -51,7 +58,6 @@ const designSelect = {
 	history: true,
 	version: true,
 	tokens: true,
-
 };
 
 const connectionSelect = {
@@ -62,7 +68,9 @@ const connectionSelect = {
 	toPosition: true,
 };
 
-function toJsonInput(value: unknown): typeof Prisma.JsonNull | Prisma.InputJsonValue {
+function toJsonInput(
+	value: unknown,
+): typeof Prisma.JsonNull | Prisma.InputJsonValue {
 	if (value === undefined || value === null) {
 		return Prisma.JsonNull;
 	}
@@ -70,7 +78,9 @@ function toJsonInput(value: unknown): typeof Prisma.JsonNull | Prisma.InputJsonV
 	return value as Prisma.InputJsonValue;
 }
 
-function toDesignViewMode(mode: "DESKTOP" | "TABLET" | "MOBILE" | undefined): DesignViewMode | undefined {
+function toDesignViewMode(
+	mode: "DESKTOP" | "TABLET" | "MOBILE" | undefined,
+): DesignViewMode | undefined {
 	if (!mode) return undefined;
 	return mode as DesignViewMode;
 }
@@ -103,12 +113,15 @@ async function getLlmConfig(ctx: ProtectedContext, feature: string) {
 
 	if (!user) return undefined;
 
-	const prefs = user.llmPreferences as Record<string, { provider: LlmProvider; model: string }> | null;
+	const prefs = user.llmPreferences as Record<
+		string,
+		{ provider: LlmProvider; model: string }
+	> | null;
 	const featurePrefs = prefs?.[feature];
 	const provider = featurePrefs?.provider ?? LlmProvider.GOOGLE;
 
 	// Find API key for provider
-	const apiKeyRecord = user.llmApiKeys.find(k => k.provider === provider);
+	const apiKeyRecord = user.llmApiKeys.find((k) => k.provider === provider);
 
 	return {
 		provider,
@@ -117,8 +130,9 @@ async function getLlmConfig(ctx: ProtectedContext, feature: string) {
 	};
 }
 
-
-function toConnectionPosition(pos: "top" | "right" | "bottom" | "left"): ConnectionPosition {
+function toConnectionPosition(
+	pos: "top" | "right" | "bottom" | "left",
+): ConnectionPosition {
 	switch (pos) {
 		case "top":
 			return ConnectionPosition.TOP;
@@ -178,32 +192,32 @@ export const designsRouter = createTRPCRouter({
 			});
 		}),
 
-	getById: protectedProcedure.input(designIdSchema).query(async ({ ctx, input }) => {
-		const design = await ctx.db.design.findUnique({
-			where: { id: input.designId },
-			select: designSelect,
-		});
+	getById: protectedProcedure
+		.input(designIdSchema)
+		.query(async ({ ctx, input }) => {
+			const design = await ctx.db.design.findUnique({
+				where: { id: input.designId },
+				select: designSelect,
+			});
 
-		if (!design) {
-			throw new TRPCError({ code: "NOT_FOUND", message: "Design not found." });
-		}
+			if (!design) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Design not found.",
+				});
+			}
 
-		await assertProjectAccess(ctx, design.projectId, VIEWER_ACCESS);
+			await assertProjectAccess(ctx, design.projectId, VIEWER_ACCESS);
 
-		return design;
-	}),
+			return design;
+		}),
 
 	create: protectedProcedure
 		.input(
 			z.object({
 				projectId: z.string().cuid(),
 				name: z.string().trim().min(1).max(120),
-				description: z
-					.string()
-					.trim()
-					.max(500)
-					.nullable()
-					.optional(),
+				description: z.string().trim().max(500).nullable().optional(),
 				data: z.unknown().optional(),
 				html: z.string().optional(),
 				position: positionSchema.optional(),
@@ -238,7 +252,9 @@ export const designsRouter = createTRPCRouter({
 					html: sanitizeGeneratedHtml(input.html ?? ""),
 					position: toJsonInput(position),
 					size: toJsonInput(size),
-					viewMode: input.viewMode ? toDesignViewMode(input.viewMode) : undefined,
+					viewMode: input.viewMode
+						? toDesignViewMode(input.viewMode)
+						: undefined,
 				},
 				select: designSelect,
 			});
@@ -248,12 +264,7 @@ export const designsRouter = createTRPCRouter({
 		.input(
 			designIdSchema.extend({
 				name: z.string().trim().min(1).max(120).optional(),
-				description: z
-					.string()
-					.trim()
-					.max(500)
-					.nullable()
-					.optional(),
+				description: z.string().trim().max(500).nullable().optional(),
 				data: z.unknown().optional(),
 				position: positionSchema.optional(),
 				size: sizeSchema.optional(),
@@ -363,26 +374,33 @@ export const designsRouter = createTRPCRouter({
 				promptWithContext,
 				input.count ?? 1,
 				input.images,
-				config,
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: input.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: input.projectId },
 				designSystem as unknown as DesignSystemContext,
 			);
 
-			const created: Prisma.DesignGetPayload<{ select: typeof designSelect }>[] = [];
+			const created: Prisma.DesignGetPayload<{
+				select: typeof designSelect;
+			}>[] = [];
 			const currentExisting = [...existingDesigns];
 
 			for (const [index, design] of designs.entries()) {
 				const fallbackName = `AI Concept ${index + 1}`;
-				const name =
-					input.namePrefix && input.namePrefix.trim().length
-						? input.namePrefix.trim()
-						: fallbackName;
+				const name = input.namePrefix?.trim().length
+					? input.namePrefix.trim()
+					: fallbackName;
 
 				const position = calculateNextPosition(currentExisting);
 				const size = { width: 1200, height: 800 };
 
 				currentExisting.push({
-					position: position as any,
-					size: size as any
+					position: position as unknown as Prisma.JsonObject,
+					size: size as unknown as Prisma.JsonObject,
 				});
 
 				const newDesign = await ctx.db.design.create({
@@ -436,27 +454,34 @@ export const designsRouter = createTRPCRouter({
 			const flow = await generateDesignFlow(
 				promptWithContext,
 				input.images,
-				config,
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: input.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: input.projectId },
 				designSystem as unknown as DesignSystemContext,
 			);
 
 			const tempToReal = new Map<string, string>();
-			const createdDesigns: Prisma.DesignGetPayload<{ select: typeof designSelect }>[] = [];
+			const createdDesigns: Prisma.DesignGetPayload<{
+				select: typeof designSelect;
+			}>[] = [];
 			const currentExisting = [...existingDesigns];
 
 			for (const [index, design] of flow.designs.entries()) {
 				const fallbackName = `Flow Concept ${index + 1}`;
-				const name =
-					input.namePrefix && input.namePrefix.trim().length
-						? input.namePrefix.trim()
-						: fallbackName;
+				const name = input.namePrefix?.trim().length
+					? input.namePrefix.trim()
+					: fallbackName;
 
 				const position = calculateNextPosition(currentExisting);
 				const size = { width: 1200, height: 800 };
 
 				currentExisting.push({
-					position: position as any,
-					size: size as any
+					position: position as unknown as Prisma.JsonObject,
+					size: size as unknown as Prisma.JsonObject,
 				});
 
 				const created = await ctx.db.design.create({
@@ -476,7 +501,9 @@ export const designsRouter = createTRPCRouter({
 				createdDesigns.push(created);
 			}
 
-			const createdConnections: any[] = [];
+			const createdConnections: Prisma.DesignConnectionGetPayload<{
+				select: typeof connectionSelect;
+			}>[] = [];
 			for (const connection of flow.connections) {
 				const fromId = tempToReal.get(connection.from);
 				const toId = tempToReal.get(connection.to);
@@ -536,7 +563,13 @@ export const designsRouter = createTRPCRouter({
 				input.prompt,
 				input.images,
 				input.selector,
-				config,
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: input.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: input.projectId },
 			);
 
 			const designMap = new Map(designs.map((design) => [design.id, design]));
@@ -594,7 +627,16 @@ export const designsRouter = createTRPCRouter({
 			await assertProjectAccess(ctx, design.projectId, EDITOR_ACCESS);
 
 			const config = await getLlmConfig(ctx, AiFeature.EXTRACT_DESIGN_TOKENS);
-			const tokens = await extractDesignTokens(design.html ?? "", config);
+			const tokens = await extractDesignTokens(
+				design.html ?? "",
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: design.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: design.projectId },
+			);
 
 			await ctx.db.design.update({
 				where: { id: input.designId },
@@ -651,7 +693,17 @@ export const designsRouter = createTRPCRouter({
 			}
 
 			const config = await getLlmConfig(ctx, AiFeature.APPLY_DESIGN_TOKENS);
-			const updatedHtml = await applyDesignTokens(design.html ?? "", tokens, config);
+			const updatedHtml = await applyDesignTokens(
+				design.html ?? "",
+				tokens,
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: design.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: design.projectId },
+			);
 
 			const nextHistory = normalizeHistory(design.history);
 			nextHistory.push(updatedHtml.html);
@@ -697,7 +749,17 @@ export const designsRouter = createTRPCRouter({
 			await assertProjectAccess(ctx, design.projectId, EDITOR_ACCESS);
 
 			const config = await getLlmConfig(ctx, AiFeature.EXTRACT_COMPONENT);
-			const extracted = await extractComponent(design.html ?? "", input.selector, config);
+			const extracted = await extractComponent(
+				design.html ?? "",
+				input.selector,
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: design.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: design.projectId },
+			);
 
 			return extracted;
 		}),
@@ -733,14 +795,22 @@ export const designsRouter = createTRPCRouter({
 
 			await assertProjectAccess(ctx, design.projectId, VIEWER_ACCESS);
 
-			const config = await getLlmConfig(ctx, AiFeature.FIND_CLICKABLE_SELECTORS);
+			const config = await getLlmConfig(
+				ctx,
+				AiFeature.FIND_CLICKABLE_SELECTORS,
+			);
 			const selectors = await findClickableSelectorsForConnections(
 				design.html ?? "",
 				input.targets,
-				config,
+				config
+					? {
+							...config,
+							userId: ctx.session.user.id,
+							projectId: design.projectId,
+						}
+					: { userId: ctx.session.user.id, projectId: design.projectId },
 			);
 
 			return selectors;
 		}),
 });
-

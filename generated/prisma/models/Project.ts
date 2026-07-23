@@ -196,6 +196,7 @@ export type ProjectWhereInput = {
   components?: Prisma.ComponentListRelationFilter
   connections?: Prisma.DesignConnectionListRelationFilter
   designSystem?: Prisma.XOR<Prisma.DesignSystemNullableScalarRelationFilter, Prisma.DesignSystemWhereInput> | null
+  aiUsageLogs?: Prisma.AiUsageLogListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -211,6 +212,7 @@ export type ProjectOrderByWithRelationInput = {
   components?: Prisma.ComponentOrderByRelationAggregateInput
   connections?: Prisma.DesignConnectionOrderByRelationAggregateInput
   designSystem?: Prisma.DesignSystemOrderByWithRelationInput
+  aiUsageLogs?: Prisma.AiUsageLogOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -229,6 +231,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   components?: Prisma.ComponentListRelationFilter
   connections?: Prisma.DesignConnectionListRelationFilter
   designSystem?: Prisma.XOR<Prisma.DesignSystemNullableScalarRelationFilter, Prisma.DesignSystemWhereInput> | null
+  aiUsageLogs?: Prisma.AiUsageLogListRelationFilter
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -267,6 +270,7 @@ export type ProjectCreateInput = {
   components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -281,6 +285,7 @@ export type ProjectUncheckedCreateInput = {
   components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -295,6 +300,7 @@ export type ProjectUpdateInput = {
   components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -309,6 +315,7 @@ export type ProjectUncheckedUpdateInput = {
   components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -377,6 +384,11 @@ export type ProjectMinOrderByAggregateInput = {
 export type ProjectScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput
   isNot?: Prisma.ProjectWhereInput
+}
+
+export type ProjectNullableScalarRelationFilter = {
+  is?: Prisma.ProjectWhereInput | null
+  isNot?: Prisma.ProjectWhereInput | null
 }
 
 export type ProjectCreateNestedManyWithoutCreatedByInput = {
@@ -491,6 +503,22 @@ export type ProjectUpdateOneRequiredWithoutDesignSystemNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutDesignSystemInput, Prisma.ProjectUpdateWithoutDesignSystemInput>, Prisma.ProjectUncheckedUpdateWithoutDesignSystemInput>
 }
 
+export type ProjectCreateNestedOneWithoutAiUsageLogsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutAiUsageLogsInput, Prisma.ProjectUncheckedCreateWithoutAiUsageLogsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutAiUsageLogsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutAiUsageLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutAiUsageLogsInput, Prisma.ProjectUncheckedCreateWithoutAiUsageLogsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutAiUsageLogsInput
+  upsert?: Prisma.ProjectUpsertWithoutAiUsageLogsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutAiUsageLogsInput, Prisma.ProjectUpdateWithoutAiUsageLogsInput>, Prisma.ProjectUncheckedUpdateWithoutAiUsageLogsInput>
+}
+
 export type ProjectCreateWithoutCreatedByInput = {
   id?: string
   name: string
@@ -502,6 +530,7 @@ export type ProjectCreateWithoutCreatedByInput = {
   components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutCreatedByInput = {
@@ -515,6 +544,7 @@ export type ProjectUncheckedCreateWithoutCreatedByInput = {
   components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutCreatedByInput = {
@@ -565,6 +595,7 @@ export type ProjectCreateWithoutMembershipsInput = {
   components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMembershipsInput = {
@@ -578,6 +609,7 @@ export type ProjectUncheckedCreateWithoutMembershipsInput = {
   components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMembershipsInput = {
@@ -607,6 +639,7 @@ export type ProjectUpdateWithoutMembershipsInput = {
   components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMembershipsInput = {
@@ -620,6 +653,7 @@ export type ProjectUncheckedUpdateWithoutMembershipsInput = {
   components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutDesignsInput = {
@@ -633,6 +667,7 @@ export type ProjectCreateWithoutDesignsInput = {
   components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutDesignsInput = {
@@ -646,6 +681,7 @@ export type ProjectUncheckedCreateWithoutDesignsInput = {
   components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutDesignsInput = {
@@ -675,6 +711,7 @@ export type ProjectUpdateWithoutDesignsInput = {
   components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutDesignsInput = {
@@ -688,6 +725,7 @@ export type ProjectUncheckedUpdateWithoutDesignsInput = {
   components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutComponentsInput = {
@@ -701,6 +739,7 @@ export type ProjectCreateWithoutComponentsInput = {
   designs?: Prisma.DesignCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutComponentsInput = {
@@ -714,6 +753,7 @@ export type ProjectUncheckedCreateWithoutComponentsInput = {
   designs?: Prisma.DesignUncheckedCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutComponentsInput = {
@@ -743,6 +783,7 @@ export type ProjectUpdateWithoutComponentsInput = {
   designs?: Prisma.DesignUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutComponentsInput = {
@@ -756,6 +797,7 @@ export type ProjectUncheckedUpdateWithoutComponentsInput = {
   designs?: Prisma.DesignUncheckedUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutConnectionsInput = {
@@ -769,6 +811,7 @@ export type ProjectCreateWithoutConnectionsInput = {
   designs?: Prisma.DesignCreateNestedManyWithoutProjectInput
   components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutConnectionsInput = {
@@ -782,6 +825,7 @@ export type ProjectUncheckedCreateWithoutConnectionsInput = {
   designs?: Prisma.DesignUncheckedCreateNestedManyWithoutProjectInput
   components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
   designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutConnectionsInput = {
@@ -811,6 +855,7 @@ export type ProjectUpdateWithoutConnectionsInput = {
   designs?: Prisma.DesignUpdateManyWithoutProjectNestedInput
   components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutConnectionsInput = {
@@ -824,6 +869,7 @@ export type ProjectUncheckedUpdateWithoutConnectionsInput = {
   designs?: Prisma.DesignUncheckedUpdateManyWithoutProjectNestedInput
   components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutDesignSystemInput = {
@@ -837,6 +883,7 @@ export type ProjectCreateWithoutDesignSystemInput = {
   designs?: Prisma.DesignCreateNestedManyWithoutProjectInput
   components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutDesignSystemInput = {
@@ -850,6 +897,7 @@ export type ProjectUncheckedCreateWithoutDesignSystemInput = {
   designs?: Prisma.DesignUncheckedCreateNestedManyWithoutProjectInput
   components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
   connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutDesignSystemInput = {
@@ -879,6 +927,7 @@ export type ProjectUpdateWithoutDesignSystemInput = {
   designs?: Prisma.DesignUpdateManyWithoutProjectNestedInput
   components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutDesignSystemInput = {
@@ -892,6 +941,79 @@ export type ProjectUncheckedUpdateWithoutDesignSystemInput = {
   designs?: Prisma.DesignUncheckedUpdateManyWithoutProjectNestedInput
   components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutAiUsageLogsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy: Prisma.UserCreateNestedOneWithoutProjectsOwnedInput
+  memberships?: Prisma.ProjectMembershipCreateNestedManyWithoutProjectInput
+  designs?: Prisma.DesignCreateNestedManyWithoutProjectInput
+  components?: Prisma.ComponentCreateNestedManyWithoutProjectInput
+  connections?: Prisma.DesignConnectionCreateNestedManyWithoutProjectInput
+  designSystem?: Prisma.DesignSystemCreateNestedOneWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutAiUsageLogsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdById: string
+  memberships?: Prisma.ProjectMembershipUncheckedCreateNestedManyWithoutProjectInput
+  designs?: Prisma.DesignUncheckedCreateNestedManyWithoutProjectInput
+  components?: Prisma.ComponentUncheckedCreateNestedManyWithoutProjectInput
+  connections?: Prisma.DesignConnectionUncheckedCreateNestedManyWithoutProjectInput
+  designSystem?: Prisma.DesignSystemUncheckedCreateNestedOneWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutAiUsageLogsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutAiUsageLogsInput, Prisma.ProjectUncheckedCreateWithoutAiUsageLogsInput>
+}
+
+export type ProjectUpsertWithoutAiUsageLogsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutAiUsageLogsInput, Prisma.ProjectUncheckedUpdateWithoutAiUsageLogsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutAiUsageLogsInput, Prisma.ProjectUncheckedCreateWithoutAiUsageLogsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutAiUsageLogsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutAiUsageLogsInput, Prisma.ProjectUncheckedUpdateWithoutAiUsageLogsInput>
+}
+
+export type ProjectUpdateWithoutAiUsageLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutProjectsOwnedNestedInput
+  memberships?: Prisma.ProjectMembershipUpdateManyWithoutProjectNestedInput
+  designs?: Prisma.DesignUpdateManyWithoutProjectNestedInput
+  components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
+  connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
+  designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutAiUsageLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  memberships?: Prisma.ProjectMembershipUncheckedUpdateManyWithoutProjectNestedInput
+  designs?: Prisma.DesignUncheckedUpdateManyWithoutProjectNestedInput
+  components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
+  connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
+  designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyCreatedByInput = {
@@ -913,6 +1035,7 @@ export type ProjectUpdateWithoutCreatedByInput = {
   components?: Prisma.ComponentUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutCreatedByInput = {
@@ -926,6 +1049,7 @@ export type ProjectUncheckedUpdateWithoutCreatedByInput = {
   components?: Prisma.ComponentUncheckedUpdateManyWithoutProjectNestedInput
   connections?: Prisma.DesignConnectionUncheckedUpdateManyWithoutProjectNestedInput
   designSystem?: Prisma.DesignSystemUncheckedUpdateOneWithoutProjectNestedInput
+  aiUsageLogs?: Prisma.AiUsageLogUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutCreatedByInput = {
@@ -946,6 +1070,7 @@ export type ProjectCountOutputType = {
   designs: number
   components: number
   connections: number
+  aiUsageLogs: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -953,6 +1078,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   designs?: boolean | ProjectCountOutputTypeCountDesignsArgs
   components?: boolean | ProjectCountOutputTypeCountComponentsArgs
   connections?: boolean | ProjectCountOutputTypeCountConnectionsArgs
+  aiUsageLogs?: boolean | ProjectCountOutputTypeCountAiUsageLogsArgs
 }
 
 /**
@@ -993,6 +1119,13 @@ export type ProjectCountOutputTypeCountConnectionsArgs<ExtArgs extends runtime.T
   where?: Prisma.DesignConnectionWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountAiUsageLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AiUsageLogWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1007,6 +1140,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   components?: boolean | Prisma.Project$componentsArgs<ExtArgs>
   connections?: boolean | Prisma.Project$connectionsArgs<ExtArgs>
   designSystem?: boolean | Prisma.Project$designSystemArgs<ExtArgs>
+  aiUsageLogs?: boolean | Prisma.Project$aiUsageLogsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1047,6 +1181,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   components?: boolean | Prisma.Project$componentsArgs<ExtArgs>
   connections?: boolean | Prisma.Project$connectionsArgs<ExtArgs>
   designSystem?: boolean | Prisma.Project$designSystemArgs<ExtArgs>
+  aiUsageLogs?: boolean | Prisma.Project$aiUsageLogsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1065,6 +1200,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     components: Prisma.$ComponentPayload<ExtArgs>[]
     connections: Prisma.$DesignConnectionPayload<ExtArgs>[]
     designSystem: Prisma.$DesignSystemPayload<ExtArgs> | null
+    aiUsageLogs: Prisma.$AiUsageLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1473,6 +1609,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   components<T extends Prisma.Project$componentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$componentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   connections<T extends Prisma.Project$connectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$connectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DesignConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   designSystem<T extends Prisma.Project$designSystemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$designSystemArgs<ExtArgs>>): Prisma.Prisma__DesignSystemClient<runtime.Types.Result.GetResult<Prisma.$DesignSystemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  aiUsageLogs<T extends Prisma.Project$aiUsageLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$aiUsageLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2019,6 +2156,30 @@ export type Project$designSystemArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.DesignSystemInclude<ExtArgs> | null
   where?: Prisma.DesignSystemWhereInput
+}
+
+/**
+ * Project.aiUsageLogs
+ */
+export type Project$aiUsageLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AiUsageLog
+   */
+  select?: Prisma.AiUsageLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AiUsageLog
+   */
+  omit?: Prisma.AiUsageLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AiUsageLogInclude<ExtArgs> | null
+  where?: Prisma.AiUsageLogWhereInput
+  orderBy?: Prisma.AiUsageLogOrderByWithRelationInput | Prisma.AiUsageLogOrderByWithRelationInput[]
+  cursor?: Prisma.AiUsageLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AiUsageLogScalarFieldEnum | Prisma.AiUsageLogScalarFieldEnum[]
 }
 
 /**

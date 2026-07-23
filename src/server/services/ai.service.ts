@@ -3,13 +3,27 @@
  * Generic AI service that uses the LlmManager for provider-agnostic generation.
  */
 
+import { createHash } from "node:crypto";
 import {
+	type DeepPartial,
 	generateText,
+	type LanguageModelUsage,
 	type ModelMessage,
+	type ObjectStreamPart,
 	Output,
+	streamObject,
 	type UserModelMessage,
 } from "ai";
+import { Effect, Stream, TSemaphore } from "effect";
 import { z } from "zod";
+import { db } from "@/server/db";
+import {
+	AiNonRetryableError,
+	type AiReliabilityError,
+	classifyAiError,
+	executeAiOperation,
+	getAiRateLimitSemaphore,
+} from "@/server/lib/effect/ai-reliability";
 import { LlmManager } from "@/server/lib/llm";
 import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 import type {
@@ -22,23 +36,221 @@ import type {
 } from "@/types/shared";
 import { LlmProvider } from "../../../generated/prisma/client";
 
+const AI_REQUEST_TIMEOUT = "45 seconds";
+const MAX_LOG_ERROR_MESSAGE_LENGTH = 1_000;
+
 export type AiConfig = {
 	provider?: LlmProvider;
 	apiKey?: string | null;
 	model?: string | null;
+	userId?: string | null;
+	projectId?: string | null;
+	rateLimitKey?: string | null;
 };
 
-const createClient = (config?: AiConfig) => {
-	const provider = config?.provider || LlmProvider.GOOGLE;
-	const apiKey = config?.apiKey || LlmManager.getDefaultApiKey(provider);
+type ResolvedAiConfig = {
+	provider: LlmProvider;
+	apiKey: string;
+	modelId: string;
+	model: ReturnType<typeof LlmManager.createModel>;
+	userId: string | null;
+	projectId: string | null;
+	rateLimitKey: string;
+};
+
+type StructuredAiCallOptions<T> = {
+	operation: string;
+	schema: z.ZodType<T>;
+	messages: ModelMessage[];
+	config?: AiConfig;
+	failureMessage: string;
+	logLabel: string;
+};
+
+type AiUsageLogInput = {
+	resolvedConfig: ResolvedAiConfig;
+	operation: string;
+	usage?: LanguageModelUsage;
+	latencyMs: number;
+	success: boolean;
+	errorMessage?: string;
+};
+
+const createClient = (config?: AiConfig): ResolvedAiConfig | null => {
+	const provider = config?.provider ?? LlmProvider.GOOGLE;
+	const apiKey = config?.apiKey ?? LlmManager.getDefaultApiKey(provider);
 	if (!apiKey) return null;
 
-	return LlmManager.createModel({
+	const modelId = config?.model ?? LlmManager.getDefaultModel(provider);
+
+	return {
 		provider,
 		apiKey,
-		model: config?.model || LlmManager.getDefaultModel(provider),
-	});
+		modelId,
+		model: LlmManager.createModel({
+			provider,
+			apiKey,
+			model: modelId,
+		}),
+		userId: config?.userId ?? null,
+		projectId: config?.projectId ?? null,
+		rateLimitKey:
+			config?.rateLimitKey ??
+			createRateLimitScopeKey(provider, apiKey, config?.userId),
+	};
 };
+
+function createRateLimitScopeKey(
+	provider: LlmProvider,
+	apiKey: string,
+	userId?: string | null,
+) {
+	if (userId) {
+		return `user:${userId}`;
+	}
+
+	const apiKeyHash = createHash("sha256")
+		.update(`${provider}:${apiKey}`)
+		.digest("hex")
+		.slice(0, 16);
+	return `api-key:${apiKeyHash}`;
+}
+
+function toLogErrorMessage(error: unknown) {
+	if (error instanceof Error) {
+		return error.message.slice(0, MAX_LOG_ERROR_MESSAGE_LENGTH);
+	}
+
+	if (typeof error === "string") {
+		return error.slice(0, MAX_LOG_ERROR_MESSAGE_LENGTH);
+	}
+
+	return "Unknown AI service failure.";
+}
+
+async function logAiUsage({
+	resolvedConfig,
+	operation,
+	usage,
+	latencyMs,
+	success,
+	errorMessage,
+}: AiUsageLogInput) {
+	try {
+		await db.aiUsageLog.create({
+			data: {
+				userId: resolvedConfig.userId,
+				projectId: resolvedConfig.projectId,
+				operation,
+				provider: resolvedConfig.provider,
+				model: resolvedConfig.modelId,
+				promptTokens: usage?.inputTokens ?? null,
+				completionTokens: usage?.outputTokens ?? null,
+				totalTokens: usage?.totalTokens ?? null,
+				latencyMs,
+				success,
+				errorMessage:
+					errorMessage?.slice(0, MAX_LOG_ERROR_MESSAGE_LENGTH) ?? null,
+			},
+		});
+	} catch (logError) {
+		console.error("Failed to write AI usage log:", logError);
+	}
+}
+
+async function runStructuredAiCall<T>({
+	operation,
+	schema,
+	messages,
+	config,
+	failureMessage,
+	logLabel,
+}: StructuredAiCallOptions<T>): Promise<T> {
+	const resolvedConfig = createClient(config);
+	if (!resolvedConfig) {
+		throw new Error("No API key configured for the selected provider");
+	}
+
+	const startedAt = Date.now();
+
+	try {
+		const { result, usage } = await Effect.runPromise(
+			executeAiOperation(
+				{
+					operation,
+					provider: resolvedConfig.provider,
+					model: resolvedConfig.modelId,
+					scopeKey: resolvedConfig.rateLimitKey,
+					timeout: AI_REQUEST_TIMEOUT,
+				},
+				async () => {
+					const { output, usage } = await generateText({
+						model: resolvedConfig.model,
+						output: Output.object({ schema }),
+						messages,
+						maxRetries: 0,
+					});
+
+					return { result: output, usage };
+				},
+			),
+		);
+
+		await logAiUsage({
+			resolvedConfig,
+			operation,
+			usage,
+			latencyMs: Date.now() - startedAt,
+			success: true,
+		});
+
+		return result;
+	} catch (error) {
+		const classifiedError = classifyAiError(error, {
+			operation,
+			provider: resolvedConfig.provider,
+			model: resolvedConfig.modelId,
+		});
+
+		await logAiUsage({
+			resolvedConfig,
+			operation,
+			latencyMs: Date.now() - startedAt,
+			success: false,
+			errorMessage: toLogErrorMessage(classifiedError),
+		});
+
+		console.error(logLabel, error);
+		throw new Error(failureMessage);
+	}
+}
+
+function buildDesignSystemContext(designSystem?: DesignSystemContext | null) {
+	if (!designSystem) {
+		return "";
+	}
+
+	return `
+IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use arbitrary colors or fonts.
+- Colors:
+  - Primary: ${designSystem.colors.primary}
+  - Secondary: ${designSystem.colors.secondary}
+  - Background: ${designSystem.colors.background}
+  - Foreground: ${designSystem.colors.foreground}
+  - Muted: ${designSystem.colors.muted}
+  - Border: ${designSystem.colors.border}
+- Typography:
+  - Font Family: ${designSystem.typography.fontFamily}
+  - Heading Font: ${designSystem.typography.headingFont || designSystem.typography.fontFamily}
+  - Base Size: ${designSystem.typography.baseSize}
+- Radius:
+  - Small: ${designSystem.radius.small}
+  - Medium: ${designSystem.radius.medium}
+  - Large: ${designSystem.radius.large}
+
+Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
+`;
+}
 
 // Zod schemas for structured outputs
 const designItemSchema = z.object({
@@ -152,6 +364,14 @@ const clickableSelectorSchema = z.object({
 
 const clickableSelectorsSchema = z.array(clickableSelectorSchema);
 
+const componentExtractionSchema = z.object({
+	componentHtml: z
+		.string()
+		.describe(
+			"The extracted, self-contained HTML code for the requested component.",
+		),
+});
+
 function buildMessages(
 	prompt: string,
 	images?: AttachedImage[] | null,
@@ -173,6 +393,95 @@ function buildMessages(
 	return [{ role: "user", content }];
 }
 
+export type DesignGenerationStreamChunk = ObjectStreamPart<
+	DeepPartial<z.infer<typeof generationSchema>>
+>;
+
+export function streamDesignGeneration(
+	prompt: string,
+	count: number,
+	images?: AttachedImage[] | null,
+	config?: AiConfig,
+	designSystem?: DesignSystemContext | null,
+): Stream.Stream<DesignGenerationStreamChunk, AiReliabilityError> {
+	const resolvedConfig = createClient(config);
+	if (!resolvedConfig) {
+		return Stream.fail(
+			new AiNonRetryableError({
+				operation: "stream-design-generation",
+				provider: config?.provider ?? LlmProvider.GOOGLE,
+				model:
+					config?.model ??
+					LlmManager.getDefaultModel(config?.provider ?? LlmProvider.GOOGLE),
+				message: "No API key configured for the selected provider",
+			}),
+		);
+	}
+
+	const designSystemContext = buildDesignSystemContext(designSystem);
+	const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
+
+	return Stream.unwrapScoped(
+		Effect.gen(function* () {
+			yield* TSemaphore.withPermitScoped(
+				getAiRateLimitSemaphore(resolvedConfig.rateLimitKey),
+			);
+
+			const startedAt = Date.now();
+			const streamResult = yield* Effect.try({
+				try: () =>
+					streamObject({
+						model: resolvedConfig.model,
+						schema: generationSchema,
+						messages: buildMessages(fullPrompt, images),
+						maxRetries: 0,
+					}),
+				catch: (error) =>
+					classifyAiError(error, {
+						operation: "stream-design-generation",
+						provider: resolvedConfig.provider,
+						model: resolvedConfig.modelId,
+					}),
+			});
+
+			void streamResult.object
+				.then(async () => {
+					const usage = await streamResult.usage;
+					await logAiUsage({
+						resolvedConfig,
+						operation: "stream-design-generation",
+						usage,
+						latencyMs: Date.now() - startedAt,
+						success: true,
+					});
+				})
+				.catch(async (error) => {
+					const classifiedError = classifyAiError(error, {
+						operation: "stream-design-generation",
+						provider: resolvedConfig.provider,
+						model: resolvedConfig.modelId,
+					});
+
+					await logAiUsage({
+						resolvedConfig,
+						operation: "stream-design-generation",
+						latencyMs: Date.now() - startedAt,
+						success: false,
+						errorMessage: toLogErrorMessage(classifiedError),
+					});
+				});
+
+			return Stream.fromAsyncIterable(streamResult.fullStream, (error) =>
+				classifyAiError(error, {
+					operation: "stream-design-generation",
+					provider: resolvedConfig.provider,
+					model: resolvedConfig.modelId,
+				}),
+			);
+		}),
+	);
+}
+
 export async function generateDesigns(
 	prompt: string,
 	count: number,
@@ -180,53 +489,23 @@ export async function generateDesigns(
 	config?: AiConfig,
 	designSystem?: DesignSystemContext | null,
 ): Promise<GeneratedDesign[]> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
+	const designSystemContext = buildDesignSystemContext(designSystem);
+	const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
 
-	try {
-		const designSystemContext = designSystem
-			? `
-IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use arbitrary colors or fonts.
-- Colors:
-  - Primary: ${designSystem.colors.primary}
-  - Secondary: ${designSystem.colors.secondary}
-  - Background: ${designSystem.colors.background}
-  - Foreground: ${designSystem.colors.foreground}
-  - Muted: ${designSystem.colors.muted}
-  - Border: ${designSystem.colors.border}
-- Typography:
-  - Font Family: ${designSystem.typography.fontFamily}
-  - Heading Font: ${designSystem.typography.headingFont || designSystem.typography.fontFamily}
-  - Base Size: ${designSystem.typography.baseSize}
-- Radius:
-  - Small: ${designSystem.radius.small}
-  - Medium: ${designSystem.radius.medium}
-  - Large: ${designSystem.radius.large}
-
-Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
-`
-			: "";
-
-		const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
-
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: generationSchema }),
-			messages: buildMessages(fullPrompt, images),
-		});
-
-		return output.map((item) => ({
-			...item,
-			html: sanitizeGeneratedHtml(item.html),
-		}));
-	} catch (error) {
-		console.error("Error generating designs:", error);
-		throw new Error(
+	const output = await runStructuredAiCall({
+		operation: "generate-designs",
+		schema: generationSchema,
+		messages: buildMessages(fullPrompt, images),
+		config,
+		failureMessage:
 			"Failed to generate designs. Please check the prompt and try again.",
-		);
-	}
+		logLabel: "Error generating designs:",
+	});
+
+	return output.map((item) => ({
+		...item,
+		html: sanitizeGeneratedHtml(item.html),
+	}));
 }
 
 export async function generateDesignFlow(
@@ -235,36 +514,8 @@ export async function generateDesignFlow(
 	config?: AiConfig,
 	designSystem?: DesignSystemContext | null,
 ): Promise<GeneratedFlow> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
-
-	try {
-		const designSystemContext = designSystem
-			? `
-IMPORTANT: You MUST STRICTLY adhere to the following Design System. Do not use arbitrary colors or fonts.
-- Colors:
-  - Primary: ${designSystem.colors.primary}
-  - Secondary: ${designSystem.colors.secondary}
-  - Background: ${designSystem.colors.background}
-  - Foreground: ${designSystem.colors.foreground}
-  - Muted: ${designSystem.colors.muted}
-  - Border: ${designSystem.colors.border}
-- Typography:
-  - Font Family: ${designSystem.typography.fontFamily}
-  - Heading Font: ${designSystem.typography.headingFont || designSystem.typography.fontFamily}
-  - Base Size: ${designSystem.typography.baseSize}
-- Radius:
-  - Small: ${designSystem.radius.small}
-  - Medium: ${designSystem.radius.medium}
-  - Large: ${designSystem.radius.large}
-
-Use Tailwind arbitrary values (e.g. bg-[${designSystem.colors.background}]) if the design system colors do not map directly to standard Tailwind colors.
-`
-			: "";
-
-		const fullPrompt = `You are an expert UI/UX designer specializing in user flows. Based on the user's prompt (and the provided image(s), if any), generate a series of connected UI designs that represent a complete user flow. The user's prompt is: "${prompt}".
+	const designSystemContext = buildDesignSystemContext(designSystem);
+	const fullPrompt = `You are an expert UI/UX designer specializing in user flows. Based on the user's prompt (and the provided image(s), if any), generate a series of connected UI designs that represent a complete user flow. The user's prompt is: "${prompt}".
 
 Your task is to:
 1.  Identify the key screens or states in the described flow.
@@ -272,25 +523,23 @@ Your task is to:
 3.  Define the connections between these screens. For a standard left-to-right flow, connect the 'right' side of one component to the 'left' side of the next.
 4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. ${designSystemContext}`;
 
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: flowGenerationSchema }),
-			messages: buildMessages(fullPrompt, images),
-		});
-
-		return {
-			...output,
-			designs: output.designs.map((d) => ({
-				...d,
-				html: sanitizeGeneratedHtml(d.html),
-			})),
-		} as GeneratedFlow;
-	} catch (error) {
-		console.error("Error generating design flow:", error);
-		throw new Error(
+	const output = await runStructuredAiCall({
+		operation: "generate-design-flow",
+		schema: flowGenerationSchema,
+		messages: buildMessages(fullPrompt, images),
+		config,
+		failureMessage:
 			"Failed to generate design flow. Please check the prompt and try again.",
-		);
-	}
+		logLabel: "Error generating design flow:",
+	});
+
+	return {
+		...output,
+		designs: output.designs.map((design) => ({
+			...design,
+			html: sanitizeGeneratedHtml(design.html),
+		})),
+	} as GeneratedFlow;
 }
 
 export async function modifyDesigns(
@@ -300,34 +549,26 @@ export async function modifyDesigns(
 	selector?: string | null,
 	config?: AiConfig,
 ): Promise<ModifiedDesign[]> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
+	const promptContext = selector
+		? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selector}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
+		: `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
 
-	try {
-		const promptContext = selector
-			? `The user's instruction is: "${modificationPrompt}". This change should be applied specifically to the element identified by the CSS selector: "${selector}". Be precise and only modify that element and its children if necessary, preserving the rest of the structure.`
-			: `The user's instruction is: "${modificationPrompt}". Apply this change to the entire component.`;
+	const fullPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} The designs to modify are provided below as a JSON array of objects, each with an "id" and its current "html". Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nDesigns to modify: ${JSON.stringify(designsToModify)}`;
 
-		const fullPrompt = `You are an expert UI/UX designer. The user wants to modify some existing designs, possibly using an image or images as a reference. ${promptContext} The designs to modify are provided below as a JSON array of objects, each with an "id" and its current "html". Apply the user's instruction to each of the provided designs. Return a JSON array containing objects for EACH of the modified designs. Each object must have the original "id" and the new "html". Ensure the new HTML is self-contained and uses only Tailwind CSS classes. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. \n\nDesigns to modify: ${JSON.stringify(designsToModify)}`;
-
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: modificationSchema }),
-			messages: buildMessages(fullPrompt, images),
-		});
-
-		return output.map((item) => ({
-			...item,
-			html: sanitizeGeneratedHtml(item.html),
-		}));
-	} catch (error) {
-		console.error("Error modifying designs:", error);
-		throw new Error(
+	const output = await runStructuredAiCall({
+		operation: "modify-designs",
+		schema: modificationSchema,
+		messages: buildMessages(fullPrompt, images),
+		config,
+		failureMessage:
 			"Failed to modify designs. The model may not have been able to apply the changes.",
-		);
-	}
+		logLabel: "Error modifying designs:",
+	});
+
+	return output.map((item) => ({
+		...item,
+		html: sanitizeGeneratedHtml(item.html),
+	}));
 }
 
 export async function applyDesignTokens(
@@ -335,13 +576,7 @@ export async function applyDesignTokens(
 	tokens: DesignTokens,
 	config?: AiConfig,
 ): Promise<{ html: string }> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
-
-	try {
-		const fullPrompt = `You are an expert UI/UX designer specializing in design systems. Your task is to refactor an HTML component to match a new visual style defined by a set of design tokens.
+	const fullPrompt = `You are an expert UI/UX designer specializing in design systems. Your task is to refactor an HTML component to match a new visual style defined by a set of design tokens.
 
 **Instructions:**
 1. Analyze the provided HTML and identify its structural elements (buttons, text, containers, etc.).
@@ -358,30 +593,23 @@ ${JSON.stringify(tokens)}
 **Original HTML:**
 ${html}`;
 
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: singleModificationSchema }),
-			messages: [{ role: "user", content: fullPrompt }],
-		});
+	const output = await runStructuredAiCall({
+		operation: "apply-design-tokens",
+		schema: singleModificationSchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config,
+		failureMessage: "Failed to apply the design style.",
+		logLabel: "Error applying design tokens:",
+	});
 
-		return { html: sanitizeGeneratedHtml(output.html) };
-	} catch (error) {
-		console.error("Error applying design tokens:", error);
-		throw new Error("Failed to apply the design style.");
-	}
+	return { html: sanitizeGeneratedHtml(output.html) };
 }
 
 export async function extractDesignTokens(
 	html: string,
 	config?: AiConfig,
 ): Promise<DesignTokens> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
-
-	try {
-		const fullPrompt = `You are a design system specialist. Analyze the provided HTML and extract the design tokens used.
+	const fullPrompt = `You are a design system specialist. Analyze the provided HTML and extract the design tokens used.
         
         Categorize colors into:
         - Backgrounds
@@ -394,25 +622,23 @@ export async function extractDesignTokens(
 
         Return a JSON object that follows the provided schema. \n\nHTML:\n${html}`;
 
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: designTokenSchema }),
-			messages: [{ role: "user", content: fullPrompt }],
-		});
+	const output = await runStructuredAiCall({
+		operation: "extract-design-tokens",
+		schema: designTokenSchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config,
+		failureMessage: "Failed to extract design tokens.",
+		logLabel: "Error extracting design tokens:",
+	});
 
-		// Post-process to ensure uniqueness
-		output.colors.background = [...new Set(output.colors.background)];
-		output.colors.text = [...new Set(output.colors.text)];
-		output.colors.primary = [...new Set(output.colors.primary)];
-		output.colors.border = [...new Set(output.colors.border)];
-		output.borderRadius = [...new Set(output.borderRadius)];
-		output.boxShadow = [...new Set(output.boxShadow)];
+	output.colors.background = [...new Set(output.colors.background)];
+	output.colors.text = [...new Set(output.colors.text)];
+	output.colors.primary = [...new Set(output.colors.primary)];
+	output.colors.border = [...new Set(output.colors.border)];
+	output.borderRadius = [...new Set(output.borderRadius)];
+	output.boxShadow = [...new Set(output.boxShadow)];
 
-		return output;
-	} catch (error) {
-		console.error("Error extracting design tokens:", error);
-		throw new Error("Failed to extract design tokens.");
-	}
+	return output;
 }
 
 export async function findClickableSelectorsForConnections(
@@ -420,13 +646,7 @@ export async function findClickableSelectorsForConnections(
 	targets: { connectionId: string; targetDescription: string }[],
 	config?: AiConfig,
 ): Promise<{ connectionId: string; selector: string | null }[]> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
-
-	try {
-		const fullPrompt = `You are an expert UI analyst. Your task is to identify the clickable elements in a source HTML document that are most likely intended to navigate to specific target screens.
+	const fullPrompt = `You are an expert UI analyst. Your task is to identify the clickable elements in a source HTML document that are most likely intended to navigate to specific target screens.
 
 **Source HTML:**
 \`\`\`html
@@ -445,53 +665,34 @@ ${JSON.stringify(targets, null, 2)}
 
 Your response must be a JSON array that conforms to the provided schema.`;
 
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: clickableSelectorsSchema }),
-			messages: [{ role: "user", content: fullPrompt }],
-		});
-
-		return output;
-	} catch (error) {
-		console.error("Error finding clickable selectors:", error);
-		throw new Error(
+	return runStructuredAiCall({
+		operation: "find-clickable-selectors",
+		schema: clickableSelectorsSchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config,
+		failureMessage:
 			"AI failed to identify interactive elements for the prototype.",
-		);
-	}
+		logLabel: "Error finding clickable selectors:",
+	});
 }
-
-const componentExtractionSchema = z.object({
-	componentHtml: z
-		.string()
-		.describe(
-			"The extracted, self-contained HTML code for the requested component.",
-		),
-});
 
 export async function extractComponent(
 	html: string,
 	selector: string,
 	config?: AiConfig,
 ): Promise<{ componentHtml: string }> {
-	const model = createClient(config);
-	if (!model) {
-		throw new Error("No API key configured for the selected provider");
-	}
+	const fullPrompt = `You are an expert code refactoring assistant. Given the following HTML and a CSS selector, extract the HTML for the element matching the selector and its children. Clean it up to be a self-contained, reusable component, ensuring all necessary Tailwind classes are present. Return a JSON object with the key "componentHtml".\n\nFull HTML:\n${html}\n\nCSS Selector:\n${selector}`;
 
-	try {
-		const fullPrompt = `You are an expert code refactoring assistant. Given the following HTML and a CSS selector, extract the HTML for the element matching the selector and its children. Clean it up to be a self-contained, reusable component, ensuring all necessary Tailwind classes are present. Return a JSON object with the key "componentHtml".\n\nFull HTML:\n${html}\n\nCSS Selector:\n${selector}`;
+	const output = await runStructuredAiCall({
+		operation: "extract-component",
+		schema: componentExtractionSchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config,
+		failureMessage: "Failed to extract the component.",
+		logLabel: "Error extracting component:",
+	});
 
-		const { output } = await generateText({
-			model,
-			output: Output.object({ schema: componentExtractionSchema }),
-			messages: [{ role: "user", content: fullPrompt }],
-		});
-
-		return { componentHtml: sanitizeGeneratedHtml(output.componentHtml) };
-	} catch (error) {
-		console.error("Error extracting component:", error);
-		throw new Error("Failed to extract the component.");
-	}
+	return { componentHtml: sanitizeGeneratedHtml(output.componentHtml) };
 }
 
 export function parseTokens(tokens: unknown): DesignTokens | undefined {
@@ -503,4 +704,3 @@ export function parseTokens(tokens: unknown): DesignTokens | undefined {
 	}
 	return undefined;
 }
-
