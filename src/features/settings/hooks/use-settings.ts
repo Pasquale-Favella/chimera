@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
-import { LlmProvider } from "../../../../generated/prisma";
+import { LlmProvider } from "../../../../generated/prisma/client";
 
 export function useSettings() {
     const utils = api.useUtils();
@@ -85,3 +85,4 @@ export function useSettings() {
         deleteApiKey,
     };
 }
+

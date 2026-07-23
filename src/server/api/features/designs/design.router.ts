@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { Prisma, DesignViewMode, ConnectionPosition, LlmProvider } from "../../../../../generated/prisma";
+import { Prisma, DesignViewMode, ConnectionPosition, LlmProvider } from "../../../../../generated/prisma/client";
 
 import { createTRPCRouter, protectedProcedure, type ProtectedContext } from "@/server/api/trpc";
 import {
@@ -743,3 +743,4 @@ export const designsRouter = createTRPCRouter({
 			return selectors;
 		}),
 });
+

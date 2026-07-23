@@ -5,7 +5,7 @@
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { BaseLlmProvider, type ProviderConfig } from "../types";
-import { LlmProvider } from "../../../../../generated/prisma";
+import { LlmProvider } from "../../../../../generated/prisma/client";
 import type { LlmModelInfo } from "@/types/llm";
 
 /** Static fallback models for when API fetch fails */
@@ -44,3 +44,4 @@ export class OpenRouterProvider extends BaseLlmProvider {
         }
     }
 }
+

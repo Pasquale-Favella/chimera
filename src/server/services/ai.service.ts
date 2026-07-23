@@ -7,7 +7,7 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { LlmManager } from "@/server/lib/llm";
 import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
-import { LlmProvider } from "../../../generated/prisma";
+import { LlmProvider } from "../../../generated/prisma/client";
 import type {
     AttachedImage,
     DesignSystemContext,
@@ -474,3 +474,4 @@ export function parseTokens(tokens: unknown): DesignTokens | undefined {
     }
     return undefined;
 }
+
