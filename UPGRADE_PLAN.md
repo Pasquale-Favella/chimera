@@ -11,6 +11,7 @@
 | 3 | B-ai-core sequential: ai-reliability → structured-ui-schema (this one is inherently linear, cannot parallelize — each step is a precondition for the next) | structured-ui-schema merged and passes full canvas regression |
 | 4 | E-editing-ux (props panel), F-collab (real-time + branching versioning), C-mastra (patch-based refinement) — all three only need the schema, independent of each other | all green |
 | 5 | deps-next-major (Next 15→16, done last since it touches everything) | — |
+| 6 | G-effect-rpc: full tRPC → @effect/rpc migration (foundation → auth layer → per-router ports in parallel → client migration → cutover). Deliberately the very last wave — bigger blast radius than the Next.js major bump, so it only starts once everything else is stable | full regression + streaming verified |
 
 **Standard per-task QA loop (applied to every todo, not just described once):**
 1. **Implement** — either do it directly, or delegate mechanical/boilerplate work to `opencode run "<prompt>"` so architecture-level work stays with the primary agent in the same wave.
@@ -44,6 +45,7 @@
 | 3 | v0.3.0 |
 | 4 | v0.4.0 |
 | 5 | v1.0.0 |
+| 6 | v2.0.0 (major, breaking internal transport change) |
 
 ## Checklist
 
@@ -122,7 +124,7 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
 ### Wave 3 — strictly sequential (cannot parallelize)
 - [ ] **B-ai-core: AI reliability layer** (`ai-reliability`) — depends on AI SDK v7
   - [ ] Branch `feature/ai-reliability` off `develop`
-  - [ ] Implement retry/backoff/timeout, rate limiting, `AiUsageLog`, `streamObject` conversion
+  - [ ] Implement retry/backoff/timeout, rate limiting, `AiUsageLog`, `streamObject` conversion — **build this internally on the `effect` core library** (`Effect.retry` + `Schedule` for backoff, `Effect.timeout`, `Effect.Stream` for the streaming conversion) rather than hand-rolled retry logic. This is a deliberate forward-compatibility choice: Wave 6 replaces the tRPC *transport* around `ai.service.ts`, and if the reliability/streaming logic underneath is already Effect-native, Wave 6 becomes a much smaller transport-only swap instead of a rewrite of both layers at once.
   - [ ] code-review sub-agent pass
   - [ ] load + failure-injection test
   - [ ] Merged to `develop`
@@ -151,17 +153,56 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
 - [ ] Tag `develop` as `v0.4.0` (no merge/push to `main`)
 - [ ] Push tag to `origin`
 
-### Wave 5 — final, after everything else is stable
+### Wave 5 — after everything else is stable
 - [ ] **A-hygiene: Upgrade Next.js 15→16** (`deps-next-major`)
   - [ ] Branch, bump Next major, code-review, full e2e smoke test (canvas, auth, tRPC, MCP routes), merge
 
-**Wave 5 release gate (final):**
+**Wave 5 release gate:**
 - [ ] Full regression pass on `develop`
 - [ ] Tag `develop` as `v1.0.0` (no merge/push to `main`)
 - [ ] Push tag to `origin`
 
+### Wave 6 — final: full tRPC → @effect/rpc migration (mostly sequential)
+Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/server`/`@trpc/react-query`) with `effect` + `@effect/rpc` across the entire app — bigger blast radius than the Next.js major bump (Wave 5), since it touches every router, every client call site, and the auth middleware, not just the framework version. Only starts once Waves 1–5 are stable so this migration isn't fighting a moving target.
+
+**Why**: `@effect/rpc` gives first-class streaming RPC endpoints (`Rpc.StreamRequest`) that tRPC lacks, so AI design generation can stream partial HTML/tokens into the canvas incrementally instead of blocking on a single `generateText` round-trip — a meaningful UX differentiator against Stitch/OpenDesign's non-streaming generation. It also unifies error handling (tagged Effect errors replacing ad hoc `TRPCError`s) and composes cleanly with the `Effect`-native reliability/streaming layer built in Wave 3's `ai-reliability` task, so this wave is primarily a *transport* swap around already-Effectful business logic rather than a rewrite of both at once.
+
+- [ ] **G-effect-rpc: Foundation** (`effect-rpc-foundation`) — sequential, blocks the rest of this wave
+  - [ ] Branch `feature/effect-rpc-foundation` off `develop`
+  - [ ] Install `effect`, `@effect/rpc`, `@effect/platform` (+ Next.js-appropriate platform adapter); define Effect `Schema` versions/bridges for the existing Zod schemas; scaffold an `RpcRouter` and a single `app/api/rpc/route.ts` handler analogous to today's `app/api/trpc/[trpc]/route.ts`
+  - [ ] code-review sub-agent pass
+  - [ ] smoke test: one trivial round-trip RPC call end-to-end
+  - [ ] Merged to `develop`
+- [ ] **G-effect-rpc: Auth layer** (`effect-rpc-auth-layer`) — sequential, depends on foundation
+  - [ ] Branch, port Better Auth session resolution into an Effect `Layer`/`Context.Tag` providing `CurrentUser` (replacing `protectedProcedure`); model `Unauthorized`/`Forbidden` as tagged Effect errors (replacing `TRPCError`)
+  - [ ] code-review sub-agent pass
+  - [ ] auth-rejection + happy-path test
+  - [ ] Merged to `develop`
+- [ ] **G-effect-rpc: Router ports** — parallel, all depend only on the auth layer, independent of each other
+  - [ ] `effect-rpc-projects` (opencode-delegated: projects + permissions router)
+  - [ ] `effect-rpc-designs` (self: designs router — the largest port, converts `aiGenerate`/`aiModify`/`aiGenerateFlow` to `Rpc.StreamRequest`-based streaming)
+  - [ ] `effect-rpc-components` (opencode-delegated: components router)
+  - [ ] `effect-rpc-settings-misc` (opencode-delegated: user settings, LLM API keys, API key management)
+  - [ ] Each: branch, implement, code-review pass, run both old tRPC route and new Effect RPC route side-by-side and diff outputs before removing the old path, merge to `develop`
+- [ ] **G-effect-rpc: Client migration** (`effect-rpc-client-migration`) — sequential, depends on all router ports; highest blast radius (touches every component)
+  - [ ] Branch, replace every `api.<router>.<procedure>.useQuery/useMutation` call site across `src/features/**` and `src/app/**` with the Effect RPC client, wrapped in a thin React-Query-compatible hook layer to minimize component-level churn
+  - [ ] rubber-duck + code-review sub-agent pass (large diff, high risk of missed call sites)
+  - [ ] full UI regression pass across every feature area
+  - [ ] Merged to `develop`
+- [ ] **G-effect-rpc: Cutover + cleanup** (`effect-rpc-cutover-cleanup`) — final task of the whole plan
+  - [ ] Branch, remove `@trpc/client`/`@trpc/server`/`@trpc/react-query`, delete `src/server/api/trpc.ts` + old routers + `app/api/trpc/[trpc]/route.ts`
+  - [ ] code-review sub-agent pass
+  - [ ] full regression + explicit verification that AI generation now streams incrementally into the canvas
+  - [ ] Merged to `develop`
+
+**Wave 6 release gate (final):**
+- [ ] Full regression pass on `develop`
+- [ ] Tag `develop` as `v2.0.0` (major — breaking internal transport change; no merge/push to `main`)
+- [ ] Push tag to `origin`
+
 ## Verdict: evolve, don't rewrite
-Core architecture is sound and worth keeping: iframe `srcDoc` + `sandbox="allow-scripts"` sandboxing, React Flow canvas, tRPC + Prisma + Better Auth, provider-agnostic LlmManager, MCP server exposing designs to external agents. No reason to throw this away — problems are additive gaps and a few real bugs, not systemic flaws.
+Core architecture is sound and worth keeping: iframe `srcDoc` + `sandbox="allow-scripts"` sandboxing, React Flow canvas, Prisma + Better Auth, provider-agnostic LlmManager, MCP server exposing designs to external agents. No reason to throw this away — problems are additive gaps and a few real bugs, not systemic flaws. The one deliberate exception is the RPC transport itself (Wave 6): tRPC's lack of first-class streaming is a real limitation once AI generation needs to stream incrementally, so `@effect/rpc` replaces it — but only after everything built on top of it (Waves 1–5) is stable, and only as a transport swap around business logic that Wave 3 already made Effect-native internally.
 
 ## Sequencing rationale
-Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold (Wave 2) → AI reliability + structured schema (Wave 3, unlocks everything else) → Mastra refinement + editing UX + collab (Wave 4) → Next.js major (Wave 5, last).
+Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold (Wave 2) → AI reliability + structured schema (Wave 3, unlocks everything else, built Effect-native internally) → Mastra refinement + editing UX + collab (Wave 4) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration (Wave 6, last and biggest blast radius, streaming payoff).
+
