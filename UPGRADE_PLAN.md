@@ -11,7 +11,7 @@
 | 3 | B-ai-core sequential: ai-reliability → structured-ui-schema (this one is inherently linear, cannot parallelize — each step is a precondition for the next) | structured-ui-schema merged and passes full canvas regression |
 | 4 | E-editing-ux (props panel), F-collab (real-time + branching versioning), C-mastra (patch-based refinement) — all three only need the schema, independent of each other | all green |
 | 5 | deps-next-major (Next 15→16, done last since it touches everything) | — |
-| 6 | G-effect-rpc: full tRPC → @effect/rpc migration (foundation → auth layer → per-router ports in parallel → client migration → cutover). Deliberately the very last wave — bigger blast radius than the Next.js major bump, so it only starts once everything else is stable | full regression + streaming verified |
+| 6 | G-effect-rpc: full tRPC → @effect/rpc migration + full Jotai → @effect-atom/atom-react migration (foundation → auth layer → per-router ports in parallel → client migration → Jotai migration → cutover). Deliberately the very last wave — bigger blast radius than the Next.js major bump, so it only starts once everything else is stable | full regression + streaming verified + canvas interaction regression verified |
 
 **Standard per-task QA loop (applied to every todo, not just described once):**
 1. **Implement** — either do it directly, or delegate mechanical/boilerplate work to `opencode run "<prompt>"` so architecture-level work stays with the primary agent in the same wave.
@@ -162,10 +162,12 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
 - [ ] Tag `develop` as `v1.0.0` (no merge/push to `main`)
 - [ ] Push tag to `origin`
 
-### Wave 6 — final: full tRPC → @effect/rpc migration (mostly sequential)
-Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/server`/`@trpc/react-query`) with `effect` + `@effect/rpc` across the entire app — bigger blast radius than the Next.js major bump (Wave 5), since it touches every router, every client call site, and the auth middleware, not just the framework version. Only starts once Waves 1–5 are stable so this migration isn't fighting a moving target.
+### Wave 6 — final: full tRPC → @effect/rpc migration + Jotai → Effect Atom (mostly sequential)
+Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/server`/`@trpc/react-query`) with `effect` + `@effect/rpc` across the entire app, **and** full replacement of Jotai with `@effect-atom/atom-react` across the entire app — bigger blast radius than the Next.js major bump (Wave 5), since it touches every router, every client call site, every local UI-state atom, and the auth middleware, not just the framework version. Only starts once Waves 1–5 are stable so this migration isn't fighting a moving target.
 
-**Why**: `@effect/rpc` gives first-class streaming RPC endpoints (`Rpc.StreamRequest`) that tRPC lacks, so AI design generation can stream partial HTML/tokens into the canvas incrementally instead of blocking on a single `generateText` round-trip — a meaningful UX differentiator against Stitch/OpenDesign's non-streaming generation. It also unifies error handling (tagged Effect errors replacing ad hoc `TRPCError`s) and composes cleanly with the `Effect`-native reliability/streaming layer built in Wave 3's `ai-reliability` task, so this wave is primarily a *transport* swap around already-Effectful business logic rather than a rewrite of both at once.
+**Why @effect/rpc**: gives first-class streaming RPC endpoints (`Rpc.StreamRequest`) that tRPC lacks, so AI design generation can stream partial HTML/tokens into the canvas incrementally instead of blocking on a single `generateText` round-trip — a meaningful UX differentiator against Stitch/OpenDesign's non-streaming generation. It also unifies error handling (tagged Effect errors replacing ad hoc `TRPCError`s) and composes cleanly with the `Effect`-native reliability/streaming layer built in Wave 3's `ai-reliability` task, so this wave is primarily a *transport* swap around already-Effectful business logic rather than a rewrite of both at once.
+
+**Why @effect-atom/atom-react (full Jotai replacement, by decision)**: purpose-built by the Effect core team for exactly this shape of problem — atoms whose lifecycle is wired directly to Effect computations/RPC calls (auto fetch-on-mount, cancellation, retry, SSR/hydration), which a hand-rolled React-Query-compatible wrapper around `@effect/rpc` would have to reinvent. Once the client is committed to Effect Atom for RPC-bound state, keeping Jotai around for local UI state (canvas node/selection/viewport atoms in `src/features/project-canvas/stores`) would mean maintaining two atom-shaped state libraries side by side for no architectural benefit — Effect Atom's local (non-RPC) atoms are a drop-in equivalent to Jotai's `atom`/`atomFamily`. Full replacement keeps one consistent state model app-wide instead of a split-brain Jotai/Effect Atom boundary.
 
 - [ ] **G-effect-rpc: Foundation** (`effect-rpc-foundation`) — sequential, blocks the rest of this wave
   - [ ] Branch `feature/effect-rpc-foundation` off `develop`
@@ -184,15 +186,21 @@ Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/serv
   - [ ] `effect-rpc-components` (opencode-delegated: components router)
   - [ ] `effect-rpc-settings-misc` (opencode-delegated: user settings, LLM API keys, API key management)
   - [ ] Each: branch, implement, code-review pass, run both old tRPC route and new Effect RPC route side-by-side and diff outputs before removing the old path, merge to `develop`
-- [ ] **G-effect-rpc: Client migration** (`effect-rpc-client-migration`) — sequential, depends on all router ports; highest blast radius (touches every component)
-  - [ ] Branch, replace every `api.<router>.<procedure>.useQuery/useMutation` call site across `src/features/**` and `src/app/**` with the Effect RPC client, wrapped in a thin React-Query-compatible hook layer to minimize component-level churn
+- [ ] **G-effect-rpc: Client migration** (`effect-rpc-client-migration`) — sequential, depends on all router ports; highest blast radius on the RPC side (touches every component)
+  - [ ] Branch, replace every `api.<router>.<procedure>.useQuery/useMutation` call site across `src/features/**` and `src/app/**` with `@effect-atom/atom-react` atoms wired to the new `@effect/rpc` client (`useAtomValue`/`useAtomSet`/`useAtomSuspense`), including dedicated streaming atoms for `aiGenerate`/`aiModify`/`aiGenerateFlow` that consume `Rpc.StreamRequest` for incremental canvas updates
   - [ ] rubber-duck + code-review sub-agent pass (large diff, high risk of missed call sites)
   - [ ] full UI regression pass across every feature area
   - [ ] Merged to `develop`
+- [ ] **G-effect-rpc: Jotai → Effect Atom migration** (`effect-atom-jotai-migration`) — sequential, depends on client migration; full app-wide state-library replacement
+  - [ ] Branch `feature/effect-atom-jotai-migration` off `develop`
+  - [ ] Port every Jotai `atom`/`atomFamily` in `src/features/*/stores` (project-canvas node/selection/viewport state, and any other feature stores) to `@effect-atom/atom-react` local atoms; update all consuming custom hooks to the Effect Atom API
+  - [ ] rubber-duck + code-review sub-agent pass (behavioral risk: canvas drag/select/undo-redo must be pixel-identical to pre-migration behavior)
+  - [ ] full canvas interaction regression test (drag, multi-select, undo/redo, viewport zoom/pan)
+  - [ ] Merged to `develop`
 - [ ] **G-effect-rpc: Cutover + cleanup** (`effect-rpc-cutover-cleanup`) — final task of the whole plan
-  - [ ] Branch, remove `@trpc/client`/`@trpc/server`/`@trpc/react-query`, delete `src/server/api/trpc.ts` + old routers + `app/api/trpc/[trpc]/route.ts`
+  - [ ] Branch, remove `@trpc/client`/`@trpc/server`/`@trpc/react-query` and `jotai`, delete `src/server/api/trpc.ts` + old routers + `app/api/trpc/[trpc]/route.ts` + any remaining Jotai store scaffolding
   - [ ] code-review sub-agent pass
-  - [ ] full regression + explicit verification that AI generation now streams incrementally into the canvas
+  - [ ] full regression + explicit verification that AI generation now streams incrementally into the canvas, and that all local UI state behaves identically post-Jotai
   - [ ] Merged to `develop`
 
 **Wave 6 release gate (final):**
@@ -204,5 +212,5 @@ Deliberately the last wave. Full replacement of tRPC (`@trpc/client`/`@trpc/serv
 Core architecture is sound and worth keeping: iframe `srcDoc` + `sandbox="allow-scripts"` sandboxing, React Flow canvas, Prisma + Better Auth, provider-agnostic LlmManager, MCP server exposing designs to external agents. No reason to throw this away — problems are additive gaps and a few real bugs, not systemic flaws. The one deliberate exception is the RPC transport itself (Wave 6): tRPC's lack of first-class streaming is a real limitation once AI generation needs to stream incrementally, so `@effect/rpc` replaces it — but only after everything built on top of it (Waves 1–5) is stable, and only as a transport swap around business logic that Wave 3 already made Effect-native internally.
 
 ## Sequencing rationale
-Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold (Wave 2) → AI reliability + structured schema (Wave 3, unlocks everything else, built Effect-native internally) → Mastra refinement + editing UX + collab (Wave 4) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration (Wave 6, last and biggest blast radius, streaming payoff).
+Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold (Wave 2) → AI reliability + structured schema (Wave 3, unlocks everything else, built Effect-native internally) → Mastra refinement + editing UX + collab (Wave 4) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration + full Jotai → Effect Atom state migration (Wave 6, last and biggest blast radius, streaming payoff + unified state model).
 
