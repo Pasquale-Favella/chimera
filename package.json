@@ -19,7 +19,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@ai-sdk/google": "^3.0.43",
+		"@ai-sdk/google": "^4.0.23",
 		"@auth/prisma-adapter": "^2.7.2",
 		"@excalidraw/excalidraw": "^0.18.0",
 		"@hookform/resolvers": "^5.4.0",
@@ -61,7 +61,7 @@
 		"@trpc/react-query": "^11.18.0",
 		"@trpc/server": "^11.18.0",
 		"@xyflow/react": "^12.11.2",
-		"ai": "^6.0.116",
+		"ai": "^7.0.36",
 		"better-auth": "^1.6.24",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
