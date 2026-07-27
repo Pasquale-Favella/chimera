@@ -1,3 +1,5 @@
+import { LRUCache } from "lru-cache";
+
 import {
 	APICallError,
 	type LanguageModelUsage,
@@ -13,10 +15,14 @@ const DEFAULT_MAX_RETRIES = 3;
 const DEFAULT_RETRY_BASE_DELAY = "400 millis";
 const DEFAULT_RATE_LIMIT_PER_SCOPE = 2;
 
-const rateLimitSemaphores = new Map<
+const rateLimitSemaphores = new LRUCache<
 	string,
 	ReturnType<typeof TSemaphore.unsafeMake>
->();
+>({
+	max: 10_000,
+	ttl: 30 * 60 * 1_000,
+	updateAgeOnGet: true,
+});
 
 export class AiTransientError extends Data.TaggedError("AiTransientError")<{
 	readonly operation: string;
@@ -60,9 +66,9 @@ export function getAiRateLimitSemaphore(scopeKey: string) {
 		return existing;
 	}
 
-	const created = TSemaphore.unsafeMake(DEFAULT_RATE_LIMIT_PER_SCOPE);
-	rateLimitSemaphores.set(scopeKey, created);
-	return created;
+	const semaphore = TSemaphore.unsafeMake(DEFAULT_RATE_LIMIT_PER_SCOPE);
+	rateLimitSemaphores.set(scopeKey, semaphore);
+	return semaphore;
 }
 
 export function classifyAiError(

@@ -1,7 +1,7 @@
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
 import { designTokensSchema } from "@/server/api/features/designs/design.dto";
-import { runStructuredAiCall } from "@/server/services/ai.service";
+import { runStructuredAiCall, aiConfigSchema } from "@/server/services/ai.service";
 
 const memorySignalSchema = z.object({
   source: z.enum(["prompt", "design", "manual"]),
@@ -15,6 +15,7 @@ const memoryWorkflowInputSchema = z.object({
   notes: z.array(z.string().min(1)).default([]),
   signals: z.array(memorySignalSchema).default([]),
   designTokens: designTokensSchema.optional(),
+  config: aiConfigSchema.optional(),
 });
 
 const signalAnalysisSchema = z.object({
@@ -35,6 +36,7 @@ const normalizedMemorySchema = z.object({
   normalizedSignals: z.array(z.string()),
   signalAnalysis: signalAnalysisSchema.nullable(),
   designTokens: designTokensSchema.nullable(),
+  config: aiConfigSchema.optional(),
 });
 
 const aiMemoryDraftSchema = z.object({
@@ -92,6 +94,7 @@ const normalizeSignalsStep = createStep({
         normalizedSignals: [],
         signalAnalysis: null,
         designTokens: inputData.designTokens ?? null,
+        config: inputData.config,
       };
     }
 
@@ -111,6 +114,7 @@ Return a structured analysis with:
         operation: "memory-signal-analysis",
         schema: signalAnalysisSchema,
         messages: [{ role: "user", content: analysisPrompt }],
+        config: inputData.config,
         failureMessage: "AI signal analysis failed.",
         logLabel: "Error in memory signal analysis:",
       });
@@ -124,6 +128,7 @@ Return a structured analysis with:
       normalizedSignals,
       signalAnalysis,
       designTokens: inputData.designTokens ?? null,
+      config: inputData.config,
     };
   },
 });
@@ -177,6 +182,7 @@ Return a structured memory draft with:
         operation: "memory-draft-profile",
         schema: aiMemoryDraftSchema,
         messages: [{ role: "user", content: prompt }],
+        config: inputData.config,
         failureMessage: "AI memory draft failed.",
         logLabel: "Error in memory draft:",
       });

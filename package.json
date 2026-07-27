@@ -75,6 +75,7 @@
 		"input-otp": "^1.4.2",
 		"isomorphic-dompurify": "^3.19.0",
 		"jotai": "^2.20.2",
+		"lru-cache": "^11.5.2",
 		"lucide-react": "^1.26.0",
 		"mastra": "^1.20.1",
 		"mcp-handler": "^1.0.4",

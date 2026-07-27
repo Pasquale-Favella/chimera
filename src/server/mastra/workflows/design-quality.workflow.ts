@@ -1,6 +1,6 @@
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import { runStructuredAiCall } from "@/server/services/ai.service";
+import { runStructuredAiCall, aiConfigSchema } from "@/server/services/ai.service";
 import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
 
 const viewModeSchema = z.enum(["DESKTOP", "TABLET", "MOBILE"]);
@@ -11,6 +11,7 @@ const designQualityInputSchema = z.object({
   html: z.string().min(1),
   viewMode: viewModeSchema.default("DESKTOP"),
   goal: z.string().min(1).optional(),
+  config: aiConfigSchema.optional(),
 });
 
 const renderArtifactSchema = z.object({
@@ -32,6 +33,7 @@ const renderStepOutputSchema = z.object({
   originalHtml: z.string(),
   viewMode: viewModeSchema,
   renderArtifact: renderArtifactSchema,
+  config: aiConfigSchema.optional(),
 });
 
 const aiCritiqueOutputSchema = z.object({
@@ -83,6 +85,7 @@ const renderStep = createStep({
       goal: inputData.goal,
       originalHtml: inputData.html,
       viewMode: inputData.viewMode,
+      config: inputData.config,
       renderArtifact: {
         screenshotRef: `live://${inputData.projectId}/${designKey}/${inputData.viewMode.toLowerCase()}`,
         viewportLabel: getViewportLabel(inputData.viewMode),
@@ -120,6 +123,7 @@ Focus on layout, visual hierarchy, accessibility, responsiveness, and alignment 
         operation: "design-quality-critique",
         schema: aiCritiqueOutputSchema,
         messages: [{ role: "user", content: prompt }],
+        config: inputData.config,
         failureMessage: "AI critique failed. Please check the design and try again.",
         logLabel: "Error in design-quality critique:",
       });
@@ -173,6 +177,7 @@ Return the fixed HTML and a brief summary of what you changed. Use only Tailwind
         operation: "design-quality-autofix",
         schema: aiFixOutputSchema,
         messages: [{ role: "user", content: prompt }],
+        config: inputData.config,
         failureMessage: "AI auto-fix failed. The original HTML was returned unchanged.",
         logLabel: "Error in design-quality auto-fix:",
       });

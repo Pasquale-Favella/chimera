@@ -490,11 +490,21 @@ function renderStyleClasses(
 	return joinClasses([style.classes, ...classes]);
 }
 
+const SAFE_TAGS = new Set([
+	"div", "span", "p", "h1", "h2", "h3", "h4", "h5", "h6",
+	"a", "button", "img", "input", "label", "textarea", "select", "option",
+	"ul", "ol", "li", "nav", "header", "footer", "section", "main", "aside",
+	"form", "table", "thead", "tbody", "tr", "td", "th",
+	"blockquote", "code", "pre", "hr", "br",
+]);
+
 function resolveTagName(node: UINode) {
 	const semanticTag =
 		typeof node.props?.as === "string" ? node.props.as : undefined;
 
-	if (semanticTag) return semanticTag;
+	if (semanticTag) {
+		return SAFE_TAGS.has(semanticTag) ? semanticTag : "div";
+	}
 
 	switch (node.type) {
 		case "container":
@@ -509,7 +519,7 @@ function resolveTagName(node: UINode) {
 		case "link":
 			return "a";
 		default:
-			return /^[a-z][a-z0-9-]*$/.test(node.type) ? node.type : "div";
+			return SAFE_TAGS.has(node.type) ? node.type : "div";
 	}
 }
 

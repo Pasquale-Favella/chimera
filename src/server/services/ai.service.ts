@@ -41,6 +41,16 @@ import { LlmProvider } from "../../../generated/prisma/client";
 const AI_REQUEST_TIMEOUT = "45 seconds";
 const MAX_LOG_ERROR_MESSAGE_LENGTH = 1_000;
 
+export class StructuredAiCallError extends Error {
+	public readonly classifiedError: AiReliabilityError;
+
+	constructor(message: string, classifiedError: AiReliabilityError) {
+		super(message, { cause: classifiedError });
+		this.name = "StructuredAiCallError";
+		this.classifiedError = classifiedError;
+	}
+}
+
 export type AiConfig = {
 	provider?: LlmProvider;
 	apiKey?: string | null;
@@ -49,6 +59,8 @@ export type AiConfig = {
 	projectId?: string | null;
 	rateLimitKey?: string | null;
 };
+
+export const aiConfigSchema = z.custom<AiConfig>();
 
 type ResolvedAiConfig = {
 	provider: LlmProvider;
@@ -222,8 +234,8 @@ export async function runStructuredAiCall<T>({
 			errorMessage: toLogErrorMessage(classifiedError),
 		});
 
-		console.error(logLabel, error);
-		throw new Error(failureMessage);
+		console.error(logLabel, classifiedError);
+		throw new StructuredAiCallError(failureMessage, classifiedError);
 	}
 }
 

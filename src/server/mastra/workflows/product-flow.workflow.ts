@@ -1,6 +1,6 @@
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import { runStructuredAiCall } from "@/server/services/ai.service";
+import { runStructuredAiCall, aiConfigSchema } from "@/server/services/ai.service";
 
 const connectionPositionSchema = z.enum(["top", "right", "bottom", "left"]);
 
@@ -30,6 +30,7 @@ const productFlowInputSchema = z.object({
   prompt: z.string().min(1),
   maxScreens: z.number().int().min(1).max(12).default(4),
   existingScreens: z.array(existingScreenSchema).default([]),
+  config: aiConfigSchema.optional(),
 });
 
 const aiScreenPlanSchema = z.object({
@@ -56,6 +57,7 @@ const outlinedFlowSchema = z.object({
   projectId: z.string(),
   prompt: z.string(),
   screens: z.array(screenPlanSchema),
+  config: aiConfigSchema.optional(),
 });
 
 const connectedFlowSchema = outlinedFlowSchema.extend({
@@ -93,6 +95,7 @@ const outlineScreensStep = createStep({
         projectId: inputData.projectId,
         prompt: inputData.prompt,
         screens,
+        config: inputData.config,
       };
     }
 
@@ -113,6 +116,7 @@ Return a JSON object with a "screens" array containing the screen plans.`;
         operation: "product-flow-outline-screens",
         schema: aiScreenPlanSchema,
         messages: [{ role: "user", content: prompt }],
+        config: inputData.config,
         failureMessage: "AI screen plan generation failed.",
         logLabel: "Error in product-flow screen outlining:",
       });
@@ -124,6 +128,7 @@ Return a JSON object with a "screens" array containing the screen plans.`;
           ...screen,
           id: screen.id || `screen-${index + 1}`,
         })),
+        config: inputData.config,
       };
     } catch {
       const desiredScreenCount = Math.max(
@@ -134,6 +139,7 @@ Return a JSON object with a "screens" array containing the screen plans.`;
       return {
         projectId: inputData.projectId,
         prompt: inputData.prompt,
+        config: inputData.config,
         screens: Array.from({ length: desiredScreenCount }, (_, index) => ({
           id: `screen-${index + 1}`,
           name: `Planned Screen ${index + 1}`,
@@ -187,6 +193,7 @@ Return a JSON object with a "connections" array.`;
         operation: "product-flow-map-connections",
         schema: aiConnectionPlanSchema,
         messages: [{ role: "user", content: prompt }],
+        config: inputData.config,
         failureMessage: "AI connection mapping failed.",
         logLabel: "Error in product-flow connection mapping:",
       });
@@ -256,6 +263,7 @@ Return the transition notes and a next action.`;
         operation: "product-flow-package-plan",
         schema: aiPackagePlanSchema,
         messages: [{ role: "user", content: prompt }],
+        config: inputData.config,
         failureMessage: "AI flow packaging failed.",
         logLabel: "Error in product-flow packaging:",
       });

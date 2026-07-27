@@ -73,59 +73,78 @@ function applyUpdate(node: UINode, changes: UpdateNodeChanges): UINode {
 }
 
 export function patchUINodeTree(root: UINode, patch: UINodePatch): UINode {
-	if (patch.type === "update") {
-		if (root.id === patch.nodeId) {
-			return applyUpdate(root, patch.changes);
+	let matched = false;
+
+	function patchNode(node: UINode): UINode {
+		if (patch.type === "update") {
+			if (node.id === patch.nodeId) {
+				matched = true;
+				return applyUpdate(node, patch.changes);
+			}
 		}
-	}
 
-	if (!root.children?.length) {
-		return root;
-	}
+		if (!node.children?.length) {
+			return node;
+		}
 
-	if (patch.type === "insertChild" && root.id === patch.parentId) {
-		const nextChildren = [...root.children];
-		const insertIndex =
-			patch.index === undefined
-				? nextChildren.length
-				: Math.max(0, Math.min(patch.index, nextChildren.length));
-		nextChildren.splice(insertIndex, 0, patch.node);
+		if (patch.type === "insertChild" && node.id === patch.parentId) {
+			matched = true;
+			const nextChildren = [...node.children];
+			const insertIndex =
+				patch.index === undefined
+					? nextChildren.length
+					: Math.max(0, Math.min(patch.index, nextChildren.length));
+			nextChildren.splice(insertIndex, 0, patch.node);
+
+			return {
+				...node,
+				children: nextChildren,
+			};
+		}
+
+		if (patch.type === "removeChild" && node.id === patch.parentId) {
+			const nextChildren = node.children.filter(
+				(child) => child.id !== patch.nodeId,
+			);
+			if (nextChildren.length === node.children.length) {
+				console.warn(
+					`[patchUINodeTree] removeChild: child "${patch.nodeId}" not found in parent "${patch.parentId}"`,
+				);
+				return node;
+			}
+			matched = true;
+			return {
+				...node,
+				children: nextChildren,
+			};
+		}
+
+		let didChange = false;
+		const nextChildren = node.children.map((child) => {
+			const nextChild = patchNode(child);
+			if (nextChild !== child) {
+				didChange = true;
+			}
+			return nextChild;
+		});
+
+		if (!didChange) {
+			return node;
+		}
 
 		return {
-			...root,
+			...node,
 			children: nextChildren,
 		};
 	}
 
-	if (patch.type === "removeChild" && root.id === patch.parentId) {
-		const nextChildren = root.children.filter(
-			(child) => child.id !== patch.nodeId,
+	const result = patchNode(root);
+
+	if (!matched) {
+		console.warn(
+			`[patchUINodeTree] Patch of type "${patch.type}" matched no node in the tree.`,
 		);
-		if (nextChildren.length === root.children.length) {
-			return root;
-		}
-
-		return {
-			...root,
-			children: nextChildren,
-		};
 	}
 
-	let didChange = false;
-	const nextChildren = root.children.map((child) => {
-		const nextChild = patchUINodeTree(child, patch);
-		if (nextChild !== child) {
-			didChange = true;
-		}
-		return nextChild;
-	});
-
-	if (!didChange) {
-		return root;
-	}
-
-	return {
-		...root,
-		children: nextChildren,
-	};
+	return result;
 }
