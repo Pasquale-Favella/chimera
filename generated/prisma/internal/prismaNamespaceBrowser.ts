@@ -151,6 +151,7 @@ export const DesignScalarFieldEnum = {
   name: 'name',
   description: 'description',
   html: 'html',
+  schema: 'schema',
   position: 'position',
   size: 'size',
   viewMode: 'viewMode',

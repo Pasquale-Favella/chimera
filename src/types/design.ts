@@ -1,41 +1,53 @@
+import type { UINode } from "@/server/lib/schema/ui-node.schema";
 import type { RouterOutputs } from "@/trpc/react";
 
 export type {
-	GenerationMode,
-	PointPosition,
-	DesignViewMode,
+	AttachedImage,
+	ConnectionPoint,
 	DesignPosition,
 	DesignSize,
-	ConnectionPoint,
 	DesignTokens,
-	AttachedImage,
-	GeneratedDesign,
-	ModifiedDesign,
-	FlowDesign,
+	DesignViewMode,
 	FlowConnection,
+	FlowDesign,
+	GeneratedDesign,
 	GeneratedFlow,
+	GenerationMode,
+	ModifiedDesign,
+	PointPosition,
 } from "./shared";
 
 import type {
+	ConnectionPoint,
 	DesignPosition,
 	DesignSize,
-	DesignViewMode,
 	DesignTokens,
-	ConnectionPoint,
+	DesignViewMode,
 	PointPosition,
 } from "./shared";
 
 // Base type from Prisma/RouterOutputs
 export type DbDesign = RouterOutputs["designs"]["listByProject"][number];
-export type DbConnection = RouterOutputs["designConnections"]["listByProject"][number];
+export type DbConnection =
+	RouterOutputs["designConnections"]["listByProject"][number];
 
 // Normalized client-side Design type based on DbDesign
-export type Design = Omit<DbDesign, "viewMode" | "position" | "size" | "history" | "tokens" | "interactiveSelectorsCache"> & {
+export type Design = Omit<
+	DbDesign,
+	| "viewMode"
+	| "position"
+	| "size"
+	| "history"
+	| "tokens"
+	| "schema"
+	| "interactiveSelectorsCache"
+> & {
 	viewMode: DesignViewMode; // Normalized from "PREVIEW" | "CODE" to "preview" | "code"
 	position: DesignPosition; // Parsed from Json
 	size: DesignSize; // Parsed from Json
 	history?: string[]; // Parsed from Json
 	tokens?: DesignTokens | null; // Parsed from Json
+	schema?: UINode | null;
 };
 
 // Normalized client-side Connection type based on DbConnection
@@ -56,4 +68,3 @@ export interface DesignFlow {
 		toPosition: PointPosition;
 	}[];
 }
-
