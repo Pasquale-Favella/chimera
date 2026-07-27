@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Check, ChevronsUpDown, Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
-import { ProjectRole } from "../../../../../generated/prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import { ProjectRole } from "generated/prisma/enums";
 
 const roleLabels: Record<ProjectRole, string> = {
     [ProjectRole.OWNER]: "Owner",

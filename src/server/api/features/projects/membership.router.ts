@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { ProjectRole } from "../../../../../generated/prisma/client";
+import { ProjectRole } from "generated/prisma/enums";
 
 import {
 	assertProjectAccess,

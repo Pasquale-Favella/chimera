@@ -1,4 +1,4 @@
-import { ProjectRole } from "../../../../../generated/prisma/client";
+import { ProjectRole } from "generated/prisma/enums";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 

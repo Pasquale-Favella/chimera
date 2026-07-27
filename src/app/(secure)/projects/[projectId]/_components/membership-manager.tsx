@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, ChevronsUpDown, Loader2, Search, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
-import { ProjectRole } from "../../../../../../generated/prisma/client";
+import { ProjectRole } from "generated/prisma/enums";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
