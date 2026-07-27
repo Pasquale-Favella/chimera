@@ -55,7 +55,7 @@ export function usePrototype(projectId: string, startId: string) {
         return designs.filter(d => visited.has(d.id));
     }, [designs, connections, startId]);
 
-    const aiFindClickableSelectorsMutation = api.designs.aiFindClickableSelectors.useMutation();
+    const aiFindClickableSelectorsMutation = api.designAi.aiFindClickableSelectors.useMutation();
 
     const retry = async () => {
         if (!currentScreenId) return;

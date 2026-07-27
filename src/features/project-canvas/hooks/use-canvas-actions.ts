@@ -156,12 +156,12 @@ export function useCanvasActions(projectId: string) {
         },
     });
 
-    const extractTokensMutation = api.designs.aiExtractTokens.useMutation({
+    const extractTokensMutation = api.designAi.aiExtractTokens.useMutation({
         onError: () => {
             toast.error("Failed to extract styles");
         }
     });
-    const applyTokensMutation = api.designs.aiApplyTokens.useMutation({
+    const applyTokensMutation = api.designAi.aiApplyTokens.useMutation({
         onSuccess: async () => {
             await utils.designs.listByProject.invalidate({ projectId });
             toast.success("Style applied");

@@ -3,7 +3,8 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import type { PointPosition } from "@/types/design";
+
+import { toConnectionPosition, fromConnectionPosition, type ConnectionPositionEnum } from "./design.dto";
 
 import {
 	EDITOR_ACCESS,
@@ -23,35 +24,6 @@ const connectionSelect = {
 } satisfies Prisma.DesignConnectionSelect;
 
 const pointPositionSchema = z.enum(["top", "right", "bottom", "left"]);
-
-type ConnectionPositionEnum = "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
-
-const connectionPositionMap: Record<PointPosition, ConnectionPositionEnum> = {
-	top: "TOP",
-	right: "RIGHT",
-	bottom: "BOTTOM",
-	left: "LEFT",
-};
-
-const reverseConnectionPositionMap: Record<
-	ConnectionPositionEnum,
-	PointPosition
-> = {
-	TOP: "top",
-	RIGHT: "right",
-	BOTTOM: "bottom",
-	LEFT: "left",
-};
-
-function toConnectionPosition(position: PointPosition): ConnectionPositionEnum {
-	return connectionPositionMap[position];
-}
-
-function fromConnectionPosition(
-	position: ConnectionPositionEnum,
-): PointPosition {
-	return reverseConnectionPositionMap[position] ?? "top";
-}
 
 async function ensureDesignBelongsToProject(
 	ctx: Parameters<typeof assertProjectAccess>[0],

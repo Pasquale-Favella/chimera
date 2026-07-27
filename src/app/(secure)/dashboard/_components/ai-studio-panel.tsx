@@ -82,7 +82,7 @@ export function AIStudioPanel({ projectId, projectName }: AIStudioPanelProps) {
 	const setErrorStatus = (message: string) =>
 		setStatus({ message, tone: "error" });
 
-	const aiGenerate = api.designs.aiGenerate.useMutation({
+	const aiGenerate = api.designAi.aiGenerate.useMutation({
 		onSuccess: async (data) => {
 			await utils.designs.invalidate();
 			setPreviewHtml(data?.[0]?.html ?? "");
@@ -98,7 +98,7 @@ export function AIStudioPanel({ projectId, projectName }: AIStudioPanelProps) {
 		},
 	});
 
-	const aiGenerateFlow = api.designs.aiGenerateFlow.useMutation({
+	const aiGenerateFlow = api.designAi.aiGenerateFlow.useMutation({
 		onSuccess: async (payload) => {
 			await Promise.all([
 				utils.designs.invalidate(),
@@ -114,7 +114,7 @@ export function AIStudioPanel({ projectId, projectName }: AIStudioPanelProps) {
 		},
 	});
 
-	const aiModify = api.designs.aiModify.useMutation({
+	const aiModify = api.designAi.aiModify.useMutation({
 		onSuccess: async (data) => {
 			await utils.designs.invalidate();
 			setSelectedDesignIds([]);

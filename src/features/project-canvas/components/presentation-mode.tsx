@@ -36,19 +36,19 @@ export function PresentationMode({ design, onClose, onUpdateDesign, projectId }:
 
   const { iframeFonts } = useDesignSystem(projectId);
 
-  const aiModifyMutation = api.designs.aiModify.useMutation({
+  const aiModifyMutation = api.designAi.aiModify.useMutation({
     onSuccess: async () => {
       await utils.designs.listByProject.invalidate({ projectId });
     },
   });
 
-  const aiExtractTokensMutation = api.designs.aiExtractTokens.useMutation({
+  const aiExtractTokensMutation = api.designAi.aiExtractTokens.useMutation({
     onSuccess: async () => {
       await utils.designs.listByProject.invalidate({ projectId });
     },
   });
 
-  const aiExtractComponentMutation = api.designs.aiExtractComponent.useMutation();
+  const aiExtractComponentMutation = api.designAi.aiExtractComponent.useMutation();
 
   const prevDesignHtmlRef = React.useRef(design.html);
   // Ref to hold the capture function from the preview

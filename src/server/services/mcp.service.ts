@@ -1,112 +1,27 @@
 import { AiFeature } from "@/types/settings";
 import type { DesignSystemContext } from "@/types/shared";
 import {
-	ConnectionPosition,
-	LlmProvider,
 	type Prisma,
 	ProjectRole,
 } from "../../../generated/prisma/client";
 import { calculateNextPosition } from "../api/features/designs/layout.utils";
 import { db } from "../db";
 import { sanitizeGeneratedHtml } from "../lib/sanitize-html";
+import { getUserLlmConfig } from "@/server/lib/llm/user-llm-config";
+import {
+	findProjectOrThrow,
+	findProjectMembershipOrThrow,
+} from "@/server/lib/project-access";
+import {
+	toConnectionPosition,
+	toJsonInput,
+	normalizeHistory,
+} from "../api/features/designs/design.dto";
 import {
 	generateDesignFlow,
 	generateDesigns,
 	modifyDesigns,
 } from "./ai.service";
-
-const EDITOR_ACCESS: readonly ProjectRole[] = [
-	ProjectRole.EDITOR,
-	ProjectRole.OWNER,
-] as const;
-
-/**
- * Mirrors `assertProjectAccess` from the tRPC `permissions.ts` helper, but
- * takes a bare `userId` instead of a tRPC `ProtectedContext` since MCP tools
- * only have the API-key-resolved userId, not a full request context.
- */
-async function assertMcpProjectAccess(
-	userId: string,
-	projectId: string,
-	allowedRoles: readonly ProjectRole[] = EDITOR_ACCESS,
-) {
-	const project = await db.project.findUnique({
-		where: { id: projectId },
-		select: { id: true },
-	});
-
-	if (!project) {
-		throw new Error("Project not found.");
-	}
-
-	const membership = await db.projectMembership.findUnique({
-		where: {
-			projectId_userId: {
-				projectId,
-				userId,
-			},
-		},
-	});
-
-	if (!membership || !allowedRoles.includes(membership.role)) {
-		throw new Error("You do not have access to this project.");
-	}
-
-	return membership;
-}
-
-/**
- * Mirrors `getLlmConfig` from `design.router.ts`, resolving the caller's
- * preferred provider/model/API-key for a given AI feature.
- */
-async function getMcpLlmConfig(userId: string, feature: AiFeature) {
-	const user = await db.user.findUnique({
-		where: { id: userId },
-		select: { llmApiKeys: true, llmPreferences: true },
-	});
-
-	if (!user) return undefined;
-
-	const prefs = user.llmPreferences as Record<
-		string,
-		{ provider: LlmProvider; model: string }
-	> | null;
-	const featurePrefs = prefs?.[feature];
-	const provider = featurePrefs?.provider ?? LlmProvider.GOOGLE;
-	const apiKeyRecord = user.llmApiKeys.find((k) => k.provider === provider);
-
-	return {
-		provider,
-		apiKey: apiKeyRecord?.apiKey,
-		model: featurePrefs?.model,
-	};
-}
-
-function toConnectionPosition(
-	pos: "top" | "right" | "bottom" | "left",
-): ConnectionPosition {
-	switch (pos) {
-		case "top":
-			return ConnectionPosition.TOP;
-		case "right":
-			return ConnectionPosition.RIGHT;
-		case "bottom":
-			return ConnectionPosition.BOTTOM;
-		case "left":
-			return ConnectionPosition.LEFT;
-	}
-}
-
-function normalizeHistory(history: unknown): string[] {
-	if (Array.isArray(history)) {
-		return history.filter((item): item is string => typeof item === "string");
-	}
-	return [];
-}
-
-function toJsonInput(value: unknown): Prisma.InputJsonValue {
-	return value as Prisma.InputJsonValue;
-}
 
 export const McpService = {
 	findUserByApiKey: async (apiKey: string) => {
@@ -294,7 +209,11 @@ export const McpService = {
 		count = 1,
 		namePrefix?: string,
 	) => {
-		await assertMcpProjectAccess(userId, projectId);
+		await findProjectOrThrow(projectId);
+		await findProjectMembershipOrThrow(projectId, userId, [
+			ProjectRole.EDITOR,
+			ProjectRole.OWNER,
+		]);
 
 		const existingDesigns = await db.design.findMany({
 			where: { projectId },
@@ -318,7 +237,7 @@ export const McpService = {
 			where: { projectId },
 		});
 
-		const config = await getMcpLlmConfig(userId, AiFeature.GENERATE_DESIGNS);
+		const config = await getUserLlmConfig(userId, AiFeature.GENERATE_DESIGNS);
 
 		const designs = await generateDesigns(
 			promptWithContext,
@@ -374,7 +293,11 @@ export const McpService = {
 		prompt: string,
 		selector?: string,
 	) => {
-		await assertMcpProjectAccess(userId, projectId);
+		await findProjectOrThrow(projectId);
+		await findProjectMembershipOrThrow(projectId, userId, [
+			ProjectRole.EDITOR,
+			ProjectRole.OWNER,
+		]);
 
 		const designs = await db.design.findMany({
 			where: { id: { in: designIds }, projectId },
@@ -385,7 +308,7 @@ export const McpService = {
 			throw new Error("No matching designs were found for this project.");
 		}
 
-		const config = await getMcpLlmConfig(userId, AiFeature.MODIFY_DESIGNS);
+		const config = await getUserLlmConfig(userId, AiFeature.MODIFY_DESIGNS);
 
 		const aiResult = await modifyDesigns(
 			designs.map((design) => ({ id: design.id, html: design.html ?? "" })),
@@ -431,7 +354,11 @@ export const McpService = {
 		prompt: string,
 		namePrefix?: string,
 	) => {
-		await assertMcpProjectAccess(userId, projectId);
+		await findProjectOrThrow(projectId);
+		await findProjectMembershipOrThrow(projectId, userId, [
+			ProjectRole.EDITOR,
+			ProjectRole.OWNER,
+		]);
 
 		const existingDesigns = await db.design.findMany({
 			where: { projectId },
@@ -455,7 +382,7 @@ export const McpService = {
 			where: { projectId },
 		});
 
-		const config = await getMcpLlmConfig(
+		const config = await getUserLlmConfig(
 			userId,
 			AiFeature.GENERATE_DESIGN_FLOW,
 		);
@@ -522,3 +449,4 @@ export const McpService = {
 		return { designs: createdDesigns, connections: createdConnections };
 	},
 };
+

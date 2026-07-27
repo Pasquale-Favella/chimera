@@ -1,6 +1,10 @@
 import { ProjectRole } from "generated/prisma/enums";
 import { TRPCError } from "@trpc/server";
 import type { ProtectedContext } from "../../trpc";
+import {
+	findProjectOrThrow,
+	findProjectMembershipOrThrow,
+} from "@/server/lib/project-access";
 
 export const VIEWER_ACCESS: readonly ProjectRole[] = [
 	ProjectRole.VIEWER,
@@ -20,32 +24,23 @@ export async function assertProjectAccess(
 	projectId: string,
 	allowedRoles: readonly ProjectRole[] = VIEWER_ACCESS,
 ) {
-	const project = await ctx.db.project.findUnique({
-		where: { id: projectId },
-		select: { id: true },
-	});
-
-	if (!project) {
-		throw new TRPCError({ code: "NOT_FOUND", message: "Project not found." });
+	try {
+		await findProjectOrThrow(projectId);
+		const membership = await findProjectMembershipOrThrow(
+			projectId,
+			ctx.session.user.id,
+			allowedRoles,
+		);
+		return membership;
+	} catch (error) {
+		if (error instanceof Error) {
+			if (error.message === "Project not found.") {
+				throw new TRPCError({ code: "NOT_FOUND", message: error.message });
+			}
+			throw new TRPCError({ code: "FORBIDDEN", message: error.message });
+		}
+		throw error;
 	}
-
-	const membership = await ctx.db.projectMembership.findUnique({
-		where: {
-			projectId_userId: {
-				projectId,
-				userId: ctx.session.user.id,
-			},
-		},
-	});
-
-	if (!membership || !allowedRoles.includes(membership.role)) {
-		throw new TRPCError({
-			code: "FORBIDDEN",
-			message: "You do not have access to this project.",
-		});
-	}
-
-	return membership;
 }
 
 export async function ensureProjectRetainsOwner(

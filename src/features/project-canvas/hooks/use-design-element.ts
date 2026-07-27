@@ -25,7 +25,7 @@ export function useDesignElement(designId: string) {
     const pendingApplyTokenVars = useMutationState({
         filters: {
             status: 'pending',
-            mutationKey: getMutationKey(api.designs.aiApplyTokens)
+            mutationKey: getMutationKey(api.designAi.aiApplyTokens)
         },
         select: (mutation) => mutation.state.variables as { designId: string },
     });

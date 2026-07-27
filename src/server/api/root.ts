@@ -1,5 +1,6 @@
 import { componentsRouter } from "@/server/api/features/components/component.router";
 import { designConnectionsRouter } from "@/server/api/features/designs/connection.router";
+import { designAiRouter } from "@/server/api/features/designs/design-ai.router";
 import { designsRouter } from "@/server/api/features/designs/design.router";
 import { projectMembershipRouter } from "@/server/api/features/projects/membership.router";
 import { projectsRouter } from "@/server/api/features/projects/project.router";
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
 	projects: projectsRouter,
 	projectMemberships: projectMembershipRouter,
 	designs: designsRouter,
+	designAi: designAiRouter,
 	designConnections: designConnectionsRouter,
 	components: componentsRouter,
 	designSystem: designSystemRouter,

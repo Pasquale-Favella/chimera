@@ -16,7 +16,7 @@ export function useCanvasAI(projectId: string) {
     const [attachedImages, setAttachedImages] = useAtom(attachedImagesFamily(projectId));
     const [selectedDesignIds, setSelectedDesignIds] = useAtom(selectedDesignIdsFamily(projectId));
 
-    const aiGenerateMutation = api.designs.aiGenerate.useMutation({
+    const aiGenerateMutation = api.designAi.aiGenerate.useMutation({
         onSuccess: async () => {
             await utils.designs.listByProject.invalidate({ projectId });
             setPrompt("");
@@ -28,7 +28,7 @@ export function useCanvasAI(projectId: string) {
         },
     });
 
-    const aiGenerateFlowMutation = api.designs.aiGenerateFlow.useMutation({
+    const aiGenerateFlowMutation = api.designAi.aiGenerateFlow.useMutation({
         onSuccess: async () => {
             await Promise.all([
                 utils.designs.listByProject.invalidate({ projectId }),
@@ -43,7 +43,7 @@ export function useCanvasAI(projectId: string) {
         },
     });
 
-    const aiModifyMutation = api.designs.aiModify.useMutation({
+    const aiModifyMutation = api.designAi.aiModify.useMutation({
         onSuccess: async () => {
             await utils.designs.listByProject.invalidate({ projectId });
             setPrompt("");
