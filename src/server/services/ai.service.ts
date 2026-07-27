@@ -26,8 +26,6 @@ import {
 } from "@/server/lib/effect/ai-reliability";
 import { LlmManager } from "@/server/lib/llm";
 import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
-import { renderUINodeToHtml } from "@/server/lib/schema/render-ui-node";
-import { uiNodeSchema } from "@/server/lib/schema/ui-node.schema";
 import type {
 	AttachedImage,
 	DesignSystemContext,
@@ -280,17 +278,6 @@ const designItemSchema = z.object({
 
 const generationSchema = z.array(designItemSchema);
 
-const structuredDesignItemSchema = z.object({
-	schema: uiNodeSchema.describe(
-		"A single-root, recursive UI node tree that describes the design structure and styling.",
-	),
-	description: z
-		.string()
-		.describe("A brief description of the generated design variation."),
-});
-
-const structuredGenerationSchema = z.array(structuredDesignItemSchema);
-
 const modificationItemSchema = z.object({
 	id: z.string().describe("The original ID of the design that was modified."),
 	html: z
@@ -316,9 +303,11 @@ const flowDesignSchema = z.object({
 		.describe(
 			"A unique temporary ID for this design, used to link connections.",
 		),
-	schema: uiNodeSchema.describe(
-		"A single-root, recursive UI node tree that describes this screen.",
-	),
+	html: z
+		.string()
+		.describe(
+			"The self-contained HTML code for this screen, using only Tailwind CSS classes for styling.",
+		),
 	description: z
 		.string()
 		.describe("A brief description of this specific screen or state."),
@@ -476,33 +465,6 @@ export type DesignGenerationStreamChunk = ObjectStreamPart<
 	DeepPartial<z.infer<typeof generationSchema>>
 >;
 
-function buildStructuredDesignPrompt(
-	prompt: string,
-	count: number,
-	designSystemContext: string,
-) {
-	return `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s).
-
-The user's prompt is: "${prompt}".
-
-Return a JSON array where each item contains:
-- "schema": a single-root recursive UINode tree
-- "description": a brief description of the variation
-
-UINode guidance:
-- Each node MUST have a unique "id" and a "type".
-- Use semantic types such as "div", "section", "header", "button", "input", "text", "image", "nav", "form", or "container".
-- Use "layout" for Figma-like auto-layout hints: display, flexDirection, gap, padding, margin, justifyContent, alignItems, width, height, position, etc.
-- Use "style" for visual choices: backgroundColor, textColor, borderColor, borderRadius, shadow, fontFamily, fontSize, fontWeight, textAlign, objectFit, plus "classes" when you need raw Tailwind utilities.
-- Use "props" only for serializable attributes/content such as text, src, alt, href, placeholder, aria-label, type, className, and as.
-- Use "children" recursively for nested content.
-- Prefer design system token keys in "style" when relevant (for example "primary", "background", "foreground", "border", "small", "medium", "large"), and fall back to raw Tailwind classes in style.classes or props.className when needed.
-- The rendered result must become a visually complete Tailwind-styled component when converted to HTML.
-- Do NOT include HTML strings, markdown fences, or explanations.
-
-${designSystemContext}`;
-}
-
 export function streamDesignGeneration(
 	prompt: string,
 	count: number,
@@ -598,53 +560,20 @@ export async function generateDesigns(
 	const designSystemContext = buildDesignSystemContext(designSystem);
 	const fullPrompt = `You are an expert UI/UX designer. Based on the user's prompt (and the provided image(s), if any), generate ${count} distinct design variation(s). The user's prompt is: "${prompt}". For each variation, provide self-contained HTML using only Tailwind CSS classes for styling. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. Return only the inner HTML structure (e.g., a root \`<div>\`). Do not include any external stylesheets or script tags. The designs should be visually complete components. ${designSystemContext}`;
 
-	try {
-		const structuredOutput = await runStructuredAiCall({
-			operation: "generate-designs-structured",
-			schema: structuredGenerationSchema,
-			messages: buildMessages(
-				buildStructuredDesignPrompt(prompt, count, designSystemContext),
-				images,
-			),
-			config,
-			failureMessage:
-				"Failed to generate structured designs. Please check the prompt and try again.",
-			logLabel: "Error generating structured designs:",
-		});
+	const output = await runStructuredAiCall({
+		operation: "generate-designs",
+		schema: generationSchema,
+		messages: buildMessages(fullPrompt, images),
+		config,
+		failureMessage:
+			"Failed to generate designs. Please check the prompt and try again.",
+		logLabel: "Error generating designs:",
+	});
 
-		return structuredOutput.map((item) => {
-			const html = sanitizeGeneratedHtml(
-				renderUINodeToHtml(item.schema, designSystem ?? undefined),
-			);
-
-			return {
-				description: item.description,
-				html,
-				schema: item.schema,
-			};
-		});
-	} catch (error) {
-		console.warn(
-			"Structured UI schema generation failed, falling back to HTML generation.",
-			error,
-		);
-
-		const output = await runStructuredAiCall({
-			operation: "generate-designs",
-			schema: generationSchema,
-			messages: buildMessages(fullPrompt, images),
-			config,
-			failureMessage:
-				"Failed to generate designs. Please check the prompt and try again.",
-			logLabel: "Error generating designs:",
-		});
-
-		return output.map((item) => ({
-			...item,
-			html: sanitizeGeneratedHtml(item.html),
-			schema: null,
-		}));
-	}
+	return output.map((item) => ({
+		...item,
+		html: sanitizeGeneratedHtml(item.html),
+	}));
 }
 
 export async function generateDesignFlow(
@@ -662,87 +591,23 @@ Your task is to:
 3.  Define the connections between these screens. For a standard left-to-right flow, connect the 'right' side of one component to the 'left' side of the next.
 4.  Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them. Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags. ${designSystemContext}`;
 
-	const structuredFlowPrompt = `You are an expert UI/UX designer specializing in user flows. Based on the user's prompt (and the provided image(s), if any), generate a series of connected UI designs that represent a complete user flow. The user's prompt is: "${prompt}".
+	const output = await runStructuredAiCall({
+		operation: "generate-design-flow",
+		schema: flowGenerationSchema,
+		messages: buildMessages(fullPrompt, images),
+		config,
+		failureMessage:
+			"Failed to generate design flow. Please check the prompt and try again.",
+		logLabel: "Error generating design flow:",
+	});
 
-Your task is to:
-1. Identify the key screens or states in the described flow.
-2. Generate a recursive UINode schema for each screen instead of HTML.
-3. Define the connections between these screens. For a standard left-to-right flow, connect the "right" side of one component to the "left" side of the next.
-4. Return a single JSON object that conforms to the provided schema, containing both the designs and their connections. Use temporary string IDs to link them.
-5. Each design item must include:
-   - "id": temporary string ID
-   - "schema": a single-root UINode tree
-   - "description": a brief explanation of the screen
-6. Follow this UINode guidance:
-   - unique node ids
-   - semantic node types
-   - layout for flex/grid/spacing/sizing/position
-   - style for visual tokens and raw Tailwind utilities via style.classes
-   - props for serializable content and attributes
-   - children for nested structure
-7. Do NOT include HTML strings, markdown fences, or explanations.
-
-${designSystemContext}`;
-
-	try {
-		const output = await runStructuredAiCall({
-			operation: "generate-design-flow-structured",
-			schema: flowGenerationSchema,
-			messages: buildMessages(structuredFlowPrompt, images),
-			config,
-			failureMessage:
-				"Failed to generate structured design flow. Please check the prompt and try again.",
-			logLabel: "Error generating structured design flow:",
-		});
-
-		return {
-			...output,
-			designs: output.designs.map((design) => ({
-				...design,
-				html: sanitizeGeneratedHtml(
-					renderUINodeToHtml(design.schema, designSystem ?? undefined),
-				),
-				schema: design.schema,
-			})),
-		} as GeneratedFlow;
-	} catch (error) {
-		console.warn(
-			"Structured UI flow generation failed, falling back to HTML generation.",
-			error,
-		);
-
-		const output = await runStructuredAiCall({
-			operation: "generate-design-flow",
-			schema: z.object({
-				designs: z
-					.array(
-						z.object({
-							id: z.string(),
-							html: z.string(),
-							description: z.string(),
-						}),
-					)
-					.describe("An array of all the UI screens (designs) in the flow."),
-				connections: flowConnectionSchema
-					.array()
-					.describe("An array defining the connections between the designs."),
-			}),
-			messages: buildMessages(fullPrompt, images),
-			config,
-			failureMessage:
-				"Failed to generate design flow. Please check the prompt and try again.",
-			logLabel: "Error generating design flow:",
-		});
-
-		return {
-			...output,
-			designs: output.designs.map((design) => ({
-				...design,
-				html: sanitizeGeneratedHtml(design.html),
-				schema: null,
-			})),
-		} as GeneratedFlow;
-	}
+	return {
+		...output,
+		designs: output.designs.map((design) => ({
+			...design,
+			html: sanitizeGeneratedHtml(design.html),
+		})),
+	} as GeneratedFlow;
 }
 
 export async function modifyDesigns(

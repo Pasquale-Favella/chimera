@@ -6,8 +6,6 @@ import {
 	protectedProcedure,
 } from "@/server/api/trpc";
 import { sanitizeGeneratedHtml } from "@/server/lib/sanitize-html";
-import { renderUINodeToHtml } from "@/server/lib/schema/render-ui-node";
-import { uiNodeSchema } from "@/server/lib/schema/ui-node.schema";
 import {
 	applyDesignTokens,
 	extractComponent,
@@ -58,7 +56,6 @@ const designSelect = {
 	updatedAt: true,
 	createdById: true,
 	history: true,
-	schema: true,
 	version: true,
 	tokens: true,
 };
@@ -223,7 +220,6 @@ export const designsRouter = createTRPCRouter({
 				description: z.string().trim().max(500).nullable().optional(),
 				data: z.unknown().optional(),
 				html: z.string().optional(),
-				schema: uiNodeSchema.nullable().optional(),
 				position: positionSchema.optional(),
 				size: sizeSchema.optional(),
 				viewMode: viewModeSchema.optional(),
@@ -245,10 +241,6 @@ export const designsRouter = createTRPCRouter({
 
 			// Default size if not provided
 			const size = input.size ?? { width: 1200, height: 800 };
-			const renderedHtml =
-				input.schema != null
-					? sanitizeGeneratedHtml(renderUINodeToHtml(input.schema))
-					: sanitizeGeneratedHtml(input.html ?? "");
 
 			return ctx.db.design.create({
 				data: {
@@ -257,9 +249,7 @@ export const designsRouter = createTRPCRouter({
 					description: input.description ?? null,
 					data: payloadData,
 					createdById: ctx.session.user.id,
-					html: renderedHtml,
-					schema:
-						input.schema !== undefined ? toJsonInput(input.schema) : undefined,
+					html: sanitizeGeneratedHtml(input.html ?? ""),
 					position: toJsonInput(position),
 					size: toJsonInput(size),
 					viewMode: input.viewMode
@@ -281,7 +271,6 @@ export const designsRouter = createTRPCRouter({
 				viewMode: viewModeSchema.optional(),
 				incrementVersion: z.boolean().optional(),
 				html: z.string().optional(),
-				schema: uiNodeSchema.nullable().optional(),
 				history: z.array(z.string()).optional(),
 				tokens: designTokensSchema.optional(),
 			}),
@@ -318,16 +307,6 @@ export const designsRouter = createTRPCRouter({
 
 			if (input.html !== undefined) {
 				data.html = sanitizeGeneratedHtml(input.html);
-				if (input.schema === undefined) {
-					data.schema = Prisma.JsonNull;
-				}
-			}
-
-			if (input.schema !== undefined) {
-				data.schema = toJsonInput(input.schema);
-				if (input.schema) {
-					data.html = sanitizeGeneratedHtml(renderUINodeToHtml(input.schema));
-				}
 			}
 
 			if (input.history !== undefined) {
@@ -430,7 +409,6 @@ export const designsRouter = createTRPCRouter({
 						name,
 						description: design.description,
 						html: design.html,
-						schema: toJsonInput(design.schema),
 						history: toJsonInput([design.html]),
 						createdById: ctx.session.user.id,
 						position: toJsonInput(position),
@@ -512,7 +490,6 @@ export const designsRouter = createTRPCRouter({
 						name,
 						description: design.description,
 						html: design.html,
-						schema: toJsonInput(design.schema),
 						history: toJsonInput([design.html]),
 						createdById: ctx.session.user.id,
 						position: toJsonInput(position),
@@ -611,7 +588,6 @@ export const designsRouter = createTRPCRouter({
 					where: { id: modified.id },
 					data: {
 						html: modified.html,
-						schema: Prisma.JsonNull,
 						history: toJsonInput(nextHistory),
 
 						version: { increment: 1 },
@@ -736,7 +712,6 @@ export const designsRouter = createTRPCRouter({
 				where: { id: input.designId },
 				data: {
 					html: updatedHtml.html,
-					schema: Prisma.JsonNull,
 					history: toJsonInput(nextHistory),
 					tokens: toJsonInput(tokens),
 					version: { increment: 1 },

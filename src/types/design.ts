@@ -1,4 +1,3 @@
-import type { UINode } from "@/server/lib/schema/ui-node.schema";
 import type { RouterOutputs } from "@/trpc/react";
 
 export type {
@@ -47,7 +46,6 @@ export type Design = Omit<
 	size: DesignSize; // Parsed from Json
 	history?: string[]; // Parsed from Json
 	tokens?: DesignTokens | null; // Parsed from Json
-	schema?: UINode | null;
 };
 
 // Normalized client-side Connection type based on DbConnection

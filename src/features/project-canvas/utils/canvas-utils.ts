@@ -78,7 +78,6 @@ export const mapDesign = (record: DbDesign): Design => {
 		viewMode: "preview",
 		history: normalizeHistory(record.history),
 		tokens: mapTokens(record.tokens),
-		schema: (record.schema as Design["schema"]) ?? null,
 	};
 };
 

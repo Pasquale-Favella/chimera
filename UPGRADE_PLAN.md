@@ -125,12 +125,12 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [x] code-review sub-agent pass
   - [x] load + failure-injection test
   - [x] Merged to `develop`
-- [x] **B-ai-core: Structured UI schema** (`structured-ui-schema`) — depends on zod v4 + ai-reliability
-  - [x] Branch `feature/structured-ui-schema` off `develop` (separate worktree)
-  - [x] Implement recursive `UINode` Zod schema (`ui-node.schema.ts`), `Design.schema` column (Prisma `Json?`), tree→HTML renderer (`render-ui-node.ts` — maps layout/style tokens to Tailwind classes), patch-based modification (`patch-ui-node.ts` — update/insertChild/removeChild patches), structured generation with HTML fallback in `ai.service.ts`
-  - [x] code-review sub-agent pass — found and fixed SQLite incompatibility (`JSONB` → `TEXT` in migration)
-  - [x] `tsc --noEmit` green
-  - [x] Merged to `develop` (commit `5ece5a8`)
+- ~~[x] **B-ai-core: Structured UI schema** (`structured-ui-schema`) — depends on zod v4 + ai-reliability~~ **ROLLED BACK — see Wave 8**
+  - ~~[x] Branch `feature/structured-ui-schema` off `develop` (separate worktree)~~
+  - ~~[x] Implement recursive `UINode` Zod schema (`ui-node.schema.ts`), `Design.schema` column (Prisma `Json?`), tree→HTML renderer (`render-ui-node.ts` — maps layout/style tokens to Tailwind classes), patch-based modification (`patch-ui-node.ts` — update/insertChild/removeChild patches), structured generation with HTML fallback in `ai.service.ts`~~
+  - ~~[x] code-review sub-agent pass — found and fixed SQLite incompatibility (`JSONB` → `TEXT` in migration)~~
+  - ~~[x] `tsc --noEmit` green~~
+  - ~~[x] Merged to `develop` (commit `5ece5a8`)
 - [x] **C-mastra: Wire Mastra workflows into live AI calls** (`mastra-integration-live`) — depends on `ai-reliability` (and the already-satisfied `deps-ai-sdk-major`/`mastra-scaffold-wiring`); ran **in parallel with `structured-ui-schema`** once `ai-reliability` merged
   - [x] Branch `feature/mastra-integration-live` off `develop` (separate worktree)
   - [x] Wired `design-quality.workflow.ts`: AI critique via `runStructuredAiCall` + AI auto-fix step with graceful fallback; `memory.workflow.ts`: AI signal analysis + AI style directive synthesis; `product-flow.workflow.ts`: AI screen planning + AI connection mapping + AI enrichment with fallback to deterministic defaults
@@ -144,8 +144,8 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
 - [x] Tag `develop` as `v0.3.0` (no merge/push to `main`)
 - [x] Push tag to `origin`
 
-### Wave 4 — parallel, gated on structured-ui-schema + mastra-integration-live
-- [ ] **C-mastra: Patch-based auto-fix refinement** (`mastra-integration-refine`) — depends on `mastra-integration-live` + `structured-ui-schema`
+### Wave 4 — parallel, gated on mastra-integration-live (structured-ui-schema removed from active code — see Wave 8)
+- [ ] **C-mastra: Patch-based auto-fix refinement** (`mastra-integration-refine`) — depends on `mastra-integration-live`
   - [ ] Branch, implement tree-node patch auto-fix, review, regression test, merge
 - [ ] **E-editing-ux: Visual props panel** (`editing-ux-props-panel`)
   - [ ] Branch, implement props panel bound to UI schema, review, UI interaction test, merge
@@ -234,9 +234,26 @@ Deliberately deferred until after Wave 6 completes (`effect-rpc-cutover-cleanup`
 - [ ] Tag `develop` as `v2.1.0` (minor — additive collab functionality on an already-migrated transport, not another breaking transport change; no merge/push to `main`)
 - [ ] Push tag to `origin`
 
+### Wave 8 — structured UI schema (re-implementation, deferred from Wave 3)
+The original `structured-ui-schema` implementation (Wave 3) produced recursive `UINode` trees that the AI model (`gemini-3.5-flash-lite`) could not reliably generate — it consistently emitted string values where the Zod schema expected objects (`layout`, `style`, `children` fields). The code was removed from the active codebase in favor of direct HTML generation, which is more reliable with current models.
+
+**When to revisit:** Once a model version or provider is available that can reliably emit deep nested JSON matching the `UINode` schema, or if the product need for structured editing (props panel, drag-to-reorder, node-level patching) outweighs the reliability tax.
+
+- [ ] **B-ai-core: Structured UI schema v2** (`structured-ui-schema-v2`)
+  - [ ] Redesign `UINode` schema with simpler/smaller surface area to improve model compliance
+  - [ ] Add `Design.schema` column back to Prisma schema (removed in earlier cleanup)
+  - [ ] Rebuild tree→HTML renderer and patch-based modification
+  - [ ] Wire structured generation with HTML fallback (same pattern as before, but with stricter schema)
+  - [ ] Validate against target model before enabling by default
+
+**Wave 8 release gate:**
+- [ ] Wave-level regression pass on `develop`
+- [ ] Tag `develop` as `v2.2.0` (minor — additive structured editing capability)
+- [ ] Push tag to `origin`
+
 ## Verdict: evolve, don't rewrite
 Core architecture is sound and worth keeping: iframe `srcDoc` + `sandbox="allow-scripts"` sandboxing, React Flow canvas, Prisma + Better Auth, provider-agnostic LlmManager, MCP server exposing designs to external agents. No reason to throw this away — problems are additive gaps and a few real bugs, not systemic flaws. The one deliberate exception is the RPC transport itself (Wave 6): tRPC's lack of first-class streaming is a real limitation once AI generation needs to stream incrementally, so `@effect/rpc` replaces it — but only after everything built on top of it (Waves 1–5) is stable, and only as a transport swap around business logic that Wave 3 already made Effect-native internally. Real-time collaboration (Wave 7) was deliberately pulled out of Wave 4 and deferred until after Wave 6 for the same reason: building its sync layer once on the final streaming/state stack is strictly better than building it on tRPC/Jotai in Wave 4 and migrating it again in Wave 6.
 
 ## Sequencing rationale
-Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold shells (Wave 2, scaffold-only — deliberately not wired to live AI calls yet) → AI reliability + structured schema + Mastra live wiring (Wave 3, unlocks everything else, built Effect-native internally; Mastra's live AI wiring is deliberately deferred from Wave 2 to here so it's built directly on the Effect-native `ai.service.ts` instead of the pre-migration version, avoiding a rework once Wave 3 lands — the same reasoning already applied to `ai-reliability` itself relative to Wave 6) → Mastra refinement + editing UX (Wave 4, collab intentionally excluded here) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration + full Jotai → Effect Atom state migration (Wave 6, biggest blast radius, streaming payoff + unified state model) → real-time collaboration + branching versioning (Wave 7, built once on the finished Effect RPC/Atom stack instead of twice).
+Bugs/deps (Wave 1, done) → AI-core majors + Mastra scaffold shells (Wave 2, scaffold-only) → AI reliability + Mastra live wiring (Wave 3, structured UI schema attempted but rolled back — see Wave 8) → Mastra refinement + editing UX (Wave 4) → Next.js major (Wave 5) → full tRPC → Effect RPC transport migration + full Jotai → Effect Atom state migration (Wave 6) → real-time collaboration + branching versioning (Wave 7) → structured UI schema v2 (Wave 8, deferred until a model can reliably emit the UINode tree).
 

@@ -140,7 +140,6 @@ model Design {
   name                    String
   description             String?
   html                    String   @default("")
-  schema                  Json?
   position                Json?    // {x: number, y: number}
   size                    Json?    // {width: number, height: number}
   viewMode                DesignViewMode @default(DESKTOP)

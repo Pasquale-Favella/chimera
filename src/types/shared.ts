@@ -4,7 +4,6 @@ import type {
 	DesignSizeDto,
 	DesignTokensDto,
 } from "@/server/api/features/designs/design.dto";
-import type { UINode } from "@/server/lib/schema/ui-node.schema";
 
 export type GenerationMode = "single" | "variations" | "flow";
 
@@ -28,7 +27,6 @@ export type AttachedImage = AttachedImageDto;
 export interface GeneratedDesign {
 	html: string;
 	description: string;
-	schema: UINode | null;
 }
 
 export interface ModifiedDesign {
@@ -40,7 +38,6 @@ export interface FlowDesign {
 	id: string;
 	html: string;
 	description: string;
-	schema: UINode | null;
 }
 
 export interface FlowConnection {
