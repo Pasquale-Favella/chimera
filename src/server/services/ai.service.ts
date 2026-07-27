@@ -6,10 +6,11 @@
 import { createHash } from "node:crypto";
 import {
 	type DeepPartial,
-	generateObject,
+	generateText,
 	type LanguageModelUsage,
 	type ModelMessage,
 	type ObjectStreamPart,
+	Output,
 	streamObject,
 	type UserModelMessage,
 } from "ai";
@@ -59,7 +60,7 @@ type ResolvedAiConfig = {
 	rateLimitKey: string;
 };
 
-type StructuredAiCallOptions<T> = {
+export type StructuredAiCallOptions<T> = {
 	operation: string;
 	schema: z.ZodType<T>;
 	messages: ModelMessage[];
@@ -129,7 +130,7 @@ function toLogErrorMessage(error: unknown) {
 	return "Unknown AI service failure.";
 }
 
-async function logAiUsage({
+export async function logAiUsage({
 	resolvedConfig,
 	operation,
 	usage,
@@ -159,7 +160,7 @@ async function logAiUsage({
 	}
 }
 
-async function runStructuredAiCall<T>({
+export async function runStructuredAiCall<T>({
 	operation,
 	schema,
 	messages,
@@ -185,14 +186,14 @@ async function runStructuredAiCall<T>({
 					timeout: AI_REQUEST_TIMEOUT,
 				},
 				async () => {
-					const { object, usage } = await generateObject({
+					const { output, usage } = await generateText({
 						model: resolvedConfig.model,
-						schema,
+						output: Output.object({ schema }),
 						messages,
 						maxRetries: 0,
 					});
 
-					return { result: object, usage };
+					return { result: output, usage };
 				},
 			),
 		);
@@ -381,6 +382,62 @@ const componentExtractionSchema = z.object({
 			"The extracted, self-contained HTML code for the requested component.",
 		),
 });
+
+const designQualityCritiqueSchema = z.object({
+	summary: z.string().describe("A concise review of the design quality issues found."),
+	issues: z
+		.array(
+			z.object({
+				severity: z.enum(["low", "medium", "high"]),
+				title: z.string(),
+				recommendation: z.string(),
+			}),
+		)
+		.max(6)
+		.describe("Concrete UI quality issues inferred from the HTML and Tailwind classes."),
+	modificationPrompt: z
+		.string()
+		.describe("A direct modification instruction that can be fed into the HTML editing step."),
+});
+
+const projectStyleMemorySchema = z.object({
+	summary: z.string().describe("A durable summary of the project's approved brand/style direction."),
+	styleDirectives: z
+		.array(z.string())
+		.max(12)
+		.describe("Stable style directives to inject into future prompts for this project."),
+});
+
+const productFlowPlanScreenSchema = z.object({
+	id: z.string().describe("A stable temporary identifier for the planned screen."),
+	name: z.string().describe("Short screen name."),
+	description: z.string().describe("What this screen contains and why it exists."),
+	userGoal: z.string().describe("Primary user goal achieved on this screen."),
+});
+
+const productFlowPlanConnectionSchema = z.object({
+	from: z.string().describe("The temporary ID of the source screen."),
+	to: z.string().describe("The temporary ID of the target screen."),
+	fromPosition: z.enum(["top", "right", "bottom", "left"]),
+	toPosition: z.enum(["top", "right", "bottom", "left"]),
+	rationale: z.string().describe("Why the user moves from the source screen to the target screen."),
+});
+
+const productFlowPlanSchema = z.object({
+	planningSummary: z.string().describe("A concise explanation of the planned IA and user journey."),
+	screens: z
+		.array(productFlowPlanScreenSchema)
+		.min(2)
+		.max(12)
+		.describe("Ordered screen plan for the product flow."),
+	connections: z
+		.array(productFlowPlanConnectionSchema)
+		.describe("Directed transitions between the planned screens."),
+});
+
+export type DesignQualityCritique = z.infer<typeof designQualityCritiqueSchema>;
+export type ProjectStyleMemorySynthesis = z.infer<typeof projectStyleMemorySchema>;
+export type ProductFlowPlan = z.infer<typeof productFlowPlanSchema>;
 
 function buildMessages(
 	prompt: string,
@@ -827,6 +884,127 @@ export async function extractComponent(
 	});
 
 	return { componentHtml: sanitizeGeneratedHtml(output.componentHtml) };
+}
+
+export async function critiqueDesignQuality(options: {
+	html: string;
+	viewMode: "DESKTOP" | "TABLET" | "MOBILE";
+	goal?: string | null;
+	projectMemoryContext?: string | null;
+	designSystem?: DesignSystemContext | null;
+	config?: AiConfig;
+}): Promise<DesignQualityCritique> {
+	const designSystemContext = buildDesignSystemContext(options.designSystem);
+	const goalContext = options.goal
+		? `Primary UX goal for this screen: ${options.goal}.`
+		: "No additional UX goal was supplied; critique against common product design expectations.";
+	const memoryContext = options.projectMemoryContext
+		? `\n${options.projectMemoryContext}`
+		: "";
+	const fullPrompt = `You are a senior UI reviewer performing a text-only quality critique of a generated interface. You do not have a rendered screenshot, so infer likely issues from the HTML structure, copy, and Tailwind CSS classes. Focus on high-signal issues such as weak visual hierarchy, spacing imbalance, overflow risk, poor CTA emphasis, contrast risk, alignment inconsistencies, and accessibility concerns that can be improved without changing the product intent.
+
+Viewport: ${options.viewMode}
+${goalContext}
+${designSystemContext}${memoryContext}
+
+HTML to review:
+\`\`\`html
+${options.html}
+\`\`\`
+
+Return JSON with:
+- summary: concise overall critique
+- issues: 0-6 concrete issues, each with severity/title/recommendation
+- modificationPrompt: one strong instruction that tells a downstream HTML editing model exactly how to improve the screen while preserving its product intent and Tailwind-only HTML structure.`;
+
+	return runStructuredAiCall({
+		operation: "critique-design-quality",
+		schema: designQualityCritiqueSchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config: options.config,
+		failureMessage: "Failed to critique design quality.",
+		logLabel: "Error critiquing design quality:",
+	});
+}
+
+export async function synthesizeProjectStyleMemory(options: {
+	projectName?: string | null;
+	normalizedSignals: string[];
+	existingSummary?: string | null;
+	existingDirectives?: string[];
+	designTokens?: DesignTokens | null;
+	config?: AiConfig;
+}): Promise<ProjectStyleMemorySynthesis> {
+	const fullPrompt = `You maintain durable per-project style memory for an AI design tool. Synthesize only stable, reusable brand/style guidance that should persist across future prompts. Prefer concise, specific directives and remove duplicates or one-off requests.
+
+Project name: ${options.projectName ?? "Unknown project"}
+Existing summary: ${options.existingSummary ?? "None"}
+Existing style directives:
+${(options.existingDirectives ?? []).length > 0 ? (options.existingDirectives ?? []).map((directive) => `- ${directive}`).join("\n") : "- None"}
+
+New normalized signals:
+${options.normalizedSignals.length > 0 ? options.normalizedSignals.map((signal) => `- ${signal}`).join("\n") : "- None"}
+
+Latest design tokens (if any):
+${options.designTokens ? JSON.stringify(options.designTokens, null, 2) : "None"}
+
+Return JSON with:
+- summary: 1-3 sentence durable memory summary
+- styleDirectives: 3-12 actionable rules to inject into future prompts`;
+
+	return runStructuredAiCall({
+		operation: "synthesize-project-style-memory",
+		schema: projectStyleMemorySchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config: options.config,
+		failureMessage: "Failed to synthesize project style memory.",
+		logLabel: "Error synthesizing project style memory:",
+	});
+}
+
+export async function planProductFlow(options: {
+	prompt: string;
+	maxScreens: number;
+	existingScreens?: { id: string; name: string; description?: string }[];
+	projectMemoryContext?: string | null;
+	componentLibraryContext?: string | null;
+	designSystem?: DesignSystemContext | null;
+	config?: AiConfig;
+}): Promise<ProductFlowPlan> {
+	const designSystemContext = buildDesignSystemContext(options.designSystem);
+	const memoryContext = options.projectMemoryContext
+		? `\n${options.projectMemoryContext}`
+		: "";
+	const componentContext = options.componentLibraryContext
+		? `\nAvailable reusable components:\n${options.componentLibraryContext}`
+		: "";
+	const existingScreens = options.existingScreens?.length
+		? JSON.stringify(options.existingScreens, null, 2)
+		: "[]";
+	const fullPrompt = `You are a staff product designer planning a multi-screen product flow before any UI is generated. Think about information architecture, the user's mental model, and the minimum set of screens needed to satisfy the brief. Reuse or extend existing screens where it makes sense, and keep the flow within ${options.maxScreens} screens.
+
+Product brief:
+${options.prompt}
+
+Existing screens:
+${existingScreens}
+${designSystemContext}${memoryContext}${componentContext}
+
+Return JSON with:
+- planningSummary: explain the IA and journey
+- screens: ordered screens with id, name, description, and userGoal
+- connections: directed transitions with positions and rationale
+
+Use temporary IDs that are stable, machine-friendly, and unique within the plan.`;
+
+	return runStructuredAiCall({
+		operation: "plan-product-flow",
+		schema: productFlowPlanSchema,
+		messages: [{ role: "user", content: fullPrompt }],
+		config: options.config,
+		failureMessage: "Failed to plan the product flow.",
+		logLabel: "Error planning product flow:",
+	});
 }
 
 export function parseTokens(tokens: unknown): DesignTokens | undefined {
