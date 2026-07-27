@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Save, ChevronsUpDown, Check } from "lucide-react";
 import { AiFeature } from "@/types/settings";
-import { LlmProvider } from "../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 import {
     Command,
     CommandEmpty,

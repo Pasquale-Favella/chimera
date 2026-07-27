@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { Prisma, LlmProvider } from "../../../../../generated/prisma/client";
+import { Prisma } from "../../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 import { LlmManager } from "@/server/lib/llm";
 
 const llmPreferencesSchema = z.record(

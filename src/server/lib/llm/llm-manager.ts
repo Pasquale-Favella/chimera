@@ -4,7 +4,7 @@
  */
 
 import type { LanguageModel } from "ai";
-import { LlmProvider } from "../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 import type { LlmConfig, LlmModelInfo } from "@/types/llm";
 import { GoogleProvider } from "./providers/google.provider";
 import { OpenRouterProvider } from "./providers/openrouter.provider";

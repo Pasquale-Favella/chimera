@@ -9,7 +9,7 @@ import {
 } from "ai";
 import { Cause, Data, Effect, pipe, Schedule, TSemaphore } from "effect";
 import type { DurationInput } from "effect/Duration";
-import type { LlmProvider } from "../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 
 const DEFAULT_MAX_RETRIES = 3;
 const DEFAULT_RETRY_BASE_DELAY = "400 millis";

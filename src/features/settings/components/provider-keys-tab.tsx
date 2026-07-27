@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Save } from "lucide-react";
-import { LlmProvider } from "../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 import { useSettings } from "../hooks/use-settings";
 
 function ProviderKeysSkeleton() {

@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
-import { LlmProvider } from "../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 
 export function useSettings() {
     const utils = api.useUtils();

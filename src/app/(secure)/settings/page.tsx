@@ -1,7 +1,7 @@
 import { SettingsForm } from "@/features/settings/settings-form";
 import { withSession } from "@/lib/session-check.utils";
 import { api, HydrateClient } from "@/trpc/server";
-import { LlmProvider } from "../../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 
 export default async function SettingsPage() {
     await withSession();

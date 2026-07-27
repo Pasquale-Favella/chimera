@@ -36,7 +36,7 @@ import type {
 	GeneratedFlow,
 	ModifiedDesign,
 } from "@/types/shared";
-import { LlmProvider } from "../../../generated/prisma/client";
+import { LlmProvider } from "generated/prisma/enums";
 
 const AI_REQUEST_TIMEOUT = "45 seconds";
 const MAX_LOG_ERROR_MESSAGE_LENGTH = 1_000;

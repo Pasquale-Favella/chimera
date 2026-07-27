@@ -1,5 +1,3 @@
-import { Prisma } from "../../../../../generated/prisma/client";
-
 interface Point {
     x: number;
     y: number;
