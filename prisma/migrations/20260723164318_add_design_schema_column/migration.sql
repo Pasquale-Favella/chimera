@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "design" ADD COLUMN "schema" JSONB;
+ALTER TABLE "design" ADD COLUMN "schema" TEXT;
