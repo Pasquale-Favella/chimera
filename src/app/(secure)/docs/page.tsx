@@ -1,5 +1,3 @@
-import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { DocsSidebar } from "./_components/docs-sidebar"
 import { DocsSection, DocsSubsection, CodeBlock } from "./_components/docs-section"

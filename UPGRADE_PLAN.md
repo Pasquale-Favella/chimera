@@ -155,9 +155,9 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
 - [ ] Tag `develop` as `v0.4.0` (no merge/push to `main`)
 - [ ] Push tag to `origin`
 
-### Wave 5 — after everything else is stable
-- [ ] **A-hygiene: Upgrade Next.js 15→16** (`deps-next-major`)
-  - [ ] Branch, bump Next major, code-review, full e2e smoke test (canvas, auth, tRPC, MCP routes), merge
+### Wave 5 — after everything else is stable ✅ COMPLETED
+- [x] **A-hygiene: Upgrade Next.js 15→16** (`deps-next-major`)
+  - [x] Branch (on `develop` directly), bump Next 15→16 (16.2.12), code-review, full e2e smoke test (canvas, auth, tRPC, MCP routes), merge
 
 **Wave 5 release gate:**
 - [ ] Full regression pass on `develop`
