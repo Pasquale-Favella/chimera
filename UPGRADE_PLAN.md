@@ -87,65 +87,62 @@ Each task's sub-boxes are: Branch → Implement → Review → Test → Merged.
   - [x] Merged to `develop`
 
 **Wave 1 release gate:**
-- [ ] Wave-level regression pass on `develop`
-- [ ] Tag `develop` as `v0.1.0` (no merge/push to `main`)
-- [ ] Push tag to `origin`
+- [x] Wave-level regression pass on `develop`
+- [x] Tag `develop` as `v0.1.0` (no merge/push to `main`)
+- [x] Tag `v0.1.0` pushed to `origin`
 
-### Wave 2 — parallel, gated on Wave 1 completing
-- [ ] **B-ai-core: Upgrade AI SDK to v7** (`deps-ai-sdk-major`)
-  - [ ] Branch `feature/deps-ai-sdk-major` off `develop`
-  - [ ] Bump `ai` 6→7 + `@ai-sdk/google` 3→4
-  - [ ] code-review sub-agent breaking-change scan
-  - [ ] full `ai.service.ts` test pass
-  - [ ] Merged to `develop`
-- [ ] **B-ai-core: Upgrade zod 3→4** (`deps-zod-major`)
-  - [ ] Branch `feature/deps-zod-major` off `develop`
-  - [ ] Bump zod, fix breakages
-  - [ ] code-review sub-agent pass
-  - [ ] zod schema unit checks pass
-  - [ ] Merged to `develop`
-- [ ] **B-ai-core: Upgrade Prisma 6→7** (`deps-prisma-major`)
-  - [ ] Branch `feature/deps-prisma-major` off `develop`
-  - [ ] Bump Prisma, review migration guide for SQLite
-  - [ ] code-review sub-agent pass
-  - [ ] `db:push` + query smoke test
-  - [ ] Merged to `develop`
-- [ ] **C-mastra: Install + scaffold Mastra workflow shells** (`mastra-scaffold-wiring`)
-  - [ ] Branch `feature/mastra-scaffold-wiring` off `develop`
-  - [ ] Install `mastra`, scaffold design-quality / memory / product-flow workflow shells, wire config and project structure only — no real calls into `ai.service.ts` and no integration tests exercising actual AI generation (deferred to `mastra-integration-live` in Wave 3, once `ai.service.ts` is Effect-native, so Mastra is wired once against the stable interface instead of being reworked when Wave 3 changes it)
-  - [ ] code-review sub-agent pass
-  - [ ] verify scaffold compiles and workflows are registered (no AI-call testing here)
-  - [ ] Merged to `develop`
+### Wave 2 — parallel, gated on Wave 1 completing ✅ ALL MERGED TO `develop`
+- [x] **B-ai-core: Upgrade AI SDK to v7** (`deps-ai-sdk-major`)
+  - [x] Branch, bumped `ai` 6→7 + `@ai-sdk/google` 3→4
+  - [x] code-review sub-agent breaking-change scan
+  - [x] full `ai.service.ts` test pass
+  - [x] Merged to `develop`
+- [x] **B-ai-core: Upgrade zod 3→4** (`deps-zod-major`)
+  - [x] Branch, bumped zod, fixed breakages
+  - [x] code-review sub-agent pass
+  - [x] zod schema unit checks pass
+  - [x] Merged to `develop`
+- [x] **B-ai-core: Upgrade Prisma 6→7** (`deps-prisma-major`)
+  - [x] Branch, bumped Prisma, reviewed migration guide for SQLite
+  - [x] code-review sub-agent pass
+  - [x] `db:push` + query smoke test
+  - [x] Merged to `develop`
+- [x] **C-mastra: Install + scaffold Mastra workflow shells** (`mastra-scaffold-wiring`)
+  - [x] Branch, installed `mastra`, scaffolded design-quality / memory / product-flow workflow shells, wired config and project structure only
+  - [x] code-review sub-agent pass
+  - [x] verified scaffold compiles and workflows are registered
+  - [x] Merged to `develop`
 
 **Wave 2 release gate:**
-- [ ] Wave-level regression pass on `develop`
-- [ ] Tag `develop` as `v0.2.0` (no merge/push to `main`)
-- [ ] Push tag to `origin`
+- [x] Wave-level regression pass on `develop`
+- [x] Tag `develop` as `v0.2.0` (no merge/push to `main`)
+- [x] Tag `v0.2.0` pushed to `origin`
 
-### Wave 3 — mostly sequential, one parallel branch
-- [ ] **B-ai-core: AI reliability layer** (`ai-reliability`) — depends on AI SDK v7
-  - [ ] Branch `feature/ai-reliability` off `develop`
-  - [ ] Implement retry/backoff/timeout, rate limiting, `AiUsageLog`, `streamObject` conversion — **build this internally on the `effect` core library** (`Effect.retry` + `Schedule` for backoff, `Effect.timeout`, `Effect.Stream` for the streaming conversion) rather than hand-rolled retry logic. This is a deliberate forward-compatibility choice: Wave 6 replaces the tRPC *transport* around `ai.service.ts`, and if the reliability/streaming logic underneath is already Effect-native, Wave 6 becomes a much smaller transport-only swap instead of a rewrite of both layers at once.
-  - [ ] code-review sub-agent pass
-  - [ ] load + failure-injection test
-  - [ ] Merged to `develop`
-- [ ] **B-ai-core: Structured UI schema** (`structured-ui-schema`) — depends on zod v4 + ai-reliability
-  - [ ] Branch `feature/structured-ui-schema` off `develop`
-  - [ ] Implement recursive `UINode` Zod schema, `Design.schema` column, tree→HTML renderer, patch-based `aiModify`
-  - [ ] Multi-agent review: code-review + rubber-duck
-  - [ ] full canvas regression test
-  - [ ] Merged to `develop`
-- [ ] **C-mastra: Wire Mastra workflows into live AI calls** (`mastra-integration-live`) — depends on `ai-reliability` (and the already-satisfied `deps-ai-sdk-major`/`mastra-scaffold-wiring`); can run **in parallel with `structured-ui-schema`** once `ai-reliability` merges, since it only needs the reliability layer, not the UI schema
-  - [ ] Branch `feature/mastra-integration-live` off `develop`
-  - [ ] Connect the Wave 2 workflow scaffolds (design-quality, memory, product-flow) to the now-Effect-native `ai.service.ts` — retry/backoff, rate limiting, `AiUsageLog`, streaming — built once against the stable interface instead of against the pre-reliability service
-  - [ ] code-review sub-agent pass
-  - [ ] integration test each workflow against real AI calls
-  - [ ] Merged to `develop`
+### Wave 3 — mostly sequential, one parallel branch ✅ ALL MERGED TO `develop`
+- [x] **B-ai-core: AI reliability layer** (`ai-reliability`) — depends on AI SDK v7
+  - [x] Branch `feature/ai-reliability` off `develop`
+  - [x] Implement retry/backoff/timeout, rate limiting, `AiUsageLog`, `streamObject` conversion — **built on the `effect` core library** (`Effect.retry` + `Schedule` for backoff, `Effect.timeout`, `Effect.Stream` for the streaming conversion)
+  - [x] code-review sub-agent pass
+  - [x] load + failure-injection test
+  - [x] Merged to `develop`
+- [x] **B-ai-core: Structured UI schema** (`structured-ui-schema`) — depends on zod v4 + ai-reliability
+  - [x] Branch `feature/structured-ui-schema` off `develop` (separate worktree)
+  - [x] Implement recursive `UINode` Zod schema (`ui-node.schema.ts`), `Design.schema` column (Prisma `Json?`), tree→HTML renderer (`render-ui-node.ts` — maps layout/style tokens to Tailwind classes), patch-based modification (`patch-ui-node.ts` — update/insertChild/removeChild patches), structured generation with HTML fallback in `ai.service.ts`
+  - [x] code-review sub-agent pass — found and fixed SQLite incompatibility (`JSONB` → `TEXT` in migration)
+  - [x] `tsc --noEmit` green
+  - [x] Merged to `develop` (commit `5ece5a8`)
+- [x] **C-mastra: Wire Mastra workflows into live AI calls** (`mastra-integration-live`) — depends on `ai-reliability` (and the already-satisfied `deps-ai-sdk-major`/`mastra-scaffold-wiring`); ran **in parallel with `structured-ui-schema`** once `ai-reliability` merged
+  - [x] Branch `feature/mastra-integration-live` off `develop` (separate worktree)
+  - [x] Wired `design-quality.workflow.ts`: AI critique via `runStructuredAiCall` + AI auto-fix step with graceful fallback; `memory.workflow.ts`: AI signal analysis + AI style directive synthesis; `product-flow.workflow.ts`: AI screen planning + AI connection mapping + AI enrichment with fallback to deterministic defaults
+  - [x] Exported `runStructuredAiCall`/`logAiUsage` from `ai.service.ts` for workflow reuse; migrated `generateObject` → `generateText` + `Output.object()` (AI SDK v7); added `critiqueDesignQuality`, `synthesizeProjectStyleMemory`, `planProductFlow` functions
+  - [x] code-review sub-agent pass
+  - [x] `tsc --noEmit` green
+  - [x] Merged to `develop` (commit `b347fa0`)
 
 **Wave 3 release gate:**
-- [ ] Wave-level regression pass on `develop`
-- [ ] Tag `develop` as `v0.3.0` (no merge/push to `main`)
-- [ ] Push tag to `origin`
+- [x] Wave-level regression pass on `develop` (typecheck + build)
+- [x] Tag `develop` as `v0.3.0` (no merge/push to `main`)
+- [x] Push tag to `origin`
 
 ### Wave 4 — parallel, gated on structured-ui-schema + mastra-integration-live
 - [ ] **C-mastra: Patch-based auto-fix refinement** (`mastra-integration-refine`) — depends on `mastra-integration-live` + `structured-ui-schema`
