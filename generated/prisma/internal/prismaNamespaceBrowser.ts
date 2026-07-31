@@ -62,8 +62,7 @@ export const ModelName = {
   Account: 'Account',
   DesignConnection: 'DesignConnection',
   Verification: 'Verification',
-  DesignSystem: 'DesignSystem',
-  AiUsageLog: 'AiUsageLog'
+  DesignSystem: 'DesignSystem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -253,25 +252,6 @@ export const DesignSystemScalarFieldEnum = {
 } as const
 
 export type DesignSystemScalarFieldEnum = (typeof DesignSystemScalarFieldEnum)[keyof typeof DesignSystemScalarFieldEnum]
-
-
-export const AiUsageLogScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  projectId: 'projectId',
-  operation: 'operation',
-  provider: 'provider',
-  model: 'model',
-  promptTokens: 'promptTokens',
-  completionTokens: 'completionTokens',
-  totalTokens: 'totalTokens',
-  latencyMs: 'latencyMs',
-  success: 'success',
-  errorMessage: 'errorMessage',
-  createdAt: 'createdAt'
-} as const
-
-export type AiUsageLogScalarFieldEnum = (typeof AiUsageLogScalarFieldEnum)[keyof typeof AiUsageLogScalarFieldEnum]
 
 
 export const SortOrder = {

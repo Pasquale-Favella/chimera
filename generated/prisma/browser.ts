@@ -77,8 +77,3 @@ export type Verification = Prisma.VerificationModel
  * 
  */
 export type DesignSystem = Prisma.DesignSystemModel
-/**
- * Model AiUsageLog
- * 
- */
-export type AiUsageLog = Prisma.AiUsageLogModel

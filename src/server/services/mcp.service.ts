@@ -242,8 +242,8 @@ export const McpService = {
 		const designs = await generateDesigns(
 			promptWithContext,
 			count,
+			config,
 			null,
-			config ? { ...config, userId, projectId } : { userId, projectId },
 			designSystem as unknown as DesignSystemContext,
 		);
 
@@ -313,9 +313,9 @@ export const McpService = {
 		const aiResult = await modifyDesigns(
 			designs.map((design) => ({ id: design.id, html: design.html ?? "" })),
 			prompt,
+			config,
 			null,
 			selector,
-			config ? { ...config, userId, projectId } : { userId, projectId },
 		);
 
 		const designMap = new Map(designs.map((design) => [design.id, design]));
@@ -389,8 +389,8 @@ export const McpService = {
 
 		const flow = await generateDesignFlow(
 			promptWithContext,
+			config,
 			null,
-			config ? { ...config, userId, projectId } : { userId, projectId },
 			designSystem as unknown as DesignSystemContext,
 		);
 
