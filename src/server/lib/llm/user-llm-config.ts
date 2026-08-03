@@ -1,5 +1,5 @@
 import { db } from "@/server/db";
-import type { AiConfig } from "@/server/services/ai.service";
+import type { AiConfig } from "@/types/llm";
 import { LlmProvider } from "../../../../generated/prisma/client";
 import { LlmManager } from "./llm-manager";
 

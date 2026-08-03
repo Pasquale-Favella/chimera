@@ -1,26 +1,19 @@
-import { AiFeature } from "@/types/settings";
-import type { DesignSystemContext } from "@/types/shared";
 import {
-	type Prisma,
-	ProjectRole,
-} from "../../../generated/prisma/client";
-import { calculateNextPosition } from "../api/features/designs/layout.utils";
-import { db } from "../db";
-import { sanitizeGeneratedHtml } from "../lib/sanitize-html";
-import { getUserLlmConfig } from "@/server/lib/llm/user-llm-config";
-import {
-	findProjectOrThrow,
 	findProjectMembershipOrThrow,
+	findProjectOrThrow,
 } from "@/server/lib/project-access";
 import {
-	toConnectionPosition,
-	toJsonInput,
-	normalizeHistory,
-} from "../api/features/designs/design.dto";
+	gatherProjectContext,
+	readProjectStyleMemory,
+} from "@/server/mastra/workflows";
+import { ProjectRole } from "../../../generated/prisma/client";
+import { db } from "../db";
 import {
+	critiqueDesignQuality,
 	generateDesignFlow,
 	generateDesigns,
 	modifyDesigns,
+	planProductFlow,
 } from "./ai.service";
 
 export const McpService = {
@@ -215,71 +208,13 @@ export const McpService = {
 			ProjectRole.OWNER,
 		]);
 
-		const existingDesigns = await db.design.findMany({
-			where: { projectId },
-			select: { position: true, size: true },
-		});
-
-		const components = await db.component.findMany({
-			where: { projectId },
-			select: { name: true, html: true },
-		});
-
-		let promptWithContext = prompt;
-		if (components.length > 0) {
-			const componentContext = components
-				.map((c) => `Component "${c.name}":\n${c.html}`)
-				.join("\n\n");
-			promptWithContext += `\n\nAvailable Reusable Components (Use these if relevant):\n${componentContext}`;
-		}
-
-		const designSystem = await db.designSystem.findUnique({
-			where: { projectId },
-		});
-
-		const config = await getUserLlmConfig(userId, AiFeature.GENERATE_DESIGNS);
-
-		const designs = await generateDesigns(
-			promptWithContext,
+		return generateDesigns({
+			userId,
+			projectId,
+			prompt,
 			count,
-			config,
-			null,
-			designSystem as unknown as DesignSystemContext,
-		);
-
-		const created = [];
-		const currentExisting = [...existingDesigns];
-
-		for (const [index, design] of designs.entries()) {
-			const name = namePrefix?.trim().length
-				? namePrefix.trim()
-				: `AI Concept ${index + 1}`;
-
-			const position = calculateNextPosition(currentExisting);
-			const size = { width: 1200, height: 800 };
-			currentExisting.push({
-				position: position as unknown as Prisma.JsonObject,
-				size: size as unknown as Prisma.JsonObject,
-			});
-
-			const html = sanitizeGeneratedHtml(design.html);
-
-			const newDesign = await db.design.create({
-				data: {
-					projectId,
-					name,
-					description: design.description,
-					html,
-					history: [html],
-					createdById: userId,
-					position: toJsonInput(position),
-					size: toJsonInput(size),
-				},
-			});
-			created.push(newDesign);
-		}
-
-		return created;
+			namePrefix,
+		});
 	},
 
 	/**
@@ -299,48 +234,13 @@ export const McpService = {
 			ProjectRole.OWNER,
 		]);
 
-		const designs = await db.design.findMany({
-			where: { id: { in: designIds }, projectId },
-			select: { id: true, html: true, history: true },
-		});
-
-		if (!designs.length) {
-			throw new Error("No matching designs were found for this project.");
-		}
-
-		const config = await getUserLlmConfig(userId, AiFeature.MODIFY_DESIGNS);
-
-		const aiResult = await modifyDesigns(
-			designs.map((design) => ({ id: design.id, html: design.html ?? "" })),
+		return modifyDesigns({
+			userId,
+			projectId,
+			designIds,
 			prompt,
-			config,
-			null,
 			selector,
-		);
-
-		const designMap = new Map(designs.map((design) => [design.id, design]));
-		const updated = [];
-
-		for (const modified of aiResult) {
-			const current = designMap.get(modified.id);
-			if (!current) continue;
-
-			const html = sanitizeGeneratedHtml(modified.html);
-			const nextHistory = normalizeHistory(current.history);
-			nextHistory.push(html);
-
-			const updatedDesign = await db.design.update({
-				where: { id: modified.id },
-				data: {
-					html,
-					history: nextHistory,
-					version: { increment: 1 },
-				},
-			});
-			updated.push(updatedDesign);
-		}
-
-		return updated;
+		});
 	},
 
 	/**
@@ -360,93 +260,87 @@ export const McpService = {
 			ProjectRole.OWNER,
 		]);
 
-		const existingDesigns = await db.design.findMany({
-			where: { projectId },
-			select: { position: true, size: true },
-		});
-
-		const components = await db.component.findMany({
-			where: { projectId },
-			select: { name: true, html: true },
-		});
-
-		let promptWithContext = prompt;
-		if (components.length > 0) {
-			const componentContext = components
-				.map((c) => `Component "${c.name}":\n${c.html}`)
-				.join("\n\n");
-			promptWithContext += `\n\nAvailable Reusable Components (Use these if relevant):\n${componentContext}`;
-		}
-
-		const designSystem = await db.designSystem.findUnique({
-			where: { projectId },
-		});
-
-		const config = await getUserLlmConfig(
+		return generateDesignFlow({
 			userId,
-			AiFeature.GENERATE_DESIGN_FLOW,
-		);
+			projectId,
+			prompt,
+			namePrefix,
+		});
+	},
 
-		const flow = await generateDesignFlow(
-			promptWithContext,
-			config,
-			null,
-			designSystem as unknown as DesignSystemContext,
-		);
+	/**
+	 * MCP analysis tool: run the design critic over an existing design.
+	 * Mirrors `designsRouter.aiCritique`.
+	 */
+	critiqueDesign: async (
+		userId: string,
+		designId: string,
+		viewMode: "DESKTOP" | "TABLET" | "MOBILE" = "DESKTOP",
+		goal?: string,
+	) => {
+		const design = await db.design.findUnique({
+			where: { id: designId },
+			select: { id: true, projectId: true, html: true },
+		});
 
-		const tempToReal = new Map<string, string>();
-		const createdDesigns = [];
-		const currentExisting = [...existingDesigns];
-
-		for (const [index, design] of flow.designs.entries()) {
-			const name = namePrefix?.trim().length
-				? namePrefix.trim()
-				: `Flow Concept ${index + 1}`;
-
-			const position = calculateNextPosition(currentExisting);
-			const size = { width: 1200, height: 800 };
-			currentExisting.push({
-				position: position as unknown as Prisma.JsonObject,
-				size: size as unknown as Prisma.JsonObject,
-			});
-
-			const html = sanitizeGeneratedHtml(design.html);
-
-			const created = await db.design.create({
-				data: {
-					projectId,
-					name,
-					description: design.description,
-					html,
-					history: [html],
-					createdById: userId,
-					position: toJsonInput(position),
-					size: toJsonInput(size),
-				},
-			});
-			tempToReal.set(design.id, created.id);
-			createdDesigns.push(created);
+		if (!design) {
+			throw new Error("Design not found.");
 		}
 
-		const createdConnections = [];
-		for (const connection of flow.connections) {
-			const fromId = tempToReal.get(connection.from);
-			const toId = tempToReal.get(connection.to);
-			if (!fromId || !toId || fromId === toId) continue;
+		await findProjectMembershipOrThrow(design.projectId, userId, [
+			ProjectRole.EDITOR,
+			ProjectRole.OWNER,
+		]);
 
-			const created = await db.designConnection.create({
-				data: {
-					projectId,
-					fromDesignId: fromId,
-					toDesignId: toId,
-					fromPosition: toConnectionPosition(connection.fromPosition),
-					toPosition: toConnectionPosition(connection.toPosition),
-				},
-			});
-			createdConnections.push(created);
-		}
+		const context = await gatherProjectContext(design.projectId);
 
-		return { designs: createdDesigns, connections: createdConnections };
+		return critiqueDesignQuality({
+			userId,
+			html: design.html ?? "",
+			viewMode,
+			goal,
+			projectMemoryContext: context.styleMemory,
+			designSystem: context.designSystem,
+		});
+	},
+
+	/**
+	 * MCP analysis tool: plan a multi-screen product flow before generating
+	 * screens. Mirrors `designsRouter.aiPlanFlow`.
+	 */
+	planFlow: async (
+		userId: string,
+		projectId: string,
+		prompt: string,
+		maxScreens = 8,
+	) => {
+		await findProjectOrThrow(projectId);
+		await findProjectMembershipOrThrow(projectId, userId, [
+			ProjectRole.EDITOR,
+			ProjectRole.OWNER,
+		]);
+
+		const context = await gatherProjectContext(projectId);
+
+		return planProductFlow({
+			userId,
+			prompt,
+			maxScreens,
+			existingScreens: context.existingDesigns.map((design) => ({
+				id: design.id,
+				name: design.name,
+				description: design.description,
+			})),
+			projectMemoryContext: context.styleMemory,
+			designSystem: context.designSystem,
+			components: context.components,
+		});
+	},
+
+	/**
+	 * MCP read tool: return the project's persisted style memory, if any.
+	 */
+	getStyleMemory: async (projectId: string) => {
+		return readProjectStyleMemory(projectId);
 	},
 };
-

@@ -16,6 +16,12 @@ export interface LlmConfig {
     model: string;
 }
 
+/**
+ * Alias kept for compatibility with the Mastra agent pipeline. Neutral home so
+ * `mastra/` modules never need to type-import from `services/ai.service`.
+ */
+export type AiConfig = LlmConfig;
+
 export interface LlmModelInfo {
     id: string;
     name: string;
