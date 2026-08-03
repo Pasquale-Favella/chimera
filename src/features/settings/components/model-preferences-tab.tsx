@@ -40,6 +40,7 @@ const FEATURES = [
     { id: AiFeature.APPLY_DESIGN_TOKENS, name: "Apply Design Tokens" },
     { id: AiFeature.EXTRACT_COMPONENT, name: "Extract Component" },
     { id: AiFeature.FIND_CLICKABLE_SELECTORS, name: "Find Clickable Selectors" },
+    { id: AiFeature.STYLE_MEMORY, name: "Style Memory" },
 ];
 
 const PROVIDERS = [

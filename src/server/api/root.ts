@@ -1,11 +1,12 @@
 import { componentsRouter } from "@/server/api/features/components/component.router";
+import { designSystemRouter } from "@/server/api/features/design-system/design-system.router";
 import { designConnectionsRouter } from "@/server/api/features/designs/connection.router";
-import { designAiRouter } from "@/server/api/features/designs/design-ai.router";
 import { designsRouter } from "@/server/api/features/designs/design.router";
+import { designAiRouter } from "@/server/api/features/designs/design-ai.router";
+import { memoryRouter } from "@/server/api/features/memory/memory.router";
 import { projectMembershipRouter } from "@/server/api/features/projects/membership.router";
 import { projectsRouter } from "@/server/api/features/projects/project.router";
 import { userRouter } from "@/server/api/features/users/user.router";
-import { designSystemRouter } from "@/server/api/features/design-system/design-system.router";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
 	designConnections: designConnectionsRouter,
 	components: componentsRouter,
 	designSystem: designSystemRouter,
+	memory: memoryRouter,
 	user: userRouter,
 });
 
